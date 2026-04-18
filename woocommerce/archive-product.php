@@ -1324,13 +1324,19 @@ $products_query = new WP_Query($query_args);
 	justify-content: center;
 	min-height: 44px;
 	padding: 0 18px;
-	border: 0;
+	border: 1px solid #d3dbd6;
 	border-radius: 999px;
-	background: var(--gl-color-accent);
-	color: #fff;
+	background: #fff;
+	color: #2f3a35;
 	font-size: 14px;
-	font-weight: 600;
+	font-weight: 500;
 	cursor: pointer;
+	transition: background-color .2s ease, border-color .2s ease;
+}
+
+.gl-catalog-mobile-bar__button:hover {
+	border-color: #c4cec8;
+	background: #f8faf9;
 }
 
 /* Overlay */
