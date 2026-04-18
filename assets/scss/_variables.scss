@@ -1,0 +1,47 @@
+// Gelikon design tokens
+$font-base: 'Manrope', sans-serif;
+
+$container: 1320px;
+$radius: 24px;
+$radius-sm: 14px;
+$button-radius: 999px;
+
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-7: 32px;
+$space-8: 40px;
+$space-9: 48px;
+$space-10: 64px;
+
+$color-bg: #f5f6f4;
+$color-surface: #ffffff;
+$color-surface-alt: #eef2ef;
+$color-text: #1d232c;
+$color-muted: #69707d;
+$color-line: #dde4dd;
+$color-accent: #2cbc63;
+$color-accent-2: #1ea751;
+$color-dark: #10161f;
+
+$shadow-card: 0 12px 32px rgba(22, 34, 51, 0.08);
+
+:root {
+  --gl-container: #{$container};
+  --gl-radius: #{$radius};
+  --gl-radius-sm: #{$radius-sm};
+  --gl-btn-radius: #{$button-radius};
+  --gl-color-bg: #{$color-bg};
+  --gl-color-surface: #{$color-surface};
+  --gl-color-surface-alt: #{$color-surface-alt};
+  --gl-color-text: #{$color-text};
+  --gl-color-muted: #{$color-muted};
+  --gl-color-line: #{$color-line};
+  --gl-color-accent: #{$color-accent};
+  --gl-color-accent-2: #{$color-accent-2};
+  --gl-color-dark: #{$color-dark};
+  --gl-shadow: #{$shadow-card};
+}

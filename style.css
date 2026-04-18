@@ -1,0 +1,71 @@
+/*
+Theme Name: Gelikon
+Theme URI: https://example.com/gelikon
+Author: OpenAI
+Author URI: https://openai.com
+Description: Кастомная тема WordPress для бренда Gelikon с подготовкой под интернет-магазин WooCommerce, дизайн-системой на CSS variables и SCSS-токенами.
+Version: 1.0.0
+Requires at least: 6.4
+Tested up to: 6.8
+Requires PHP: 7.4
+Text Domain: gelikon
+*/
+
+
+
+.gl-products-slider {
+    position: relative;
+    overflow: hidden;
+}
+
+.gl-products-slider .swiper-wrapper {
+    align-items: stretch;
+}
+
+.gl-products-slider .swiper-slide {
+    height: auto;
+}
+
+.gl-products-slider .swiper-slide .product {
+    height: 100%;
+    margin: 0;
+    width: 100%;
+    list-style: none;
+}
+
+.gl-products-slider__nav {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.gl-products-slider__prev,
+.gl-products-slider__next {
+    width: 44px;
+    height: 44px;
+    border: 1px solid #d9dde3;
+    border-radius: 999px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 22px;
+    line-height: 1;
+    transition: .25s ease;
+}
+
+.gl-products-slider__prev:hover,
+.gl-products-slider__next:hover {
+    background: #16b36a;
+    color: #fff;
+    border-color: #16b36a;
+}
+
+.gl-products-slider__pagination {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.gl-home-products .product {
+    float: none !important;
+    width: 100% !important;
+}
