@@ -29,8 +29,9 @@ $image_html = $product->get_image('woocommerce_thumbnail', [
 ]);
 
 $add_to_cart_url  = $product->add_to_cart_url();
-$add_to_cart_text = $product->add_to_cart_text();
 $add_to_cart_desc = $product->add_to_cart_description();
+$is_catalog_view  = function_exists('is_shop') && (is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy());
+$primary_cta_text = $is_catalog_view ? __('В корзину', 'gelikon') : __('Купить', 'gelikon');
 ?>
 <li <?php wc_product_class('gl-product-card', $product); ?>>
 	<div class="gl-product-card__inner">
@@ -76,11 +77,11 @@ $add_to_cart_desc = $product->add_to_cart_description();
 						aria-label="<?php echo esc_attr($add_to_cart_desc); ?>"
 						rel="nofollow"
 					>
-						<?php esc_html_e('В корзину', 'gelikon'); ?>
+						<?php echo esc_html($primary_cta_text); ?>
 					</a>
 				<?php else : ?>
 					<a href="<?php echo esc_url($product_url); ?>" class="gl-product-card__button">
-						<?php echo esc_html($add_to_cart_text); ?>
+						<?php echo esc_html($primary_cta_text); ?>
 					</a>
 				<?php endif; ?>
 

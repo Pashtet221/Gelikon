@@ -223,7 +223,7 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 <section class="gl-home-banners" aria-label="<?php esc_attr_e('Направления каталога', 'gelikon'); ?>">
 	<?php foreach ($home_banners as $banner) :
 		$title       = !empty($banner['title']) ? $banner['title'] : '';
-		$text        = !empty($banner['description']) ? $banner['description'] : '';
+		$text        = !empty($banner['description']) ? $banner['description'] : __('Умные устройства для дома и здоровья', 'gelikon');
 		$button_text = !empty($banner['button_text']) ? $banner['button_text'] : '';
 		$link        = !empty($banner['link']['url']) ? $banner['link']['url'] : '#';
 		$link_target = !empty($banner['link']['target']) ? $banner['link']['target'] : '_self';
@@ -266,10 +266,11 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 <?php endif; ?>
 
 <style>
-	.gl-home-banners {
+.gl-home-banners {
 	display: grid;
 	grid-template-columns: repeat(12, minmax(0, 1fr));
 	gap: 24px;
+	margin-bottom: 24px;
 }
 
 .gl-home-banner {
@@ -302,6 +303,9 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 	position: relative;
 	z-index: 2;
 	text-align: left;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
 }
 
 .gl-home-banner__content--large h2 {
@@ -312,12 +316,14 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 	color: #171d2a;
 }
 
-.gl-home-banner__content--small h3 {
+.gl-home-banner__content--small h2 {
 	margin: 0 0 12px;
 	font-size: clamp(24px, 2vw, 36px);
 	line-height: 1.05;
 	letter-spacing: -0.03em;
 	color: #171d2a;
+	font-weight: 700;
+	min-height: calc(1.05em * 2);
 }
 
 .gl-home-banner__content p {
@@ -326,6 +332,7 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 	line-height: 1.45;
 	color: #2e3440;
 	max-width: 360px;
+	min-height: calc(1.45em * 2);
 }
 
 .gl-home-banner--small .gl-home-banner__content p {
@@ -389,7 +396,8 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 @media (max-width: 767px) {
 	.gl-home-banners {
 		grid-template-columns: 1fr;
-		gap: 16px;
+		gap: 20px;
+		margin-bottom: 20px;
 	}
 
 	.gl-home-banner,
@@ -405,7 +413,7 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 		font-size: 34px;
 	}
 
-	.gl-home-banner__content--small h3 {
+	.gl-home-banner__content--small h2 {
 		font-size: 28px;
 	}
 
