@@ -465,6 +465,7 @@ if (function_exists('get_field')) {
 	align-items: flex-start;
 	line-height: 1;
 	min-width: 0;
+	max-width: 220px;
 }
 
 .gl-logo img,
@@ -481,6 +482,11 @@ if (function_exists('get_field')) {
 	line-height: 1.3;
 	font-weight: 600;
 	color: var(--gl-color-subtitle);
+	max-width: 100%;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
 }
 
 .gl-header__catalog {
@@ -1017,6 +1023,10 @@ body.gl-modal-open {
 		max-width: 190px;
 	}
 
+	.gl-logo-block {
+		max-width: 190px;
+	}
+
 	.gl-menu {
 		gap: 18px;
 	}
@@ -1036,6 +1046,10 @@ body.gl-modal-open {
 
 	.gl-logo img,
 	.gl-logo svg {
+		max-width: 170px;
+	}
+
+	.gl-logo-block {
 		max-width: 170px;
 	}
 
