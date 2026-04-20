@@ -308,22 +308,12 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 	flex-direction: column;
 }
 
-.gl-home-banner__content--large h2 {
+.gl-home-banners h2 {
 	margin: 0 0 16px;
 	font-size: clamp(34px, 3.2vw, 64px);
 	line-height: .95;
 	letter-spacing: -0.04em;
 	color: #171d2a;
-}
-
-.gl-home-banner__content--small h2 {
-	margin: 0 0 12px;
-	font-size: clamp(24px, 2vw, 36px);
-	line-height: 1.05;
-	letter-spacing: -0.03em;
-	color: #171d2a;
-	font-weight: 700;
-	min-height: calc(1.05em * 2);
 }
 
 .gl-home-banner__content p {
@@ -411,10 +401,6 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 
 	.gl-home-banner__content--large h2 {
 		font-size: 34px;
-	}
-
-	.gl-home-banner__content--small h2 {
-		font-size: 28px;
 	}
 
 	.gl-home-banner__media {

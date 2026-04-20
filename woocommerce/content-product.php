@@ -284,6 +284,10 @@ a.gl-product-card__button:hover {
 .woocommerce ul.products li.product .button {
 	display: flex;
 }
+	
+.woocommerce ul.products li.product a img{
+	margin: 0;	
+}
 
 @media (max-width: 767px) {
 	.gl-product-card__inner {

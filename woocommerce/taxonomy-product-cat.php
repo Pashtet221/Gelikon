@@ -678,6 +678,7 @@ $products_query = new WP_Query($query_args);
 	
 .gl-price-slider button{
 	min-height: 0;
+	min-width: 16px;
 }
 
 @media (max-width: 1199px) {

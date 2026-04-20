@@ -60,7 +60,7 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
                 </div>
 
                 <div class="gl-footer__phones">
-                    <a class="gl-footer__phone-main" href="tel:8800">8 (800)</a>
+                    <a class="gl-footer__phone-main" href="tel:88004446867">8 (800) 444-68-67</a>
                     <p class="gl-footer__phone-note"><?php esc_html_e('Звонок бесплатный', 'gelikon'); ?></p>
                 </div>
             </div>
@@ -195,7 +195,7 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
 
 .gl-footer__grid {
     display: grid;
-    grid-template-columns: 1.3fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1.3fr 1fr;
     gap: 32px;
     padding-bottom: 28px;
     border-bottom: 1px solid rgba(255,255,255,.08);
@@ -300,7 +300,7 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
 
 @media (max-width: 991px) {
     .gl-footer__grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(1, minmax(0, 1fr));
     }
 
     .gl-footer__bottom {
@@ -328,7 +328,7 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
 	
 .gl-footer__products {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(1, minmax(0, 1fr));
     gap: 12px;
 }
 
@@ -480,6 +480,7 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
     }
 }
 </style>
+
 
 <?php wp_footer(); ?>
 </body>
