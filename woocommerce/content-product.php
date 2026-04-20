@@ -50,12 +50,6 @@ $primary_cta_text = $is_catalog_view ? __('В корзину', 'gelikon') : __('
 			<div class="gl-product-card__content">
 				<h3 class="gl-product-card__title"><?php echo esc_html($product_name); ?></h3>
 
-				<?php if ($price_html) : ?>
-					<div class="gl-product-card__price">
-						<?php echo wp_kses_post($price_html); ?>
-					</div>
-				<?php endif; ?>
-
 				<div class="gl-product-card__meta">
 					<span class="gl-product-card__stock <?php echo $is_in_stock ? 'is-in-stock' : 'is-out-of-stock'; ?>">
 						<?php echo $is_in_stock ? esc_html__('В наличии', 'gelikon') : esc_html__('Нет в наличии', 'gelikon'); ?>
@@ -64,32 +58,40 @@ $primary_cta_text = $is_catalog_view ? __('В корзину', 'gelikon') : __('
 			</div>
 		</a>
 
-		<div class="gl-product-card__actions">
-			<?php if ($is_in_stock) : ?>
+		<div class="gl-product-card__purchase">
+			<?php if ($price_html) : ?>
+				<div class="gl-product-card__price">
+					<?php echo wp_kses_post($price_html); ?>
+				</div>
+			<?php endif; ?>
 
-				<?php if ($product->is_type('simple')) : ?>
-					<a
-						href="<?php echo esc_url($add_to_cart_url); ?>"
-						data-quantity="1"
-						class="button product_type_<?php echo esc_attr($product_type); ?> add_to_cart_button ajax_add_to_cart gl-product-card__button"
-						data-product_id="<?php echo esc_attr($product_id); ?>"
-						data-product_sku="<?php echo esc_attr($product->get_sku()); ?>"
-						aria-label="<?php echo esc_attr($add_to_cart_desc); ?>"
-						rel="nofollow"
-					>
-						<?php echo esc_html($primary_cta_text); ?>
-					</a>
+			<div class="gl-product-card__actions">
+				<?php if ($is_in_stock) : ?>
+
+					<?php if ($product->is_type('simple')) : ?>
+						<a
+							href="<?php echo esc_url($add_to_cart_url); ?>"
+							data-quantity="1"
+							class="button product_type_<?php echo esc_attr($product_type); ?> add_to_cart_button ajax_add_to_cart gl-product-card__button"
+							data-product_id="<?php echo esc_attr($product_id); ?>"
+							data-product_sku="<?php echo esc_attr($product->get_sku()); ?>"
+							aria-label="<?php echo esc_attr($add_to_cart_desc); ?>"
+							rel="nofollow"
+						>
+							<?php echo esc_html($primary_cta_text); ?>
+						</a>
+					<?php else : ?>
+						<a href="<?php echo esc_url($product_url); ?>" class="gl-product-card__button">
+							<?php echo esc_html($primary_cta_text); ?>
+						</a>
+					<?php endif; ?>
+
 				<?php else : ?>
-					<a href="<?php echo esc_url($product_url); ?>" class="gl-product-card__button">
-						<?php echo esc_html($primary_cta_text); ?>
+					<a href="<?php echo esc_url($product_url); ?>" class="gl-product-card__button gl-product-card__button--disabled">
+						<?php esc_html_e('Подробнее', 'gelikon'); ?>
 					</a>
 				<?php endif; ?>
-
-			<?php else : ?>
-				<a href="<?php echo esc_url($product_url); ?>" class="gl-product-card__button gl-product-card__button--disabled">
-					<?php esc_html_e('Подробнее', 'gelikon'); ?>
-				</a>
-			<?php endif; ?>
+			</div>
 		</div>
 
 	</div>
@@ -200,27 +202,35 @@ $primary_cta_text = $is_catalog_view ? __('В корзину', 'gelikon') : __('
 }
 
 .gl-product-card__price {
-	margin-bottom: 6px;
+	margin-bottom: 0;
 	font-size: 18px;
 	line-height: 1.1;
 	font-weight: 700;
 	color: #171d2a;
 	flex-shrink: 0;
+	display: inline-flex;
+	align-items: baseline;
+	gap: 8px;
+	flex: 1 1 auto;
+	min-width: 0;
+	white-space: nowrap;
 }
 
 .gl-product-card__price .amount,
 .gl-product-card__price bdi {
-	font-size: 24px;
+	font-size: 22px;
 	font-weight: 700;
 	letter-spacing: -0.03em;
 	color: #171d2a;
 }
 
 .gl-product-card__price del {
-	margin-right: 8px;
-	font-size: 14px;
+	margin-right: 0;
+	font-size: 12px;
 	font-weight: 400;
 	color: #9aa3ad;
+	opacity: 0.9;
+	flex-shrink: 0;
 }
 
 .gl-product-card__price ins {
@@ -244,8 +254,17 @@ $primary_cta_text = $is_catalog_view ? __('В корзину', 'gelikon') : __('
 }
 
 .gl-product-card__actions {
-	margin-top: 18px;
+	margin-top: 0;
 	flex-shrink: 0;
+}
+
+.gl-product-card__purchase {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 16px;
+	flex-wrap: nowrap;
 }
 
 .gl-product-card__button,
@@ -253,30 +272,35 @@ a.gl-product-card__button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 100%;
-	min-height: 52px;
-	padding: 14px 20px;
-	border: 0;
-	border-radius: 999px;
-	background: var(--gl-color-accent);
-	color: #fff;
+	width: auto;
+	min-height: 38px;
+	padding: 8px 16px;
+	border: 1.5px solid #22C55E;
+	border-radius: 7px;
+	background: transparent;
+	color: #22C55E;
+	color: #22C55E !important;
 	text-decoration: none;
-	font-size: 16px;
+	font-size: 14px;
 	font-weight: 600;
 	line-height: 1;
 	cursor: pointer;
-	transition: transform .2s ease, filter .2s ease, background-color .2s ease;
+	white-space: nowrap;
+	flex: 0 0 auto;
+	transition: transform .2s ease, color .2s ease, background-color .2s ease, border-color .2s ease;
 }
 
 .gl-product-card__button:hover,
 a.gl-product-card__button:hover {
 	color: #fff;
+	background: #16A34A;
+	border-color: #16A34A;
 	transform: translateY(-1px);
-	filter: brightness(.97);
 }
 
 .gl-product-card__button--disabled {
 	background: #cfd6d1;
+	border-color: #cfd6d1;
 	color: #fff;
 	pointer-events: none;
 }
@@ -314,13 +338,17 @@ a.gl-product-card__button:hover {
 
 	.gl-product-card__price .amount,
 	.gl-product-card__price bdi {
-		font-size: 22px;
+		font-size: 20px;
 	}
 
 	.gl-product-card__button,
 	a.gl-product-card__button {
-		min-height: 48px;
-		font-size: 15px;
+		min-height: 36px;
+		font-size: 14px;
+	}
+
+	.gl-product-card__price del {
+		font-size: 11px;
 	}
 }
 </style>
