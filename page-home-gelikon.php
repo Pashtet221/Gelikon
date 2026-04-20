@@ -275,10 +275,10 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 
 .gl-home-banner {
 	display: grid;
-	align-items: center;
-	min-height: 280px;
+	align-items: stretch;
+	min-height: 300px;
 	padding: 34px;
-	border-radius: 28px;
+	border-radius: 24px;
 	background: #f3f5f7;
 	text-decoration: none;
 	color: inherit;
@@ -287,16 +287,16 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 
 .gl-home-banner--large {
 	grid-column: span 8;
-	grid-template-columns: minmax(280px, 1fr) minmax(260px, 420px);
-	min-height: 300px;
+	grid-template-columns: minmax(0, 1fr) minmax(260px, 42%);
+	min-height: 320px;
 }
 
 .gl-home-banner--small {
 	grid-column: span 4;
 	grid-template-columns: 1fr;
-	grid-template-rows: auto 1fr;
+	grid-template-rows: auto minmax(160px, 1fr);
 	text-align: center;
-	min-height: 300px;
+	min-height: 320px;
 }
 
 .gl-home-banner__content {
@@ -306,28 +306,44 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 	height: 100%;
 	display: flex;
 	flex-direction: column;
+	gap: 12px;
 }
 
-.gl-home-banners h2 {
-	margin: 0 0 16px;
-	font-size: clamp(34px, 3.2vw, 64px);
-	line-height: .95;
+.gl-home-banner__content h2 {
+	margin: 0;
+	font-size: 58px;
+	line-height: 0.94;
 	letter-spacing: -0.04em;
 	color: #171d2a;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	min-height: calc(0.94em * 2);
 }
 
 .gl-home-banner__content p {
 	margin: 0;
-	font-size: 16px;
+	font-size: 15px;
 	line-height: 1.45;
 	color: #2e3440;
 	max-width: 360px;
-	min-height: calc(1.45em * 2);
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	min-height: calc(1.45em * 2 + 2px);
+}
+
+.gl-home-banner--small .gl-home-banner__content h2 {
+	font-size: 52px;
+	text-align: center;
 }
 
 .gl-home-banner--small .gl-home-banner__content p {
 	max-width: 100%;
 	margin: 0 auto;
+	text-align: center;
 }
 
 .gl-home-banner__action {
@@ -348,9 +364,10 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 
 .gl-home-banner__media {
 	display: flex;
-	align-items: center;
+	align-items: flex-end;
 	justify-content: center;
 	height: 100%;
+	min-height: 180px;
 }
 
 .gl-home-banner__media img {
@@ -359,11 +376,15 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 	height: 100%;
 	max-height: 360px;
 	object-fit: contain;
-	object-position: center;
+	object-position: center bottom;
 }
 
 .gl-home-banner--small .gl-home-banner__media img {
-	max-height: 200px;
+	max-height: 190px;
+}
+
+.gl-home-banner--small .gl-home-banner__content {
+	align-items: center;
 }
 
 .gl-home-banner__placeholder {
@@ -399,12 +420,19 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 		padding: 24px;
 	}
 
-	.gl-home-banner__content--large h2 {
-		font-size: 34px;
+	.gl-home-banner__content h2 {
+		font-size: 40px;
+		line-height: 0.96;
+		min-height: calc(0.96em * 2);
+	}
+
+	.gl-home-banner--small .gl-home-banner__content h2 {
+		font-size: 38px;
 	}
 
 	.gl-home-banner__media {
 		margin-top: 18px;
+		min-height: 160px;
 	}
 
 	.gl-home-banner__media img {
