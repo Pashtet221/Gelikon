@@ -4408,3 +4408,101 @@ add_action('acf/init', function () {
 		'location' => [[['param' => 'page_template', 'operator' => '==', 'value' => 'page-warranty-returns.php']]],
 	]);
 });
+
+add_action('acf/init', function () {
+	if (!function_exists('acf_add_options_page')) {
+		return;
+	}
+
+	acf_add_options_sub_page([
+		'page_title'  => 'Почему у нас покупают',
+		'menu_title'  => 'Почему у нас покупают',
+		'parent_slug' => 'gelikon-contacts',
+		'menu_slug'   => 'gelikon-why-buy',
+		'capability'  => 'edit_posts',
+	]);
+});
+
+add_action('acf/init', function () {
+	if (!function_exists('acf_add_local_field_group')) {
+		return;
+	}
+
+	acf_add_local_field_group([
+		'key' => 'group_gelikon_global_why_buy',
+		'title' => 'Глобальный блок «Почему у нас покупают»',
+		'fields' => [
+			[
+				'key' => 'field_global_why_buy_items',
+				'label' => 'Пункты преимуществ',
+				'name' => 'global_why_buy_items',
+				'type' => 'repeater',
+				'min' => 0,
+				'max' => 8,
+				'layout' => 'row',
+				'button_label' => 'Добавить пункт',
+				'sub_fields' => [
+					['key' => 'field_global_why_buy_icon', 'label' => 'Иконка', 'name' => 'icon', 'type' => 'image', 'return_format' => 'array'],
+					['key' => 'field_global_why_buy_title', 'label' => 'Текст', 'name' => 'title', 'type' => 'text'],
+				],
+			],
+		],
+		'location' => [[['param' => 'options_page', 'operator' => '==', 'value' => 'gelikon-why-buy']]],
+	]);
+
+	acf_add_local_field_group([
+		'key' => 'group_gelikon_delivery_page',
+		'title' => 'Доставка и оплата — контент страницы',
+		'fields' => [
+			['key' => 'field_delivery_hero_title', 'label' => 'Hero title', 'name' => 'delivery_hero_title', 'type' => 'text', 'default_value' => 'Доставка и оплата'],
+			['key' => 'field_delivery_hero_subtitle', 'label' => 'Hero subtitle', 'name' => 'delivery_hero_subtitle', 'type' => 'text', 'default_value' => 'Получение заказа по всей России'],
+			[
+				'key' => 'field_delivery_pickup_methods',
+				'label' => 'Способы получения',
+				'name' => 'delivery_pickup_methods',
+				'type' => 'repeater',
+				'layout' => 'row',
+				'button_label' => 'Добавить карточку',
+				'sub_fields' => [
+					['key' => 'field_delivery_pickup_title', 'label' => 'Название', 'name' => 'title', 'type' => 'text'],
+				],
+			],
+			[
+				'key' => 'field_delivery_terms_table',
+				'label' => 'Таблица сроков доставки',
+				'name' => 'delivery_terms_table',
+				'type' => 'repeater',
+				'layout' => 'table',
+				'button_label' => 'Добавить строку',
+				'sub_fields' => [
+					['key' => 'field_delivery_terms_method', 'label' => 'Способ', 'name' => 'method', 'type' => 'text'],
+					['key' => 'field_delivery_terms_term', 'label' => 'Срок', 'name' => 'term', 'type' => 'text'],
+				],
+			],
+			[
+				'key' => 'field_delivery_payment_methods',
+				'label' => 'Способы оплаты',
+				'name' => 'delivery_payment_methods',
+				'type' => 'repeater',
+				'layout' => 'row',
+				'button_label' => 'Добавить способ оплаты',
+				'sub_fields' => [
+					['key' => 'field_delivery_payment_icon', 'label' => 'Иконка', 'name' => 'icon', 'type' => 'image', 'return_format' => 'array'],
+					['key' => 'field_delivery_payment_title', 'label' => 'Название', 'name' => 'title', 'type' => 'text'],
+				],
+			],
+			[
+				'key' => 'field_delivery_check_return_items',
+				'label' => 'Проверка и возврат',
+				'name' => 'delivery_check_return_items',
+				'type' => 'repeater',
+				'layout' => 'row',
+				'button_label' => 'Добавить пункт',
+				'sub_fields' => [
+					['key' => 'field_delivery_check_return_text', 'label' => 'Текст', 'name' => 'text', 'type' => 'text'],
+				],
+			],
+		],
+		'location' => [[['param' => 'page_template', 'operator' => '==', 'value' => 'page-delivery-payment.php']]],
+	]);
+});
