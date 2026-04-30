@@ -4370,3 +4370,41 @@ add_action('acf/init', function () {
 		'location' => [[['param' => 'page_template', 'operator' => '==', 'value' => 'page-about-company.php']]],
 	]);
 });
+
+add_action('acf/init', function () {
+	if (!function_exists('acf_add_local_field_group')) {
+		return;
+	}
+
+	acf_add_local_field_group([
+		'key' => 'group_gelikon_warranty_page',
+		'title' => 'Гарантия и возврат — контент страницы',
+		'fields' => [
+			['key' => 'field_warranty_hero_title', 'label' => 'Hero title', 'name' => 'warranty_hero_title', 'type' => 'text', 'default_value' => 'Гарантия и возврат'],
+			['key' => 'field_warranty_hero_subtitle', 'label' => 'Hero subtitle', 'name' => 'warranty_hero_subtitle', 'type' => 'text', 'default_value' => 'Прозрачные условия обслуживания и возврата продукции'],
+			[
+				'key' => 'field_warranty_benefits',
+				'label' => 'Основные преимущества',
+				'name' => 'warranty_benefits',
+				'type' => 'repeater',
+				'layout' => 'row',
+				'button_label' => 'Добавить пункт',
+				'sub_fields' => [
+					['key' => 'field_warranty_benefits_title', 'label' => 'Title', 'name' => 'title', 'type' => 'text'],
+					['key' => 'field_warranty_benefits_text', 'label' => 'Text', 'name' => 'text', 'type' => 'text'],
+				],
+			],
+			['key' => 'field_warranty_main_text', 'label' => 'Текст блока «Гарантия»', 'name' => 'warranty_main_text', 'type' => 'wysiwyg'],
+			['key' => 'field_warranty_return_conditions', 'label' => 'Условия возврата', 'name' => 'warranty_return_conditions', 'type' => 'textarea', 'rows' => 6],
+			['key' => 'field_warranty_exclusions', 'label' => 'Когда гарантия не действует', 'name' => 'warranty_exclusions', 'type' => 'textarea', 'rows' => 6],
+			['key' => 'field_warranty_return_steps', 'label' => 'Как оформить возврат', 'name' => 'warranty_return_steps', 'type' => 'textarea', 'rows' => 6],
+			['key' => 'field_warranty_refund_text', 'label' => 'Возврат денежных средств', 'name' => 'warranty_refund_text', 'type' => 'wysiwyg'],
+			['key' => 'field_warranty_defect_text', 'label' => 'Товары ненадлежащего качества', 'name' => 'warranty_defect_text', 'type' => 'textarea', 'rows' => 6],
+			['key' => 'field_warranty_return_address', 'label' => 'Адрес для возврата', 'name' => 'warranty_return_address', 'type' => 'textarea', 'rows' => 3],
+			['key' => 'field_warranty_return_schedule', 'label' => 'График работы', 'name' => 'warranty_return_schedule', 'type' => 'text'],
+			['key' => 'field_warranty_phones', 'label' => 'Телефоны', 'name' => 'warranty_phones', 'type' => 'textarea', 'rows' => 2],
+			['key' => 'field_warranty_email', 'label' => 'Email', 'name' => 'warranty_email', 'type' => 'email'],
+		],
+		'location' => [[['param' => 'page_template', 'operator' => '==', 'value' => 'page-warranty-returns.php']]],
+	]);
+});
