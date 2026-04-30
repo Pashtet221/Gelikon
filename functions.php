@@ -4328,3 +4328,45 @@ add_action('acf/init', function () {
 		],
 	]);
 });
+
+add_action('acf/init', function () {
+	if (!function_exists('acf_add_local_field_group')) {
+		return;
+	}
+
+	acf_add_local_field_group([
+		'key' => 'group_gelikon_about_page',
+		'title' => 'О компании — контент страницы',
+		'fields' => [
+			['key' => 'field_about_hero_title', 'label' => 'Hero title', 'name' => 'hero_title', 'type' => 'text', 'default_value' => 'Gelikon Line'],
+			['key' => 'field_about_hero_subtitle', 'label' => 'Hero subtitle', 'name' => 'hero_subtitle', 'type' => 'text', 'default_value' => 'Технологии для жизни и здоровья'],
+			['key' => 'field_about_hero_background', 'label' => 'Hero background', 'name' => 'hero_background', 'type' => 'file', 'return_format' => 'array', 'mime_types' => 'jpg,jpeg,png,webp,mp4'],
+			['key' => 'field_about_intro_text', 'label' => 'Вводный текст', 'name' => 'intro_text', 'type' => 'wysiwyg'],
+			['key' => 'field_about_history_title', 'label' => 'History title', 'name' => 'history_title', 'type' => 'text', 'default_value' => 'История и опыт'],
+			['key' => 'field_about_history_text', 'label' => 'History text', 'name' => 'history_text', 'type' => 'wysiwyg'],
+			['key' => 'field_about_history_image', 'label' => 'History image', 'name' => 'history_image', 'type' => 'image', 'return_format' => 'array'],
+			[
+				'key' => 'field_about_approach_items',
+				'label' => 'Подход к продукции',
+				'name' => 'approach_items',
+				'type' => 'repeater',
+				'min' => 0,
+				'max' => 4,
+				'layout' => 'row',
+				'button_label' => 'Добавить пункт',
+				'sub_fields' => [
+					['key' => 'field_about_approach_icon', 'label' => 'Icon', 'name' => 'icon', 'type' => 'image', 'return_format' => 'array'],
+					['key' => 'field_about_approach_title', 'label' => 'Title', 'name' => 'title', 'type' => 'text'],
+					['key' => 'field_about_approach_desc', 'label' => 'Description', 'name' => 'description', 'type' => 'textarea'],
+				],
+			],
+			['key' => 'field_about_production_text', 'label' => 'Production text', 'name' => 'production_text', 'type' => 'wysiwyg'],
+			['key' => 'field_about_production_image', 'label' => 'Production image', 'name' => 'production_image', 'type' => 'image', 'return_format' => 'array'],
+			['key' => 'field_about_clients_text', 'label' => 'Clients text', 'name' => 'clients_text', 'type' => 'wysiwyg'],
+			['key' => 'field_about_clients_logos', 'label' => 'Clients logos', 'name' => 'clients_logos', 'type' => 'gallery', 'return_format' => 'array', 'preview_size' => 'medium'],
+			['key' => 'field_about_warranty_text', 'label' => 'Warranty text', 'name' => 'warranty_text', 'type' => 'wysiwyg'],
+			['key' => 'field_about_brand_text', 'label' => 'Brand text', 'name' => 'brand_text', 'type' => 'wysiwyg'],
+		],
+		'location' => [[['param' => 'page_template', 'operator' => '==', 'value' => 'page-about-company.php']]],
+	]);
+});
