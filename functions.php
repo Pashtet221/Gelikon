@@ -4282,3 +4282,49 @@ add_filter('woocommerce_single_product_zoom_enabled', '__return_false', 999);
 add_filter('woocommerce_product_single_add_to_cart_text', function($text) {
 	return 'Купить';
 });
+add_action('acf/init', function () {
+	if (!function_exists('acf_add_local_field_group')) return;
+
+	acf_add_local_field_group([
+		'key' => 'group_gelikon_contacts_page',
+		'title' => 'Страница Контакты',
+		'fields' => [
+			['key' => 'field_company_address','label' => 'Адрес','name' => 'company_address','type' => 'textarea','rows' => 3],
+			['key' => 'field_company_phones','label' => 'Телефон','name' => 'company_phones','type' => 'textarea','rows' => 2],
+			['key' => 'field_company_email','label' => 'Email','name' => 'company_email','type' => 'email'],
+			['key' => 'field_company_work_hours','label' => 'График работы','name' => 'company_work_hours','type' => 'text'],
+			['key' => 'field_company_parking_note','label' => 'Дополнительно (парковка)','name' => 'company_parking_note','type' => 'text'],
+			[
+				'key' => 'field_company_location_group',
+				'label' => 'Локация компании',
+				'name' => 'company_location',
+				'type' => 'group',
+				'layout' => 'block',
+				'sub_fields' => [
+					['key' => 'field_company_location_latitude','label' => 'Широта','name' => 'latitude','type' => 'text'],
+					['key' => 'field_company_location_longitude','label' => 'Долгота','name' => 'longitude','type' => 'text'],
+					['key' => 'field_company_location_link','label' => 'Ссылка на Яндекс.Карты','name' => 'yandex_maps_link','type' => 'url'],
+					['key' => 'field_company_location_image','label' => 'Изображение схемы проезда','name' => 'location_scheme_image','type' => 'image','return_format' => 'array','preview_size' => 'medium'],
+				],
+			],
+			['key' => 'field_company_name','label' => 'Название компании','name' => 'company_name','type' => 'text'],
+			['key' => 'field_company_inn','label' => 'ИНН','name' => 'company_inn','type' => 'text'],
+			['key' => 'field_company_ogrn','label' => 'ОГРН','name' => 'company_ogrn','type' => 'text'],
+			['key' => 'field_company_kpp','label' => 'КПП','name' => 'company_kpp','type' => 'text'],
+			['key' => 'field_company_legal_address','label' => 'Юридический адрес','name' => 'company_legal_address','type' => 'textarea','rows' => 2],
+			['key' => 'field_company_actual_address','label' => 'Фактический адрес','name' => 'company_actual_address','type' => 'textarea','rows' => 2],
+			['key' => 'field_company_bank_details','label' => 'Банковские реквизиты','name' => 'company_bank_details','type' => 'textarea','rows' => 3],
+			['key' => 'field_company_director','label' => 'Генеральный директор','name' => 'company_director','type' => 'text'],
+			['key' => 'field_company_details_pdf','label' => 'PDF с реквизитами','name' => 'company_details_pdf','type' => 'file','return_format' => 'array','mime_types' => 'pdf'],
+		],
+		'location' => [
+			[
+				[
+					'param' => 'page_template',
+					'operator' => '==',
+					'value' => 'page-contacts.php',
+				],
+			],
+		],
+	]);
+});

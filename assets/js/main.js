@@ -10,3 +10,30 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+  const detailsBlock = document.querySelector('[data-details]');
+
+  if (!detailsBlock) {
+    return;
+  }
+
+  const toggleButton = detailsBlock.querySelector('[data-details-toggle]');
+  const detailsContent = detailsBlock.querySelector('.gl-company-details__more');
+
+  if (!toggleButton || !detailsContent) {
+    return;
+  }
+
+  toggleButton.addEventListener('click', function () {
+    const isHidden = detailsContent.hasAttribute('hidden');
+
+    if (isHidden) {
+      detailsContent.removeAttribute('hidden');
+      toggleButton.textContent = 'Скрыть';
+    } else {
+      detailsContent.setAttribute('hidden', 'hidden');
+      toggleButton.textContent = 'Показать полностью';
+    }
+  });
+});
