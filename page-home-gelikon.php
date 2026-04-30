@@ -238,11 +238,10 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 		?>
 		<a class="gl-card gl-home-banner <?php echo esc_attr($size_class); ?>" href="<?php echo esc_url($link); ?>" target="<?php echo esc_attr($link_target); ?>">
 			<div class="gl-home-banner__content <?php echo $size === 'large' ? 'gl-home-banner__content--large' : 'gl-home-banner__content--small'; ?>">
-				<?php if ($size === 'large') : ?>
-					<h2><?php echo esc_html($title); ?></h2>
-				<?php else : ?>
-					<h2><?php echo esc_html($title); ?></h2>
-				<?php endif; ?>
+				<h2><?php echo wp_kses($title, [
+	'br' => [],
+	'span' => ['class' => []],
+]); ?></h2>
 
 				<?php if (!empty($text)) : ?>
 					<p><?php echo esc_html($text); ?></p>
@@ -255,7 +254,7 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 
 			<div class="gl-home-banner__media">
 				<?php if ($image_url) : ?>
-					<img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>">
+					<img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr(wp_strip_all_tags($title)); ?>">
 				<?php else : ?>
 					<div class="gl-home-banner__placeholder"></div>
 				<?php endif; ?>
@@ -264,7 +263,8 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 	<?php endforeach; ?>
 </section>
 <?php endif; ?>
-
+		
+		
 <style>
 .gl-home-banners {
 	display: grid;
@@ -284,7 +284,7 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 	color: inherit;
 	overflow: hidden;
 }
-
+	
 .gl-home-banner--large {
 	grid-column: span 8;
 	grid-template-columns: minmax(0, 1fr) minmax(260px, 42%);
@@ -311,22 +311,23 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 
 .gl-home-banner__content h2 {
 	margin: 0;
-	font-size: 58px;
+	font-size: 46px;
 	line-height: 0.94;
-	letter-spacing: -0.04em;
+	letter-spacing: -2px;
 	color: #171d2a;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
-	overflow: hidden;
-	min-height: calc(0.94em * 2);
+
+	min-height: 66px;
+}
+
+.gl-home-banner__content h2 .gl-home-banner__sub {
+	font-size: 28px; 
 }
 
 .gl-home-banner__content p {
 	margin: 0;
-	font-size: 15px;
+	font-size: 17px;
 	line-height: 1.45;
-	color: #2e3440;
+	color: var(--gl-color-helper);
 	max-width: 360px;
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
@@ -335,15 +336,9 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 	min-height: calc(1.45em * 2 + 2px);
 }
 
-.gl-home-banner--small .gl-home-banner__content h2 {
-	font-size: 52px;
-	text-align: center;
-}
-
 .gl-home-banner--small .gl-home-banner__content p {
 	max-width: 100%;
-	margin: 0 auto;
-	text-align: center;
+	text-align: left;
 }
 
 .gl-home-banner__action {
@@ -352,14 +347,20 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 	justify-content: center;
 	min-height: 48px;
 	padding: 0 22px;
-	margin-top: 24px;
+	margin-top: auto;
 	border-radius: 999px;
-	background: #fff;
-	color: #171d2a;
+	background: transparent;
+	color: var(--gl-color-accent);
+  border: 2px solid var(--gl-color-accent);
 	font-size: 15px;
 	font-weight: 600;
 	line-height: 1;
-	box-shadow: 0 4px 14px rgba(0,0,0,.05);
+}
+
+a.gl-card:hover .gl-home-banner__action{
+  transition: .3s;
+  background: var(--gl-color-accent);
+  color: #ffff;
 }
 
 .gl-home-banner__media {
@@ -373,8 +374,7 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 .gl-home-banner__media img {
 	display: block;
 	width: 100%;
-	height: 100%;
-	max-height: 360px;
+	height: 360px;
 	object-fit: contain;
 	object-position: center bottom;
 }
@@ -384,7 +384,7 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 }
 
 .gl-home-banner--small .gl-home-banner__content {
-	align-items: center;
+	text-align: left;
 }
 
 .gl-home-banner__placeholder {
@@ -411,6 +411,14 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 		margin-bottom: 20px;
 	}
 
+	.gl-home-banner__action{
+		display: none;
+	}
+
+	.gl-card.gl-home-banner{
+		box-shadow: rgba(16, 24, 40, 0.18) 0px -2px 6px, rgba(16, 24, 40, 0.1) 0px -1px 0px;
+	}
+
 	.gl-home-banner,
 	.gl-home-banner--large,
 	.gl-home-banner--small {
@@ -424,10 +432,6 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 		font-size: 40px;
 		line-height: 0.96;
 		min-height: calc(0.96em * 2);
-	}
-
-	.gl-home-banner--small .gl-home-banner__content h2 {
-		font-size: 38px;
 	}
 
 	.gl-home-banner__media {

@@ -227,7 +227,7 @@ img { max-width: 100%; height: auto; display: block; }
   overflow: hidden;
   background: #edf0f0;
 }
-.gl-home-banner:hover { transform: translateY(-2px); }
+
 .gl-home-banner--primary { grid-area: primary; align-items: center; min-height: 450px; }
 .gl-home-banner--side { grid-area: side; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; }
 .gl-home-banner--bottom-left { grid-area: left; flex-direction: column; justify-content: space-between; }

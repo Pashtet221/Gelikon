@@ -23,7 +23,7 @@ if (function_exists('get_field')) {
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<?php wp_head(); ?>
 </head>
-<body <?php body_class(); ?>>
+<body>
 <?php wp_body_open(); ?>
 
 <header class="gl-header" id="site-header">
@@ -128,36 +128,25 @@ if (function_exists('get_field')) {
 			</div>
 
 			<div class="gl-header__bottom" id="primary-menu-mobile">
-				<div class="gl-header__search-mobile">
-					<?php echo do_shortcode('[gelikon_product_search]'); ?>
-				</div>
+	<div class="gl-header__search-mobile">
+		<?php echo do_shortcode('[gelikon_product_search]'); ?>
+	</div>
 
-				<div class="gl-header__catalog gl-header__catalog--mobile">
-					<?php echo do_shortcode('[gelikon_catalog_dropdown title="Каталог"]'); ?>
-				</div>
+	<div class="gl-header__catalog gl-header__catalog--mobile">
+		<?php echo do_shortcode('[gelikon_catalog_dropdown title="Каталог"]'); ?>
+	</div>
 
-				<nav class="gl-nav gl-nav--mobile" aria-label="<?php esc_attr_e('Мобильная навигация', 'gelikon'); ?>">
-					<?php
-					wp_nav_menu([
-						'theme_location' => 'primary',
-						'container'      => false,
-						'menu_class'     => 'gl-menu',
-						'fallback_cb'    => false,
-					]);
-					?>
-				</nav>
-
-				<div class="gl-header__phones-mobile">
-					<?php gelikon_header_phones(); ?>
-
-					<?php if ($gl_address) : ?>
-						<div class="gl-header__address-mobile">
-							<strong>Адрес</strong>
-							<div class="gl-header__address-mobile-value"><?php echo wp_kses_post($gl_address); ?></div>
-						</div>
-					<?php endif; ?>
-				</div>
-			</div>
+	<nav class="gl-nav gl-nav--mobile" aria-label="<?php esc_attr_e('Мобильная навигация', 'gelikon'); ?>">
+		<?php
+		wp_nav_menu([
+			'theme_location' => 'primary',
+			'container'      => false,
+			'menu_class'     => 'gl-menu',
+			'fallback_cb'    => false,
+		]);
+		?>
+	</nav>
+</div>
 
 		</div>
 	</div>
@@ -357,6 +346,11 @@ if (function_exists('get_field')) {
 <style>	
 /* ===== MOBILE ===== */
 .mobile {
+	display: none !important;
+}
+	
+.gl-header__phones-mobile,
+.gl-header__address-mobile {
 	display: none !important;
 }
 
@@ -1153,8 +1147,12 @@ body.gl-modal-open {
 	}
 
 	.gl-header__bottom .gl-header__search-mobile {
-		display: block;
+		display: none;
 		order: 1;
+	}
+
+	.gl-catalog-dropdown__toggle{
+		margin-left: 4px;
 	}
 
 	.gl-header__bottom .gl-header__search-mobile .gl-product-search,
@@ -1200,6 +1198,7 @@ body.gl-modal-open {
 	.gl-header__bottom .gl-nav--mobile {
 		display: block;
 		order: 3;
+		padding: 0 16px 16px;
 	}
 
 	.gl-header__bottom .gl-menu {

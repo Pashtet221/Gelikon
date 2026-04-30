@@ -469,6 +469,7 @@ add_action('wp_head', function () {
 			flex: 0 0 auto;
 			text-align: left;
 			white-space: nowrap;
+			font-weight: 700;
 		}
 
 		.gl-catalog-dropdown__toggle-arrow {

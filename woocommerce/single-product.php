@@ -259,7 +259,7 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	.product-title {
        font-size: 24px;
 	   line-height: 1.25;
-       font-weight: 700;
+       font-weight: 600;
 	   margin: 0;
     }
 	
@@ -371,7 +371,7 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	position: relative;
 	max-height: 130px;
 	overflow: hidden;
-	color: var(--gl-color-text);
+	color: #3A3A3A;
 	font-size: 16px;
 	line-height: 1.7;
 }
@@ -1089,8 +1089,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	margin: 16px 0 16px;
 	font-size: 17px;
 	line-height: 1.5;
-	font-weight: 500;
-	color: var(--gl-color-subtitle);
+	font-weight: 400;
+	color: #5A5A5A;
 }
 
 .gl-product-summary__description {
@@ -1220,6 +1220,7 @@ transition: transform .2s ease, filter .2s ease;
 	font-size: 15px;
 	line-height: 1.35;
 	color: var(--gl-color-text);
+	font-weight: 600;
 }
 
 .gl-product-info-block,

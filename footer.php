@@ -49,19 +49,20 @@ $terms_url   = gelikon_get_page_url_by_path('user-agreement');
 $cookies_url = gelikon_get_page_url_by_path('cookies');
 ?>
 
-
 <footer class="gl-footer">
     <div class="gl-container">
         <div class="gl-footer__grid">
 
             <div class="gl-footer__col gl-footer__col--brand">
-                <div class="gl-footer__brand">
-                    <?php gelikon_site_logo(); ?>
-                </div>
+                <div class="gl-footer__brand-box">
+                    <div class="gl-footer__brand">
+                        <?php gelikon_site_logo(); ?>
+                    </div>
 
-                <div class="gl-footer__phones">
-                    <a class="gl-footer__phone-main" href="tel:88004446867">8 (800) 444-68-67</a>
-                    <p class="gl-footer__phone-note"><?php esc_html_e('Звонок бесплатный', 'gelikon'); ?></p>
+                    <div class="gl-footer__phones">
+                        <a class="gl-footer__phone-main" href="tel:88004446867">8 (800) 444-68-67</a>
+                        <p class="gl-footer__phone-note"><?php esc_html_e('Звонок бесплатный', 'gelikon'); ?></p>
+                    </div>
                 </div>
             </div>
 
@@ -79,60 +80,79 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
             </div>
 
             <div class="gl-footer__col gl-footer__col--products">
-                <h3><?php esc_html_e('Популярные модели', 'gelikon'); ?></h3>
+                <h3>
+    <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>">
+        <?php esc_html_e('Популярные модели', 'gelikon'); ?>
+    </a>
+</h3>
 
-               <?php if (!empty($footer_products)) : ?>
-    <ul class="gl-footer__menu gl-footer__products">
-        <?php foreach ($footer_products as $footer_product) : ?>
-            <?php
-            $product_id = $footer_product->get_id();
-            $thumb_html = $footer_product->get_image('thumbnail', [
-                'class'   => 'gl-footer__product-thumb-img',
-                'loading' => 'lazy',
-            ]);
-            ?>
-            <li class="gl-footer__product-item">
-                <article class="gl-footer__product-card">
-                    <a class="gl-footer__product-link" href="<?php echo esc_url(get_permalink($product_id)); ?>">
-                        <span class="gl-footer__product-thumb">
+                <?php if (!empty($footer_products)) : ?>
+                    <ul class="gl-footer__menu gl-footer__products">
+                        <?php foreach ($footer_products as $footer_product) : ?>
                             <?php
+                            $product_id  = $footer_product->get_id();
+                            $product_url = get_permalink($product_id);
+
+                            $thumb_html = $footer_product->get_image('thumbnail', [
+                                'class'   => 'gl-footer__product-thumb-img',
+                                'loading' => 'lazy',
+                            ]);
+
                             $product_badge = '';
+
                             if ($footer_product->is_on_sale()) {
                                 $product_badge = esc_html__('Хит', 'gelikon');
                             } elseif ($footer_product->is_featured()) {
                                 $product_badge = esc_html__('Новинка', 'gelikon');
                             }
                             ?>
-                            <?php if ($product_badge) : ?>
-                                <span class="gl-footer__product-badge"><?php echo esc_html($product_badge); ?></span>
-                            <?php endif; ?>
-                        <?php
-                        if ($thumb_html) {
-                            echo $thumb_html;
-                        } else {
-                            echo wc_placeholder_img('thumbnail', ['class' => 'gl-footer__product-thumb-img']);
-                        }
-                        ?>
-                        </span>
 
-                        <span class="gl-footer__product-content">
-                            <span class="gl-footer__product-name">
-                                <?php echo esc_html($footer_product->get_name()); ?>
-                            </span>
-                            <?php if ($footer_product->get_price_html()) : ?>
-                                <span class="gl-footer__product-price"><?php echo wp_kses_post($footer_product->get_price_html()); ?></span>
-                            <?php endif; ?>
-                        </span>
-                    </a>
+                            <li class="gl-footer__product-item">
+                                <article class="gl-footer__product-card">
+                                    <a class="gl-footer__product-link" href="<?php echo esc_url($product_url); ?>">
+                                        <span class="gl-footer__product-thumb">
+                                            <?php if ($product_badge) : ?>
+                                                <span class="gl-footer__product-badge">
+                                                    <?php echo esc_html($product_badge); ?>
+                                                </span>
+                                            <?php endif; ?>
 
-                    <a class="gl-footer__product-button" href="<?php echo esc_url(get_permalink($product_id)); ?>">
-                        <?php esc_html_e('Купить', 'gelikon'); ?>
-                    </a>
-                </article>
-            </li>
-        <?php endforeach; ?>
-    </ul>
-<?php else : ?>
+                                            <?php
+                                            if ($thumb_html) {
+                                                echo $thumb_html;
+                                            } else {
+                                                echo wc_placeholder_img('thumbnail', [
+                                                    'class' => 'gl-footer__product-thumb-img'
+                                                ]);
+                                            }
+                                            ?>
+                                        </span>
+
+                                        <span class="gl-footer__product-content">
+                                            <span class="gl-footer__product-name">
+                                                <?php echo esc_html($footer_product->get_name()); ?>
+                                            </span>
+
+                                            <span class="gl-footer__product-footerline">
+                                                <?php if ($footer_product->get_price_html()) : ?>
+                                                    <span class="gl-footer__product-price">
+                                                        <?php echo wp_kses_post($footer_product->get_price_html()); ?>
+                                                    </span>
+                                                <?php endif; ?>
+
+                                                <span class="gl-footer__product-button-wrap">
+                                                    <span class="gl-footer__product-button">
+                                                        <?php esc_html_e('Купить', 'gelikon'); ?>
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </span>
+                                    </a>
+                                </article>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else : ?>
                     <div class="gl-footer__empty">
                         <?php esc_html_e('Пока нет выбранных моделей.', 'gelikon'); ?>
                     </div>
@@ -156,18 +176,20 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
 
         <div class="gl-footer__bottom">
             <div class="gl-footer__copyright">
-                © <?php echo esc_html(date('Y')); ?> <?php bloginfo('name'); ?>
-                <span class="gl-footer__slogan"><?php echo esc_html(get_bloginfo('description')); ?></span>
+                <span class="gl-footer__slogan">
+					© <?php echo esc_html(date('Y')); ?> 
+                    <?php echo esc_html(get_bloginfo('description')); ?>
+                </span>
             </div>
 
             <div class="gl-footer__legal">
-                <a href="<?php echo esc_url(home_url('/privacy-policy/')); ?>">
-	                 Политика конфиденциальности
+                <a href="<?php echo esc_url($privacy_url); ?>">
+                    Политика конфиденциальности
                 </a>
-                <a href="<?php echo esc_url(home_url('/user-agreement/')); ?>">
+                <a href="<?php echo esc_url($terms_url); ?>">
                     Пользовательское соглашение
                 </a>
-                <a href="<?php echo esc_url(home_url('/cookies/')); ?>">
+                <a href="<?php echo esc_url($cookies_url); ?>">
                     Cookies
                 </a>
             </div>
@@ -176,7 +198,7 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
 </footer>
 
 <style>
-	.gl-footer {
+.gl-footer {
     margin-top: 56px;
     padding: 48px 0 24px;
     background: #171d2a;
@@ -201,36 +223,58 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
     border-bottom: 1px solid rgba(255,255,255,.08);
 }
 
+/* Brand */
+.gl-footer__col--brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.gl-footer__brand-box {
+    width: 180px;
+}
+
+.gl-footer__brand {
+    width: 180px;
+}
+
 .gl-footer__brand img,
 .gl-footer__brand svg {
+    display: block;
+    width: 180px;
     max-width: 180px;
     height: auto;
+}
+
+.gl-footer__phones {
+    width: 180px;
+    margin-top: 16px;
+}
+
+.gl-footer__phone-main {
+    display: block;
+    width: 180px;
+    margin-bottom: 4px;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #fff;
+    white-space: nowrap;
+    letter-spacing: -0.02em;
+}
+
+.gl-footer__phone-note {
+    width: 180px;
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #aeb6c2;
 }
 
 .gl-footer__text {
     margin-top: 16px;
     font-size: 15px;
     line-height: 1.7;
-    color: #aeb6c2;
-}
-
-.gl-footer__phones {
-    margin-top: 16px;
-}
-
-.gl-footer__phone-main {
-    display: inline-block;
-    margin-bottom: 4px;
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1.2;
-    color: #fff;
-}
-
-.gl-footer__phone-note {
-    margin: 0;
-    font-size: 12px;
-    line-height: 1.4;
     color: #aeb6c2;
 }
 
@@ -265,6 +309,7 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
     color: #97a1ae;
 }
 
+/* Bottom */
 .gl-footer__bottom {
     display: flex;
     align-items: center;
@@ -298,34 +343,7 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
     color: #b8c0ca;
 }
 
-@media (max-width: 991px) {
-    .gl-footer__grid {
-        grid-template-columns: repeat(1, minmax(0, 1fr));
-    }
-
-    .gl-footer__bottom {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-}
-
-@media (max-width: 767px) {
-    .gl-footer {
-        padding: 36px 0 20px;
-    }
-
-    .gl-footer__grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-
-    .gl-footer__legal {
-        gap: 12px;
-        flex-direction: column;
-    }
-}
-	
-	
+/* Products */
 .gl-footer__products {
     display: grid;
     grid-template-columns: repeat(1, minmax(0, 1fr));
@@ -337,9 +355,6 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
 }
 
 .gl-footer__product-card {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
     padding: 10px;
     border-radius: 14px;
     background: rgba(255,255,255,.02);
@@ -348,11 +363,12 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
 
 .gl-footer__product-link {
     display: grid;
-    grid-template-columns: 72px 1fr;
+    grid-template-columns: 72px minmax(0, 1fr);
     gap: 10px;
+    align-items: start;
+    min-width: 0;
     text-decoration: none;
     color: inherit;
-    min-width: 0;
 }
 
 .gl-footer__product-thumb {
@@ -384,7 +400,7 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
     z-index: 2;
     padding: 4px 8px;
     border-radius: 999px;
-    background: var(--gl-color-accent);
+    background: var(--gl-color-accent, #22C55E);
     color: #fff;
     font-size: 10px;
     font-weight: 700;
@@ -394,63 +410,131 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
 .gl-footer__product-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
     min-width: 0;
+    min-height: 72px;
 }
 
 .gl-footer__product-name {
-    display: block;
-    margin-bottom: 6px;
+    display: -webkit-box;
+    margin-bottom: 8px;
+    overflow: hidden;
+    color: #c7ced8;
     font-size: 14px;
     line-height: 1.35;
-    color: #c7ced8;
-    display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    overflow: hidden;
+}
+
+.gl-footer__product-footerline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-width: 0;
 }
 
 .gl-footer__product-price {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    flex: 0 1 auto;
+    min-width: 0;
+    color: #fff;
     font-size: 15px;
     font-weight: 700;
-    color: #fff;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .gl-footer__product-price del {
-    margin-right: 6px;
-    font-size: 12px;
+    margin-right: 0;
     color: #97a1ae;
+    font-size: 12px;
 }
 
 .gl-footer__product-price ins {
     text-decoration: none;
 }
 
+.gl-footer__product-button-wrap {
+    flex: 0 0 auto;
+}
+
 .gl-footer__product-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 34px;
-    padding: 8px 12px;
+    min-height: 38px;
+    padding: 8px 16px;
+    border: 1.5px solid #22C55E;
     border-radius: 999px;
-    background: var(--gl-color-accent);
-    color: #fff;
-    font-size: 12px;
+    background: transparent;
+    color: #22C55E;
+    font-size: 14px;
     font-weight: 600;
-    text-decoration: none;
-    transition: filter .2s ease;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
 }
 
-.gl-footer__product-button:hover {
-    color: #fff;
-    filter: brightness(.95);
+.gl-footer__product-link:hover {
+    opacity: 1;
 }
 
 .gl-footer__product-link:hover .gl-footer__product-name {
-    color: #ffffff;
+    color: #fff;
+}
+
+.gl-footer__product-link:hover .gl-footer__product-button {
+    background: #16A34A;
+    border-color: #16A34A;
+    color: #fff;
+    transform: translateY(-1px);
+}
+	
+.gl-footer .woocommerce-Price-currencySymbol {
+    font-size: 10px;
+}
+
+@media (max-width: 991px) {
+    .gl-footer__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gl-footer__bottom {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
 @media (max-width: 767px) {
+    .gl-footer {
+        padding: 36px 0 20px;
+    }
+
+    .gl-footer__grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .gl-footer__brand-box,
+    .gl-footer__brand,
+    .gl-footer__phones,
+    .gl-footer__brand img,
+    .gl-footer__brand svg,
+    .gl-footer__phone-main,
+    .gl-footer__phone-note {
+        width: 180px;
+        max-width: 180px;
+    }
+
+    .gl-footer__legal {
+        gap: 12px;
+        flex-direction: column;
+    }
+
     .gl-footer__col--products {
         order: 4;
     }
@@ -471,7 +555,20 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
         border-radius: 12px;
     }
 
+    .gl-footer__product-content {
+        min-height: 64px;
+    }
+
     .gl-footer__product-name {
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .gl-footer__product-footerline {
+        gap: 8px;
+    }
+
+    .gl-footer__product-price {
         font-size: 14px;
     }
 
@@ -480,7 +577,6 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
     }
 }
 </style>
-
 
 <?php wp_footer(); ?>
 </body>
