@@ -85,29 +85,64 @@ if (empty($check_return_items) || !is_array($check_return_items)) {
 
 	<div class="gl-container gl-page-single gl-about-sections">
 		<section class="gl-home-trust gl-card gl-delivery-benefits">
-			<h2>Почему у нас покупают</h2>
-			<div class="gl-trust-grid">
-				<?php foreach ($global_benefits as $item) : ?>
-					<article class="gl-trust-item">
-						<?php if (!empty($item['icon']['url'])) : ?>
-							<img class="gl-trust-item__icon-image" src="<?php echo esc_url($item['icon']['url']); ?>" alt="" loading="lazy">
-						<?php else : ?>
-							<div class="gl-trust-item__icon" aria-hidden="true"></div>
-						<?php endif; ?>
-						<h3><?php echo esc_html($item['title'] ?? ''); ?></h3>
-					</article>
-				<?php endforeach; ?>
-			</div>
-		</section>
+	<h2>Почему у нас покупают</h2>
 
-		<section class="gl-card">
-			<h2>Способы получения</h2>
-			<div class="gl-delivery-cards">
-				<?php foreach ($pickup_methods as $method) : ?>
-					<article class="gl-delivery-card"><?php echo esc_html($method['title'] ?? ''); ?></article>
-				<?php endforeach; ?>
-			</div>
-		</section>
+	<div class="gl-trust-grid">
+		<?php foreach ($global_benefits as $item) : ?>
+			<article class="gl-trust-item">
+
+				<?php if (!empty($item['icon']['url'])) : ?>
+					<img
+						class="gl-trust-item__icon-image"
+						src="<?php echo esc_url($item['icon']['url']); ?>"
+						alt="<?php echo esc_attr($item['title'] ?? ''); ?>"
+						loading="lazy"
+					>
+				<?php else : ?>
+					<div class="gl-trust-item__icon" aria-hidden="true"></div>
+				<?php endif; ?>
+
+				<?php if (!empty($item['title'])) : ?>
+					<h3><?php echo esc_html($item['title']); ?></h3>
+				<?php endif; ?>
+
+				<?php if (!empty($item['description'])) : ?>
+					<p><?php echo wp_kses_post($item['description']); ?></p>
+				<?php endif; ?>
+
+			</article>
+		<?php endforeach; ?>
+	</div>
+</section>
+
+<section class="gl-card">
+	<h2>Способы получения</h2>
+
+	<div class="gl-delivery-cards">
+		<?php foreach ($pickup_methods as $method) : ?>
+			<article class="gl-delivery-card">
+
+				<?php if (!empty($method['icon']['url'])) : ?>
+					<img
+						class="gl-delivery-card__icon-image"
+						src="<?php echo esc_url($method['icon']['url']); ?>"
+						alt="<?php echo esc_attr($method['title'] ?? ''); ?>"
+						loading="lazy"
+					>
+				<?php endif; ?>
+
+				<?php if (!empty($method['title'])) : ?>
+					<h3><?php echo esc_html($method['title']); ?></h3>
+				<?php endif; ?>
+
+				<?php if (!empty($method['description'])) : ?>
+					<p><?php echo wp_kses_post($method['description']); ?></p>
+				<?php endif; ?>
+
+			</article>
+		<?php endforeach; ?>
+	</div>
+</section>
 
 		<section class="gl-card">
 			<h2>Сроки доставки</h2>
@@ -144,5 +179,69 @@ if (empty($check_return_items) || !is_array($check_return_items)) {
 		</section>
 	</div>
 </main>
+
+<style>
+	.gl-card{
+		padding: 28px;
+	}
+	.gl-delivery-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 16px;
+}
+
+.gl-delivery-card {
+	padding: 18px 20px;
+	background: var(--gl-color-surface-alt);
+	border: 1px solid var(--gl-color-line);
+	border-radius: var(--gl-radius-sm);
+	font-weight: 600;
+}
+
+.gl-delivery-card--iconed {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.gl-delivery-card__icon {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: var(--gl-color-accent);
+	box-shadow: 0 0 0 4px color-mix(in srgb, var(--gl-color-accent) 20%, transparent);
+}
+
+.gl-delivery-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.gl-delivery-table td {
+	padding: 14px;
+	border-bottom: 1px solid var(--gl-color-line);
+}
+
+.gl-delivery-table td:last-child {
+	text-align: right;
+	font-weight: 700;
+}
+
+.gl-delivery-list {
+	margin: 0;
+	padding-left: 22px;
+	display: grid;
+	gap: 10px;
+}
+
+.gl-delivery-benefits .gl-trust-item h3 {
+	font-size: 17px;
+}
+.gl-delivery-card__icon-image,
+.gl-trust-item__icon-image {
+	height: 28px;
+	object-fit: contain;
+}
+</style>
 
 <?php get_footer(); ?>

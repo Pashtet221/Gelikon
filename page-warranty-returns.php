@@ -88,4 +88,12 @@ $return_email = gelikon_warranty_get_field('warranty_email', 'info@gelikon-line.
 	</div>
 </main>
 
+<style>
+	.gl-card{
+		padding: 28px;
+	}
+	.gl-warranty-list p { margin: 0 0 10px; }
+.gl-warranty-list p:last-child { margin-bottom: 0; }
+</style>
+
 <?php get_footer(); ?>

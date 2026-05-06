@@ -668,36 +668,58 @@ document.addEventListener('DOMContentLoaded', function () {
 			<?php endif; ?>
 
 			<?php
-			$related_products = wc_get_related_products($product_id, 4);
-			if (!empty($related_products)) :
-				?>
-				<section class="gl-home-section">
-					<div class="gl-section-head gl-section-head--between">
-						<h2><?php esc_html_e('Похожие товары', 'gelikon'); ?></h2>
-						<a class="gl-section-link" href="<?php echo esc_url(wc_get_page_permalink('shop')); ?>">
-							<?php esc_html_e('В каталог', 'gelikon'); ?>
-						</a>
-					</div>
+global $product;
 
-					<ul class="products columns-4">
-						<?php
-						foreach ($related_products as $related_product_id) {
-							$post_object = get_post($related_product_id);
+$product_id = $product ? $product->get_id() : get_the_ID();
 
-							if (!$post_object) {
-								continue;
-							}
+$products_to_show = [];
+$section_title = __('Похожие товары', 'gelikon');
 
-							$GLOBALS['post'] = $post_object;
-							setup_postdata($post_object);
+if ($product instanceof WC_Product) {
+	$upsell_ids = $product->get_upsell_ids();
 
-							wc_get_template_part('content', 'product');
-						}
-						wp_reset_postdata();
-						?>
-					</ul>
-				</section>
-			<?php endif; ?>
+	if (!empty($upsell_ids)) {
+		$products_to_show = array_slice(array_filter(array_map('absint', $upsell_ids)), 0, 4);
+		$section_title = __('Рекомендуемые товары', 'gelikon');
+	}
+}
+
+if (empty($products_to_show)) {
+	$products_to_show = wc_get_related_products($product_id, 4);
+	$section_title = __('Похожие товары', 'gelikon');
+}
+
+if (!empty($products_to_show)) :
+	?>
+	<section class="gl-home-section">
+		<div class="gl-section-head gl-section-head--between">
+			<h2><?php echo esc_html($section_title); ?></h2>
+
+			<a class="gl-section-link" href="<?php echo esc_url(wc_get_page_permalink('shop')); ?>">
+				<?php esc_html_e('В каталог', 'gelikon'); ?>
+			</a>
+		</div>
+
+		<ul class="products columns-4">
+			<?php
+			foreach ($products_to_show as $product_to_show_id) {
+				$post_object = get_post($product_to_show_id);
+
+				if (!$post_object || 'product' !== $post_object->post_type) {
+					continue;
+				}
+
+				$GLOBALS['post'] = $post_object;
+				setup_postdata($post_object);
+
+				wc_get_template_part('content', 'product');
+			}
+
+			wp_reset_postdata();
+			?>
+		</ul>
+	</section>
+<?php endif; ?>
 
 		</div>
 

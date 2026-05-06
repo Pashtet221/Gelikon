@@ -117,7 +117,7 @@ $details_pdf = gelikon_contacts_file_url(gelikon_contacts_get_field('company_det
 					<?php if (!empty($location_image_url)) : ?>
 						<img src="<?php echo esc_url($location_image_url); ?>" alt="Схема проезда">
 					<?php else : ?>
-						<div class="gl-contacts-map-placeholder">[картинка карты]</div>
+						<iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A3b927b54a49f02ef6c60565720048d4ad22b8b47d1ca0323e832e66478a5300f&amp;source=constructor" width="100%" height="400" frameborder="0"></iframe>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -146,5 +146,109 @@ $details_pdf = gelikon_contacts_file_url(gelikon_contacts_get_field('company_det
 		</section>
 	</div>
 </main>
+
+<style>
+	.gl-contacts-page .gl-page-single {
+  display: grid;
+  gap: 24px;
+}
+.gl-contacts-hero,
+.gl-contacts-block {
+  padding: 28px;
+}
+.gl-contacts-hero h1,
+.gl-contacts-block h2 {
+  margin: 0 0 12px;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.06;
+  letter-spacing: -.03em;
+}
+.gl-contacts-hero p {
+  margin: 0;
+  color: var(--gl-color-muted);
+  font-size: 18px;
+}
+.gl-contacts-grid,
+.gl-contacts-map-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.gl-contacts-label {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.gl-contacts-value,
+.gl-contacts-note {
+  color: var(--gl-color-muted);
+}
+.gl-contacts-note {
+  margin: 16px 0;
+}
+.gl-contacts-map-card {
+  min-height: 260px;
+  border: 1px solid var(--gl-color-line);
+  border-radius: calc(var(--gl-radius) - 8px);
+  overflow: hidden;
+  background: linear-gradient(180deg, #f8faf8 0%, #eef3ef 100%);
+}
+.gl-contacts-map-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gl-contacts-map-placeholder {
+  height: 100%;
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+  color: var(--gl-color-muted);
+}
+.gl-company-details__actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.gl-company-details__more p {
+  margin: 12px 0 0;
+}
+@media (max-width: 767px) {
+  .gl-contacts-grid,
+  .gl-contacts-map-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+  const detailsBlock = document.querySelector('[data-details]');
+
+  if (!detailsBlock) {
+    return;
+  }
+
+  const toggleButton = detailsBlock.querySelector('[data-details-toggle]');
+  const detailsContent = detailsBlock.querySelector('.gl-company-details__more');
+
+  if (!toggleButton || !detailsContent) {
+    return;
+  }
+
+  toggleButton.addEventListener('click', function () {
+    const isHidden = detailsContent.hasAttribute('hidden');
+
+    if (isHidden) {
+      detailsContent.removeAttribute('hidden');
+      toggleButton.textContent = 'Скрыть';
+    } else {
+      detailsContent.setAttribute('hidden', 'hidden');
+      toggleButton.textContent = 'Показать полностью';
+    }
+  });
+});
+</script>
 
 <?php get_footer(); ?>

@@ -389,6 +389,16 @@ if (function_exists('get_field')) {
 .gl-mobile-contact-phones .phone {
 	display: block !important;
 }
+	
+.gl-menu > li > a:hover,
+.gl-menu > li.current-menu-item > a,
+.gl-menu > li.current_page_item > a,
+.gl-menu > li.current-menu-parent > a,
+.gl-menu > li.current-menu-ancestor > a,
+.gl-menu > li.current_page_parent > a,
+.gl-menu > li.current_page_ancestor > a {
+	color: var(--gl-color-text);
+}
 
 .gl-mobile-contact-phones .gl-header__phones a,
 .gl-mobile-contact-phones .gl-header__phones .phone,
