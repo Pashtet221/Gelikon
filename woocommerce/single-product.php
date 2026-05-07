@@ -569,9 +569,23 @@ document.addEventListener('DOMContentLoaded', function () {
 				$text = $section['text'] ?? '';
 				$display_type = $section['display_type'] ?? 'image_left';
 				$style = $section['style'] ?? 'light';
+				if (!in_array($display_type, ['list', 'grid', 'image_left', 'image_right'], true)) {
+					$display_type = 'image_left';
+				}
 				$spacing = $section['spacing'] ?? 'medium';
 				$media_type = $section['media_type'] ?? 'none';
 				$media_position = $section['media_position'] ?? 'left';
+
+				if ($display_type === 'image_right') {
+					$media_position = 'right';
+				} elseif ($display_type === 'image_left') {
+					$media_position = 'left';
+				}
+
+				if (!in_array($media_type, ['none', 'image', 'gallery', 'video'], true)) {
+					$media_type = 'none';
+				}
+
 				$image_url = $media_type === 'image' ? gelikon_product_image_url($section['image'] ?? '', 'large') : '';
 				$gallery = $media_type === 'gallery' && !empty($section['gallery']) && is_array($section['gallery']) ? $section['gallery'] : [];
 				$video_url = $media_type === 'video' ? ($section['video_url'] ?? '') : '';
@@ -586,15 +600,20 @@ document.addEventListener('DOMContentLoaded', function () {
 						$media_html = '<img src="' . esc_url($gallery_first) . '" alt="' . esc_attr($title) . '">';
 					}
 				} elseif ($video_url) {
-					$media_html = '<div class="gl-flex-media-video"><iframe src="' . esc_url($video_url) . '" loading="lazy" allowfullscreen></iframe></div>';
+					$oembed = wp_oembed_get($video_url);
+					if ($oembed) {
+						$media_html = '<div class="gl-flex-media-video">' . $oembed . '</div>';
+					} else {
+						$media_html = '<div class="gl-flex-media-video"><iframe src="' . esc_url($video_url) . '" loading="lazy" allowfullscreen></iframe></div>';
+					}
 				}
 				if ($media_position === 'background' && $image_url) {
 					$background_style = '--gl-section-bg: url(' . esc_url($image_url) . ');';
 				}
 			?>
-				<section class="gl-home-section gl-home-section--<?php echo esc_attr($spacing); ?> gl-home-section--<?php echo esc_attr($style); ?> gl-home-section--media-<?php echo esc_attr($media_position); ?>" <?php echo $background_style ? 'style="' . esc_attr($background_style) . '"' : ''; ?>>
+				<section class="gl-home-section gl-home-section--<?php echo esc_attr($spacing); ?> gl-home-section--<?php echo esc_attr($style); ?> gl-home-section--display-<?php echo esc_attr($display_type); ?> gl-home-section--media-<?php echo esc_attr($media_position); ?>" <?php echo $background_style ? 'style="' . esc_attr($background_style) . '"' : ''; ?>>
 					<?php if ($layout === 'product_health') : ?>
-						<div class="gl-card gl-product-health-block">
+						<div class="gl-card gl-product-health-block gl-product-health-block--<?php echo esc_attr($display_type); ?>">
 							<?php if ($media_html && $media_position === 'top') : ?>
 								<div class="gl-product-health-block__media gl-product-health-block__media--top"><?php echo wp_kses_post($media_html); ?></div>
 							<?php endif; ?>
@@ -606,7 +625,7 @@ document.addEventListener('DOMContentLoaded', function () {
 							<?php if ($media_html && $media_position !== 'top' && $media_position !== 'background') : ?><div class="gl-product-health-block__media"><?php echo wp_kses_post($media_html); ?></div><?php endif; ?>
 						</div>
 					<?php else : ?>
-						<div class="gl-card gl-product-info-block <?php echo $display_type === 'image_left' ? 'gl-product-info-block--reverse-mobile' : ''; ?>">
+						<div class="gl-card gl-product-info-block gl-product-info-block--<?php echo esc_attr($display_type); ?> <?php echo $display_type === 'image_left' ? 'gl-product-info-block--reverse-mobile' : ''; ?>">
 							<?php if ($media_html && $media_position === 'top') : ?>
 								<div class="gl-product-info-block__media gl-product-info-block__media--top"><?php echo wp_kses_post($media_html); ?></div>
 							<?php endif; ?>
@@ -738,6 +757,26 @@ if (!empty($products_to_show)) :
 
 .gl-home-section--media-right .gl-product-info-block,
 .gl-home-section--media-right .gl-product-health-block { flex-direction: row-reverse; }
+.gl-home-section--display-image-left .gl-product-info-block,
+.gl-home-section--display-image-left .gl-product-health-block { flex-direction: row; }
+.gl-home-section--display-image-right .gl-product-info-block,
+.gl-home-section--display-image-right .gl-product-health-block { flex-direction: row-reverse; }
+.gl-home-section--display-list .gl-product-info-block__media,
+.gl-home-section--display-grid .gl-product-info-block__media,
+.gl-home-section--display-list .gl-product-health-block__media,
+.gl-home-section--display-grid .gl-product-health-block__media { display: none; }
+
+.gl-product-health-block--grid .gl-product-health-list { 
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 8px 16px;
+}
+.gl-product-health-block--grid .gl-product-health-icons {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 12px;
+}
+.gl-product-health-block--list .gl-product-health-list { display: block; }
 .gl-home-section--media-top .gl-product-info-block,
 .gl-home-section--media-top .gl-product-health-block { flex-direction: column; }
 
