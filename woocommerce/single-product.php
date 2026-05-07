@@ -82,6 +82,8 @@ while (have_posts()) :
 	$section_3_feature_2 = gelikon_product_get_field('product_section_3_feature_2', 'Гарантия качества', $product_id);
 	$section_3_feature_3 = gelikon_product_get_field('product_section_3_feature_3', 'Поддержка клиентов', $product_id);
 
+	$flexible_sections = gelikon_product_get_field('product_flexible_sections', [], $product_id);
+
 	$is_in_stock = $product && $product->is_in_stock();
 	$mobile_button_text = $product && $product->is_type('simple') ? 'Купить' : 'В корзину';
 
@@ -549,123 +551,75 @@ document.addEventListener('DOMContentLoaded', function () {
 			
 			
 
-			<?php if ($section_1_title || $section_1_text || $section_1_image) : ?>
-				<section class="gl-home-section">
-					<div class="gl-card gl-product-info-block gl-product-info-block--reverse-mobile">
-						<div class="gl-product-info-block__media">
-							<?php if ($section_1_image) : ?>
-								<img src="<?php echo esc_url($section_1_image); ?>" alt="<?php echo esc_attr($section_1_title); ?>">
-							<?php endif; ?>
-						</div>
-
-						<div class="gl-product-info-block__content">
-							<?php if ($section_1_title) : ?>
-								<h2><?php echo esc_html($section_1_title); ?></h2>
-							<?php endif; ?>
-
-							<?php if ($section_1_text) : ?>
-								<div class="gl-product-info-block__text">
-									<?php echo wpautop(wp_kses_post($section_1_text)); ?>
-								</div>
-							<?php endif; ?>
-						</div>
-					</div>
-				</section>
-			<?php endif; ?>
-
 			<?php
-			$has_section_2 = $section_2_title || !empty($section_2_list) || !empty($section_2_icons) || $section_2_image;
-			if ($has_section_2) :
+			$has_legacy_sections = $section_1_title || $section_1_text || $section_1_image || $section_2_title || !empty($section_2_list) || !empty($section_2_icons) || $section_2_image || $section_3_title || $section_3_text || $section_3_image;
+			$sections_to_render = !empty($flexible_sections) && is_array($flexible_sections) ? $flexible_sections : [];
+
+			if (empty($sections_to_render) && $has_legacy_sections) {
+				$sections_to_render = [
+					['acf_fc_layout' => 'product_info', 'title' => $section_1_title, 'text' => $section_1_text, 'display_type' => 'image_left', 'media_type' => $section_1_image ? 'image' : 'none', 'image' => gelikon_product_get_field('product_section_1_image', '', $product_id), 'media_position' => 'left', 'style' => 'light', 'spacing' => 'medium'],
+					['acf_fc_layout' => 'product_health', 'title' => $section_2_title, 'health_list' => $section_2_list, 'health_icons' => $section_2_icons, 'display_type' => 'list', 'media_type' => $section_2_image ? 'image' : 'none', 'image' => gelikon_product_get_field('product_section_2_image', '', $product_id), 'media_position' => 'right', 'style' => 'light', 'spacing' => 'medium'],
+					['acf_fc_layout' => 'product_info', 'title' => $section_3_title, 'text' => $section_3_text, 'display_type' => 'image_right', 'media_type' => $section_3_image ? 'image' : 'none', 'image' => gelikon_product_get_field('product_section_3_image', '', $product_id), 'media_position' => 'left', 'style' => 'light', 'spacing' => 'medium', 'features' => [$section_3_feature_1, $section_3_feature_2, $section_3_feature_3]],
+				];
+			}
+
+			foreach ($sections_to_render as $section) :
+				$layout = $section['acf_fc_layout'] ?? '';
+				$title = $section['title'] ?? '';
+				$text = $section['text'] ?? '';
+				$display_type = $section['display_type'] ?? 'image_left';
+				$style = $section['style'] ?? 'light';
+				$spacing = $section['spacing'] ?? 'medium';
+				$media_type = $section['media_type'] ?? 'none';
+				$media_position = $section['media_position'] ?? 'left';
+				$image_url = $media_type === 'image' ? gelikon_product_image_url($section['image'] ?? '', 'large') : '';
+				$gallery = $media_type === 'gallery' && !empty($section['gallery']) && is_array($section['gallery']) ? $section['gallery'] : [];
+				$video_url = $media_type === 'video' ? ($section['video_url'] ?? '') : '';
+				$media_html = '';
+				$background_style = '';
+
+				if ($image_url) {
+					$media_html = '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($title) . '">';
+				} elseif (!empty($gallery)) {
+					$gallery_first = gelikon_product_image_url($gallery[0] ?? '', 'large');
+					if ($gallery_first) {
+						$media_html = '<img src="' . esc_url($gallery_first) . '" alt="' . esc_attr($title) . '">';
+					}
+				} elseif ($video_url) {
+					$media_html = '<div class="gl-flex-media-video"><iframe src="' . esc_url($video_url) . '" loading="lazy" allowfullscreen></iframe></div>';
+				}
+				if ($media_position === 'background' && $image_url) {
+					$background_style = '--gl-section-bg: url(' . esc_url($image_url) . ');';
+				}
 			?>
-				<section class="gl-home-section">
-					<div class="gl-card gl-product-health-block">
-						<div class="gl-product-health-block__content">
-							<?php if ($section_2_title) : ?>
-								<h2><?php echo esc_html($section_2_title); ?></h2>
+				<section class="gl-home-section gl-home-section--<?php echo esc_attr($spacing); ?> gl-home-section--<?php echo esc_attr($style); ?> gl-home-section--media-<?php echo esc_attr($media_position); ?>" <?php echo $background_style ? 'style="' . esc_attr($background_style) . '"' : ''; ?>>
+					<?php if ($layout === 'product_health') : ?>
+						<div class="gl-card gl-product-health-block">
+							<?php if ($media_html && $media_position === 'top') : ?>
+								<div class="gl-product-health-block__media gl-product-health-block__media--top"><?php echo wp_kses_post($media_html); ?></div>
 							<?php endif; ?>
-
-							<?php if (!empty($section_2_list) && is_array($section_2_list)) : ?>
-								<ul class="gl-product-health-list">
-									<?php foreach ($section_2_list as $item) :
-										$text = is_array($item) && !empty($item['text']) ? $item['text'] : '';
-										if (!$text) {
-											continue;
-										}
-										?>
-										<li><?php echo esc_html($text); ?></li>
-									<?php endforeach; ?>
-								</ul>
-							<?php endif; ?>
-
-							<?php if (!empty($section_2_icons) && is_array($section_2_icons)) : ?>
-								<div class="gl-product-health-icons">
-									<?php foreach ($section_2_icons as $item) :
-										$title = is_array($item) && !empty($item['title']) ? $item['title'] : '';
-										$icon  = is_array($item) ? gelikon_product_image_url($item['icon'] ?? '', 'medium') : '';
-										if (!$title) {
-											continue;
-										}
-										?>
-										<div class="gl-card gl-product-health-icons__item">
-											<?php if ($icon) : ?>
-												<img src="<?php echo esc_url($icon); ?>" alt="<?php echo esc_attr($title); ?>">
-											<?php endif; ?>
-											<span><?php echo esc_html($title); ?></span>
-										</div>
-									<?php endforeach; ?>
-								</div>
-							<?php endif; ?>
+							<div class="gl-product-health-block__content">
+								<?php if ($title) : ?><h2><?php echo esc_html($title); ?></h2><?php endif; ?>
+								<?php if (!empty($section['health_list']) && is_array($section['health_list'])) : ?><ul class="gl-product-health-list"><?php foreach ($section['health_list'] as $item) : $item_text = is_array($item) ? ($item['text'] ?? '') : ''; if (!$item_text) { continue; } ?><li><?php echo esc_html($item_text); ?></li><?php endforeach; ?></ul><?php endif; ?>
+								<?php if (!empty($section['health_icons']) && is_array($section['health_icons'])) : ?><div class="gl-product-health-icons"><?php foreach ($section['health_icons'] as $item) : $item_title = is_array($item) ? ($item['title'] ?? '') : ''; $item_icon = is_array($item) ? gelikon_product_image_url($item['icon'] ?? '', 'medium') : ''; if (!$item_title) { continue; } ?><div class="gl-card gl-product-health-icons__item"><?php if ($item_icon) : ?><img src="<?php echo esc_url($item_icon); ?>" alt="<?php echo esc_attr($item_title); ?>"><?php endif; ?><span><?php echo esc_html($item_title); ?></span></div><?php endforeach; ?></div><?php endif; ?>
+							</div>
+							<?php if ($media_html && $media_position !== 'top' && $media_position !== 'background') : ?><div class="gl-product-health-block__media"><?php echo wp_kses_post($media_html); ?></div><?php endif; ?>
 						</div>
-
-						<div class="gl-product-health-block__media">
-							<?php if ($section_2_image) : ?>
-								<img src="<?php echo esc_url($section_2_image); ?>" alt="<?php echo esc_attr($section_2_title); ?>">
+					<?php else : ?>
+						<div class="gl-card gl-product-info-block <?php echo $display_type === 'image_left' ? 'gl-product-info-block--reverse-mobile' : ''; ?>">
+							<?php if ($media_html && $media_position === 'top') : ?>
+								<div class="gl-product-info-block__media gl-product-info-block__media--top"><?php echo wp_kses_post($media_html); ?></div>
 							<?php endif; ?>
-						</div>
-					</div>
-				</section>
-			<?php endif; ?>
-
-			<?php if ($section_3_title || $section_3_text || $section_3_image) : ?>
-				<section class="gl-home-section">
-					<div class="gl-card gl-product-info-block">
-						<div class="gl-product-info-block__media">
-							<?php if ($section_3_image) : ?>
-								<img src="<?php echo esc_url($section_3_image); ?>" alt="<?php echo esc_attr($section_3_title); ?>">
-							<?php endif; ?>
-						</div>
-
-						<div class="gl-product-info-block__content">
-							<?php if ($section_3_title) : ?>
-								<h2><?php echo esc_html($section_3_title); ?></h2>
-							<?php endif; ?>
-
-							<?php if ($section_3_text) : ?>
-								<div class="gl-product-info-block__text">
-									<?php echo wpautop(wp_kses_post($section_3_text)); ?>
-								</div>
-							<?php endif; ?>
-
-							<div class="gl-product-benefits gl-product-benefits--inline">
-								<div class="gl-card gl-product-benefit">
-									<div class="gl-product-benefit__icon"></div>
-									<div class="gl-product-benefit__text"><?php echo esc_html($section_3_feature_1); ?></div>
-								</div>
-
-								<div class="gl-card gl-product-benefit">
-									<div class="gl-product-benefit__icon"></div>
-									<div class="gl-product-benefit__text"><?php echo esc_html($section_3_feature_2); ?></div>
-								</div>
-
-								<div class="gl-card gl-product-benefit">
-									<div class="gl-product-benefit__icon"></div>
-									<div class="gl-product-benefit__text"><?php echo esc_html($section_3_feature_3); ?></div>
-								</div>
+							<div class="gl-product-info-block__media"><?php if ($media_html && $media_position !== 'top' && $media_position !== 'background') : ?><?php echo wp_kses_post($media_html); ?><?php endif; ?></div>
+							<div class="gl-product-info-block__content">
+								<?php if ($title) : ?><h2><?php echo esc_html($title); ?></h2><?php endif; ?>
+								<?php if ($text) : ?><div class="gl-product-info-block__text"><?php echo wpautop(wp_kses_post($text)); ?></div><?php endif; ?>
+								<?php if (!empty($section['features']) && is_array($section['features'])) : ?><div class="gl-product-benefits gl-product-benefits--inline"><?php foreach ($section['features'] as $feature) : $feature_text = is_array($feature) ? ($feature['text'] ?? '') : $feature; if (!$feature_text) { continue; } ?><div class="gl-card gl-product-benefit"><div class="gl-product-benefit__icon"></div><div class="gl-product-benefit__text"><?php echo esc_html($feature_text); ?></div></div><?php endforeach; ?></div><?php endif; ?>
 							</div>
 						</div>
-					</div>
+					<?php endif; ?>
 				</section>
-			<?php endif; ?>
+			<?php endforeach; ?>
 
 			<?php
 global $product;
@@ -771,6 +725,48 @@ if (!empty($products_to_show)) :
 <?php endif; ?>
 
 <style>
+/* =========================
+   FLEXIBLE PRODUCT SECTIONS
+========================= */
+.gl-home-section--small { margin-block: 16px; }
+.gl-home-section--medium { margin-block: 28px; }
+.gl-home-section--large { margin-block: 44px; }
+
+.gl-home-section--light .gl-card { background: #fff; color: inherit; }
+.gl-home-section--dark .gl-card { background: #1f2430; color: #fff; }
+.gl-home-section--accent .gl-card { background: #f3fff7; color: inherit; border: 1px solid rgba(18, 212, 87, .25); }
+
+.gl-home-section--media-right .gl-product-info-block,
+.gl-home-section--media-right .gl-product-health-block { flex-direction: row-reverse; }
+.gl-home-section--media-top .gl-product-info-block,
+.gl-home-section--media-top .gl-product-health-block { flex-direction: column; }
+
+.gl-home-section--media-background .gl-product-info-block,
+.gl-home-section--media-background .gl-product-health-block { position: relative; overflow: hidden; }
+.gl-home-section--media-background .gl-product-info-block::before,
+.gl-home-section--media-background .gl-product-health-block::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: var(--gl-section-bg);
+	background-size: cover;
+	background-position: center;
+	opacity: .16;
+	pointer-events: none;
+}
+.gl-home-section--media-background .gl-product-info-block__content,
+.gl-home-section--media-background .gl-product-health-block__content { position: relative; z-index: 1; }
+
+.gl-product-info-block__media--top,
+.gl-product-health-block__media--top { margin-bottom: 14px; }
+
+.gl-flex-media-video iframe {
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	border: 0;
+	border-radius: 12px;
+}
+
 /* =========================
    MOBILE STICKY BUY BAR
 ========================= */
