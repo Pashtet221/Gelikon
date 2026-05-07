@@ -573,24 +573,48 @@ document.addEventListener('DOMContentLoaded', function () {
 				$media_type = $section['media_type'] ?? 'none';
 				$media_position = $section['media_position'] ?? 'left';
 				$image_url = $media_type === 'image' ? gelikon_product_image_url($section['image'] ?? '', 'large') : '';
+				$gallery = $media_type === 'gallery' && !empty($section['gallery']) && is_array($section['gallery']) ? $section['gallery'] : [];
+				$video_url = $media_type === 'video' ? ($section['video_url'] ?? '') : '';
+				$media_html = '';
+				$background_style = '';
+
+				if ($image_url) {
+					$media_html = '<img src="' . esc_url($image_url) . '" alt="' . esc_attr($title) . '">';
+				} elseif (!empty($gallery)) {
+					$gallery_first = gelikon_product_image_url($gallery[0] ?? '', 'large');
+					if ($gallery_first) {
+						$media_html = '<img src="' . esc_url($gallery_first) . '" alt="' . esc_attr($title) . '">';
+					}
+				} elseif ($video_url) {
+					$media_html = '<div class="gl-flex-media-video"><iframe src="' . esc_url($video_url) . '" loading="lazy" allowfullscreen></iframe></div>';
+				}
+				if ($media_position === 'background' && $image_url) {
+					$background_style = '--gl-section-bg: url(' . esc_url($image_url) . ');';
+				}
 			?>
-				<section class="gl-home-section gl-home-section--<?php echo esc_attr($spacing); ?> gl-home-section--<?php echo esc_attr($style); ?>">
+				<section class="gl-home-section gl-home-section--<?php echo esc_attr($spacing); ?> gl-home-section--<?php echo esc_attr($style); ?> gl-home-section--media-<?php echo esc_attr($media_position); ?>" <?php echo $background_style ? 'style="' . esc_attr($background_style) . '"' : ''; ?>>
 					<?php if ($layout === 'product_health') : ?>
 						<div class="gl-card gl-product-health-block">
+							<?php if ($media_html && $media_position === 'top') : ?>
+								<div class="gl-product-health-block__media gl-product-health-block__media--top"><?php echo wp_kses_post($media_html); ?></div>
+							<?php endif; ?>
 							<div class="gl-product-health-block__content">
 								<?php if ($title) : ?><h2><?php echo esc_html($title); ?></h2><?php endif; ?>
 								<?php if (!empty($section['health_list']) && is_array($section['health_list'])) : ?><ul class="gl-product-health-list"><?php foreach ($section['health_list'] as $item) : $item_text = is_array($item) ? ($item['text'] ?? '') : ''; if (!$item_text) { continue; } ?><li><?php echo esc_html($item_text); ?></li><?php endforeach; ?></ul><?php endif; ?>
 								<?php if (!empty($section['health_icons']) && is_array($section['health_icons'])) : ?><div class="gl-product-health-icons"><?php foreach ($section['health_icons'] as $item) : $item_title = is_array($item) ? ($item['title'] ?? '') : ''; $item_icon = is_array($item) ? gelikon_product_image_url($item['icon'] ?? '', 'medium') : ''; if (!$item_title) { continue; } ?><div class="gl-card gl-product-health-icons__item"><?php if ($item_icon) : ?><img src="<?php echo esc_url($item_icon); ?>" alt="<?php echo esc_attr($item_title); ?>"><?php endif; ?><span><?php echo esc_html($item_title); ?></span></div><?php endforeach; ?></div><?php endif; ?>
 							</div>
-							<?php if ($image_url && $media_position !== 'top' && $media_position !== 'background') : ?><div class="gl-product-health-block__media"><img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>"></div><?php endif; ?>
+							<?php if ($media_html && $media_position !== 'top' && $media_position !== 'background') : ?><div class="gl-product-health-block__media"><?php echo wp_kses_post($media_html); ?></div><?php endif; ?>
 						</div>
 					<?php else : ?>
 						<div class="gl-card gl-product-info-block <?php echo $display_type === 'image_left' ? 'gl-product-info-block--reverse-mobile' : ''; ?>">
-							<div class="gl-product-info-block__media"><?php if ($image_url) : ?><img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($title); ?>"><?php endif; ?></div>
+							<?php if ($media_html && $media_position === 'top') : ?>
+								<div class="gl-product-info-block__media gl-product-info-block__media--top"><?php echo wp_kses_post($media_html); ?></div>
+							<?php endif; ?>
+							<div class="gl-product-info-block__media"><?php if ($media_html && $media_position !== 'top' && $media_position !== 'background') : ?><?php echo wp_kses_post($media_html); ?><?php endif; ?></div>
 							<div class="gl-product-info-block__content">
 								<?php if ($title) : ?><h2><?php echo esc_html($title); ?></h2><?php endif; ?>
 								<?php if ($text) : ?><div class="gl-product-info-block__text"><?php echo wpautop(wp_kses_post($text)); ?></div><?php endif; ?>
-								<?php if (!empty($section['features']) && is_array($section['features'])) : ?><div class="gl-product-benefits gl-product-benefits--inline"><?php foreach ($section['features'] as $feature) : if (!$feature) { continue; } ?><div class="gl-card gl-product-benefit"><div class="gl-product-benefit__icon"></div><div class="gl-product-benefit__text"><?php echo esc_html($feature); ?></div></div><?php endforeach; ?></div><?php endif; ?>
+								<?php if (!empty($section['features']) && is_array($section['features'])) : ?><div class="gl-product-benefits gl-product-benefits--inline"><?php foreach ($section['features'] as $feature) : $feature_text = is_array($feature) ? ($feature['text'] ?? '') : $feature; if (!$feature_text) { continue; } ?><div class="gl-card gl-product-benefit"><div class="gl-product-benefit__icon"></div><div class="gl-product-benefit__text"><?php echo esc_html($feature_text); ?></div></div><?php endforeach; ?></div><?php endif; ?>
 							</div>
 						</div>
 					<?php endif; ?>
@@ -701,6 +725,48 @@ if (!empty($products_to_show)) :
 <?php endif; ?>
 
 <style>
+/* =========================
+   FLEXIBLE PRODUCT SECTIONS
+========================= */
+.gl-home-section--small { margin-block: 16px; }
+.gl-home-section--medium { margin-block: 28px; }
+.gl-home-section--large { margin-block: 44px; }
+
+.gl-home-section--light .gl-card { background: #fff; color: inherit; }
+.gl-home-section--dark .gl-card { background: #1f2430; color: #fff; }
+.gl-home-section--accent .gl-card { background: #f3fff7; color: inherit; border: 1px solid rgba(18, 212, 87, .25); }
+
+.gl-home-section--media-right .gl-product-info-block,
+.gl-home-section--media-right .gl-product-health-block { flex-direction: row-reverse; }
+.gl-home-section--media-top .gl-product-info-block,
+.gl-home-section--media-top .gl-product-health-block { flex-direction: column; }
+
+.gl-home-section--media-background .gl-product-info-block,
+.gl-home-section--media-background .gl-product-health-block { position: relative; overflow: hidden; }
+.gl-home-section--media-background .gl-product-info-block::before,
+.gl-home-section--media-background .gl-product-health-block::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image: var(--gl-section-bg);
+	background-size: cover;
+	background-position: center;
+	opacity: .16;
+	pointer-events: none;
+}
+.gl-home-section--media-background .gl-product-info-block__content,
+.gl-home-section--media-background .gl-product-health-block__content { position: relative; z-index: 1; }
+
+.gl-product-info-block__media--top,
+.gl-product-health-block__media--top { margin-bottom: 14px; }
+
+.gl-flex-media-video iframe {
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	border: 0;
+	border-radius: 12px;
+}
+
 /* =========================
    MOBILE STICKY BUY BAR
 ========================= */
