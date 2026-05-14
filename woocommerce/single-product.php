@@ -173,86 +173,18 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	<?php endif; ?>					
 	
 
-	<?php
-	$has_product_meta_inline =
-		$meta_rating ||
-		($meta_reviews !== '' && $meta_reviews !== null) ||
-		($meta_questions !== '' && $meta_questions !== null);
-	?>
-
-	<?php if ($has_product_meta_inline) : ?>
 		<div class="gl-product-summary__meta-inline">
-			<?php if ($meta_rating) : ?>
-				
-			
-			
-<!-- 			<button type="button" class="gl-product-summary__meta-link" data-gl-popup-open="reviews">
-					<span class="gl-product-summary__rating">
-						<span class="gl-product-summary__rating-star" aria-hidden="true">★</span>
-						<span class="gl-product-summary__rating-value">
-							<?php echo esc_html(number_format((float) $meta_rating, 1)); ?>
-						</span>
-					</span>
-				</button> -->
-			
-			
-			
-			
 			<button type="button" class="gl-product-summary__meta-link">
-					<span class="gl-product-summary__rating">
-						<span class="gl-product-summary__rating-star" aria-hidden="true">★</span>
-						<span class="gl-product-summary__rating-value">
-							4.3
-						</span>
-					</span>
-				</button>
-			
-			
-			<?php endif; ?>
+				<span class="gl-product-summary__rating">
+					<span class="gl-product-summary__rating-star" aria-hidden="true">★</span>
+					<span class="gl-product-summary__rating-value">4.3</span>
+				</span>
+			</button>
 
-			<?php if ($meta_reviews !== '' && $meta_reviews !== null) : ?>
-
-			
-			
-			<!-- 				<button type="button" class="gl-product-summary__meta-link" data-gl-popup-open="reviews">
-					<span class="gl-product-summary__meta-text gl-product-summary__meta-text--reviews">
-						(<?php echo esc_html((int) $meta_reviews); ?>
-						<?php echo esc_html(_n('отзыв', 'отзывов', (int) $meta_reviews, 'gelikon')); ?>)
-					</span>
-				</button> -->
-			
-			
 			<button type="button" class="gl-product-summary__meta-link">
-					<span class="gl-product-summary__meta-text gl-product-summary__meta-text--reviews">
-						(254
-						<?php echo esc_html(_n('отзыв', 'отзывов', (int) $meta_reviews, 'gelikon')); ?>)
-					</span>
-				</button>
-			
-			
-			
-			<?php endif; ?>
-
-			<?php if ($meta_questions !== '' && $meta_questions !== null) : ?>
-				<span class="gl-product-summary__meta-sep"></span>
-
-			
-			
-<!-- 				<button type="button" class="gl-product-summary__meta-link" data-gl-popup-open="questions">
-					<span class="gl-product-summary__meta-text">
-						<?php echo esc_html((int) $meta_questions); ?>
-						<?php echo esc_html(_n('вопрос', 'вопросов', (int) $meta_questions, 'gelikon')); ?>
-					</span>
-				</button> -->
-			
-			
-			
-			
-			
-			
-			<?php endif; ?>
+				<span class="gl-product-summary__meta-text gl-product-summary__meta-text--reviews">(254 отзывов)</span>
+			</button>
 		</div>
-	<?php endif; ?>
 
 						
 <style>
@@ -262,13 +194,27 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
        font-weight: 600;
 	   margin: 0;
     }
+
+	.gl-product-summary {
+		display: flex;
+		flex-direction: column;
+		min-height: 100%;
+	}
+
+	.gl-product-summary__subtitle {
+		font-size: 18px;
+		line-height: 1.45;
+		font-weight: 500;
+		color: #585D63;
+		margin-top: 14px;
+	}
 	
 	.gl-product-summary__meta-inline {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 	gap: 8px;
-	margin: 8px 0 14px;
+	margin: 12px 0 20px;
 	font-size: 15px;
 	line-height: 1.2;
 	font-weight: 500;
@@ -371,7 +317,7 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	position: relative;
 	max-height: 130px;
 	overflow: hidden;
-	color: #3A3A3A;
+	color: #5C6168;
 	font-size: 16px;
 	line-height: 1.7;
 }
@@ -432,14 +378,26 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	color: var(--gl-color-accent);
 }
 
+.gl-product-summary__cta-block {
+	margin-top: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
 .gl-product-summary__excerpt-wrap:hover .gl-product-summary__excerpt::after {
 	opacity: 0.85;
 }
 
-@media (max-width: 767px) {
-	.gl-product-summary__excerpt {
-		max-height: 100px;
-		font-size: 15px;
+	@media (max-width: 767px) {
+		.gl-product-summary__subtitle {
+			font-size: 16px;
+			margin-top: 10px;
+		}
+
+		.gl-product-summary__excerpt {
+			max-height: 100px;
+			font-size: 15px;
 		line-height: 1.6;
 	}
 
@@ -466,10 +424,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	if (excerpt && button) {
 		const isOverflowing = excerpt.scrollHeight > excerpt.clientHeight + 5;
-
 		if (!isOverflowing) {
 			excerpt.classList.add('is-full');
-			button.style.display = 'none';
 		}
 	}
 
@@ -497,7 +453,8 @@ document.addEventListener('DOMContentLoaded', function () {
 						
 						
 
-						<div class="gl-card gl-product-buybox">
+							<div class="gl-product-summary__cta-block">
+								<div class="gl-card gl-product-buybox">
 							
 <!-- 							Статус наличия -->
 							<?php echo gelikon_get_stock_status_html(); ?>
@@ -511,12 +468,13 @@ document.addEventListener('DOMContentLoaded', function () {
 									<?php woocommerce_template_single_add_to_cart(); ?>
 								</div>
 							</div>
-						</div>
+								</div>
 
-						<div class="gl-product-benefits">
+								<div class="gl-product-benefits">
 							<div class="gl-card gl-product-benefit">
 								<div class="gl-product-benefit__icon"></div>
 								<div class="gl-product-benefit__text"><?php echo esc_html($feature_1_text); ?></div>
+								</div>
 							</div>
 
 							<div class="gl-card gl-product-benefit">
