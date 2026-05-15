@@ -113,17 +113,17 @@ if (function_exists('get_field')) {
 	</svg>
 </button>
 
-					<a class="gl-header__icon gl-cart-link" href="<?php echo esc_url(function_exists('wc_get_cart_url') ? wc_get_cart_url() : home_url('/cart/')); ?>" aria-label="<?php esc_attr_e('Корзина', 'gelikon'); ?>">
-						<svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-							<path d="M5 6h16l-1.5 8.5a2 2 0 0 1-2 1.5H9a2 2 0 0 1-2-1.5L5 4H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-							<circle cx="10" cy="20" r="1.5" fill="currentColor"/>
-							<circle cx="18" cy="20" r="1.5" fill="currentColor"/>
-						</svg>
+					<a class="gl-header__icon gl-cart-link" href="<?php echo esc_url(function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : home_url('/checkout/')); ?>" aria-label="<?php esc_attr_e('Корзина', 'gelikon'); ?>">
+	<svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+		<path d="M5 6h16l-1.5 8.5a2 2 0 0 1-2 1.5H9a2 2 0 0 1-2-1.5L5 4H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+		<circle cx="10" cy="20" r="1.5" fill="currentColor"/>
+		<circle cx="18" cy="20" r="1.5" fill="currentColor"/>
+	</svg>
 
-						<?php if (class_exists('WooCommerce')) : ?>
-							<span class="gl-cart-count"><?php echo esc_html(WC()->cart ? WC()->cart->get_cart_contents_count() : 0); ?></span>
-						<?php endif; ?>
-					</a>
+	<?php if (class_exists('WooCommerce')) : ?>
+		<span class="gl-cart-count"><?php echo esc_html(WC()->cart ? WC()->cart->get_cart_contents_count() : 0); ?></span>
+	<?php endif; ?>
+</a>
 				</div>
 			</div>
 

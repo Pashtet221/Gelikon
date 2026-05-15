@@ -198,7 +198,6 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	.gl-product-summary {
 		display: flex;
 		flex-direction: column;
-		min-height: 100%;
 	}
 
 	.gl-product-summary__subtitle {
@@ -475,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function () {
 								<div class="gl-product-benefit__icon"></div>
 								<div class="gl-product-benefit__text"><?php echo esc_html($feature_1_text); ?></div>
 								</div>
-							</div>
+							
 
 							<div class="gl-card gl-product-benefit">
 								<div class="gl-product-benefit__icon"></div>
@@ -486,6 +485,8 @@ document.addEventListener('DOMContentLoaded', function () {
 								<div class="gl-product-benefit__icon"></div>
 								<div class="gl-product-benefit__text"><?php echo esc_html($feature_3_text); ?></div>
 							</div>
+								
+							</div>	
 						</div>
 					</div>
 				</div>

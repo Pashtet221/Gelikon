@@ -4439,3 +4439,1101 @@ add_action('acf/init', function () {
 
 
 
+
+
+
+
+
+/**
+ * Gelikon AJAX remove cart item.
+ */
+add_action('wp_ajax_gelikon_remove_cart_item', 'gelikon_remove_cart_item_ajax');
+add_action('wp_ajax_nopriv_gelikon_remove_cart_item', 'gelikon_remove_cart_item_ajax');
+
+function gelikon_remove_cart_item_ajax() {
+	if (!class_exists('WooCommerce') || !WC()->cart) {
+		wp_send_json_error();
+	}
+
+	$cart_item_key = isset($_POST['cart_item_key'])
+		? sanitize_text_field(wp_unslash($_POST['cart_item_key']))
+		: '';
+
+	if (!$cart_item_key) {
+		wp_send_json_error();
+	}
+
+	WC()->cart->remove_cart_item($cart_item_key);
+	WC()->cart->calculate_totals();
+
+	ob_start();
+	woocommerce_mini_cart();
+	$mini_cart = ob_get_clean();
+
+	wp_send_json_success([
+		'count'     => WC()->cart->get_cart_contents_count(),
+		'fragments' => [
+			'div.widget_shopping_cart_content' => '<div class="widget_shopping_cart_content">' . $mini_cart . '</div>',
+		],
+	]);
+}
+
+
+/**
+ * Gelikon mini cart + checkout UX.
+ */
+add_action('wp_footer', function () {
+	if (is_admin() || !class_exists('WooCommerce')) {
+		return;
+	}
+
+	$checkout_url = wc_get_checkout_url();
+	$ajax_url     = admin_url('admin-ajax.php');
+	?>
+	<style id="gelikon-mini-cart-style">
+		.gl-product-card__actions .added_to_cart.wc-forward {
+			display: none !important;
+		}
+
+		a.gl-product-card__button.is-in-cart,
+		a.gl-product-card__button.added,
+		.gl-product-card__button.is-in-cart,
+		.gl-product-card__button.added,
+		.single_add_to_cart_button.is-in-cart {
+			background: #12D457 !important;
+			border-color: #12D457 !important;
+			color: #fff !important;
+		}
+
+		a.gl-product-card__button.is-in-cart:hover,
+		a.gl-product-card__button.added:hover {
+			color: #fff !important;
+		}
+
+		.gl-full-mini-cart {
+			position: fixed;
+			top: 92px;
+			right: 72px;
+			z-index: 99999;
+			width: 430px;
+			max-width: calc(100vw - 24px);
+			background: #fff;
+			border-radius: 22px;
+			box-shadow: 0 18px 55px rgba(23, 29, 42, .18);
+			opacity: 0;
+			visibility: hidden;
+			pointer-events: none;
+			transform: translateY(-8px);
+			transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+			overflow: hidden;
+		}
+
+		.gl-full-mini-cart.is-visible {
+			opacity: 1;
+			visibility: visible;
+			pointer-events: auto;
+			transform: translateY(0);
+		}
+
+		.gl-full-mini-cart__head {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			padding: 18px 18px 12px;
+			border-bottom: 1px solid #eef1f3;
+		}
+
+		.gl-full-mini-cart__title {
+			margin: 0;
+			font-size: 17px;
+			font-weight: 800;
+			color: #171d2a;
+		}
+
+		.gl-full-mini-cart__close {
+			width: 32px;
+			height: 32px;
+			border: 0;
+			border-radius: 50%;
+			background: #f4f6f8;
+			cursor: pointer;
+			font-size: 20px;
+			line-height: 1;
+			color: #7d8490;
+		}
+
+		.gl-full-mini-cart__items {
+			max-height: 360px;
+			overflow-y: auto;
+			padding: 6px 18px;
+		}
+
+		.gl-full-mini-cart__items::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		.gl-full-mini-cart__items::-webkit-scrollbar-thumb {
+			background: #d8dde2;
+			border-radius: 20px;
+		}
+
+		.gl-full-mini-cart__item {
+			position: relative;
+			display: grid;
+			grid-template-columns: 74px 1fr;
+			gap: 14px;
+			padding: 14px 28px 14px 0;
+			border-bottom: 1px solid #eef1f3;
+		}
+
+		.gl-full-mini-cart__item:last-child {
+			border-bottom: 0;
+		}
+
+		.gl-full-mini-cart__image {
+			width: 74px;
+			height: 74px;
+			border-radius: 14px;
+			background: #f6f8f9;
+			object-fit: contain;
+		}
+
+		.gl-full-mini-cart__name {
+			display: block;
+			margin: 0 0 6px;
+			font-size: 14px;
+			font-weight: 700;
+			line-height: 1.35;
+			color: #171d2a !important;
+			text-decoration: none !important;
+		}
+
+		.gl-full-mini-cart__qty {
+			font-size: 13px;
+			color: #7d8490;
+		}
+
+		.gl-full-mini-cart__remove {
+			position: absolute;
+			top: 14px;
+			right: 0;
+			width: 24px;
+			height: 24px;
+			border-radius: 50%;
+			background: #f4f6f8;
+			color: #9aa2ad !important;
+			text-decoration: none !important;
+			font-size: 20px;
+			line-height: 22px;
+			text-align: center;
+			font-weight: 400;
+			transition: .2s ease;
+		}
+
+		.gl-full-mini-cart__remove:hover {
+			background: #ffecec;
+			color: #ff3b30 !important;
+		}
+
+		.gl-full-mini-cart__remove.is-loading {
+			pointer-events: none;
+			opacity: .45;
+		}
+
+		.gl-full-mini-cart__footer {
+			padding: 14px 18px 18px;
+			border-top: 1px solid #eef1f3;
+			background: #fff;
+		}
+
+		.gl-full-mini-cart__total {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			margin-bottom: 14px;
+			font-size: 16px;
+			font-weight: 800;
+			color: #171d2a;
+		}
+
+		.gl-full-mini-cart__checkout {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 46px;
+			border-radius: 999px;
+			font-size: 14px;
+			font-weight: 700;
+			text-decoration: none !important;
+			background: #12D457;
+			color: #fff !important;
+			border: 1px solid #12D457;
+		}
+
+		.gl-full-mini-cart__checkout:hover {
+			background: #10bf4f;
+			border-color: #10bf4f;
+			color: #fff !important;
+		}
+
+		.gl-full-mini-cart__empty {
+			padding: 28px 18px;
+			text-align: center;
+			color: #7d8490;
+			font-size: 15px;
+		}
+
+		.gl-full-mini-cart__loader {
+			padding: 18px;
+		}
+
+		.gl-full-mini-cart__skeleton {
+			display: grid;
+			grid-template-columns: 74px 1fr;
+			gap: 14px;
+			padding: 12px 0;
+		}
+
+		.gl-full-mini-cart__skeleton-img,
+		.gl-full-mini-cart__skeleton-line {
+			background: linear-gradient(90deg, #f1f3f5 25%, #e8ecef 37%, #f1f3f5 63%);
+			background-size: 400% 100%;
+			animation: glSkeleton 1.2s ease infinite;
+		}
+
+		.gl-full-mini-cart__skeleton-img {
+			width: 74px;
+			height: 74px;
+			border-radius: 14px;
+		}
+
+		.gl-full-mini-cart__skeleton-line {
+			height: 14px;
+			border-radius: 999px;
+			margin-bottom: 10px;
+		}
+
+		.gl-full-mini-cart__skeleton-line:nth-child(1) {
+			width: 90%;
+		}
+
+		.gl-full-mini-cart__skeleton-line:nth-child(2) {
+			width: 55%;
+		}
+
+		@keyframes glSkeleton {
+			0% { background-position: 100% 0; }
+			100% { background-position: 0 0; }
+		}
+
+		.gl-full-mini-cart.is-loading .gl-full-mini-cart__items {
+			pointer-events: none;
+		}
+
+		body.woocommerce-checkout .woocommerce-checkout-review-order-table thead,
+		body.woocommerce-checkout .woocommerce-checkout-review-order-table tbody {
+			display: none !important;
+		}
+
+		body.woocommerce-checkout .woocommerce-checkout-review-order-table {
+			margin-top: 0 !important;
+		}
+
+		body.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot tr.cart-subtotal th,
+		body.woocommerce-checkout .woocommerce-checkout-review-order-table tfoot tr.cart-subtotal td {
+			border-top: 0 !important;
+		}
+
+		@media (max-width: 767px) {
+			.gl-full-mini-cart {
+				top: auto !important;
+				right: 12px !important;
+				left: 12px;
+				bottom: 16px;
+				width: auto;
+				border-radius: 20px;
+			}
+
+			.gl-full-mini-cart__items {
+				max-height: 300px;
+			}
+		}
+	</style>
+
+	<script id="gelikon-mini-cart-script">
+	(function(){
+		if (window.glFullMiniCartInitialized) return;
+		window.glFullMiniCartInitialized = true;
+
+		const MINI_CART_ID = 'gl-full-mini-cart';
+		const checkoutUrl = <?php echo wp_json_encode($checkout_url); ?>;
+		const ajaxUrl = <?php echo wp_json_encode($ajax_url); ?>;
+
+		let hideTimer = null;
+		let lastCartTrigger = null;
+
+		function ensureMiniCart() {
+			let panel = document.getElementById(MINI_CART_ID);
+
+			if (panel) return panel;
+
+			panel = document.createElement('div');
+			panel.id = MINI_CART_ID;
+			panel.className = 'gl-full-mini-cart';
+
+			panel.innerHTML = `
+				<div class="gl-full-mini-cart__head">
+					<p class="gl-full-mini-cart__title">Корзина</p>
+					<button type="button" class="gl-full-mini-cart__close" aria-label="Закрыть">×</button>
+				</div>
+
+				<div class="gl-full-mini-cart__body">
+					<div class="gl-full-mini-cart__items"></div>
+				</div>
+
+				<div class="gl-full-mini-cart__footer" style="display:none;">
+					<div class="gl-full-mini-cart__total">
+						<span>Итого</span>
+						<strong>0 ₽</strong>
+					</div>
+
+					<div class="gl-full-mini-cart__actions">
+						<a class="gl-full-mini-cart__checkout" href="${checkoutUrl}">Оформить заказ</a>
+					</div>
+				</div>
+			`;
+
+			document.body.appendChild(panel);
+
+			panel.addEventListener('mouseenter', clearHideTimer);
+			panel.addEventListener('mouseleave', scheduleHide);
+			panel.querySelector('.gl-full-mini-cart__close').addEventListener('click', hideMiniCart);
+
+			return panel;
+		}
+
+		function setMiniCartLoading() {
+			const panel = ensureMiniCart();
+			const itemsNode = panel.querySelector('.gl-full-mini-cart__items');
+
+			panel.classList.add('is-loading');
+
+			itemsNode.innerHTML = `
+				<div class="gl-full-mini-cart__loader">
+					<div class="gl-full-mini-cart__skeleton">
+						<div class="gl-full-mini-cart__skeleton-img"></div>
+						<div>
+							<div class="gl-full-mini-cart__skeleton-line"></div>
+							<div class="gl-full-mini-cart__skeleton-line"></div>
+						</div>
+					</div>
+					<div class="gl-full-mini-cart__skeleton">
+						<div class="gl-full-mini-cart__skeleton-img"></div>
+						<div>
+							<div class="gl-full-mini-cart__skeleton-line"></div>
+							<div class="gl-full-mini-cart__skeleton-line"></div>
+						</div>
+					</div>
+				</div>
+			`;
+		}
+
+		function setCartCount(count) {
+			const safeCount = Math.max(parseInt(count, 10) || 0, 0);
+
+			document.querySelectorAll('.gl-cart-count').forEach(function(node){
+				node.textContent = String(safeCount);
+			});
+		}
+
+		function clearHideTimer() {
+			if (hideTimer) {
+				window.clearTimeout(hideTimer);
+				hideTimer = null;
+			}
+		}
+
+		function scheduleHide() {
+			clearHideTimer();
+
+			hideTimer = window.setTimeout(function(){
+				const panel = ensureMiniCart();
+
+				if (!panel.matches(':hover')) {
+					hideMiniCart();
+				}
+			}, 4500);
+		}
+
+		function showMiniCart() {
+			const panel = ensureMiniCart();
+
+			positionMiniCart(panel);
+			panel.classList.add('is-visible');
+
+			clearHideTimer();
+			scheduleHide();
+		}
+
+		function hideMiniCart() {
+			const panel = ensureMiniCart();
+			panel.classList.remove('is-visible');
+			clearHideTimer();
+		}
+
+		function positionMiniCart(panel) {
+			const cartLink = document.querySelector('.gl-cart-link');
+
+			if (!cartLink || window.innerWidth <= 767) {
+				panel.style.top = '';
+				panel.style.right = '';
+				return;
+			}
+
+			const rect = cartLink.getBoundingClientRect();
+			const panelWidth = 430;
+			const gap = 14;
+
+			let right = window.innerWidth - rect.right - 8;
+
+			if (right < 20) {
+				right = 20;
+			}
+
+			panel.style.top = (rect.bottom + gap) + 'px';
+			panel.style.right = right + 'px';
+
+			const leftEdge = window.innerWidth - right - panelWidth;
+
+			if (leftEdge < 12) {
+				panel.style.right = '12px';
+			}
+		}
+
+		function setButtonInCartState(button) {
+			if (!button) return;
+
+			button.classList.add('is-in-cart', 'added');
+			button.textContent = 'В корзине';
+			button.style.color = '#fff';
+			button.setAttribute('aria-label', 'Товар уже в корзине');
+		}
+
+		function stripHtml(html) {
+			const temp = document.createElement('div');
+			temp.innerHTML = html || '';
+			return temp.textContent || '';
+		}
+
+		function updateCartCountFromFragments(fragments) {
+			if (!fragments || typeof fragments !== 'object') return false;
+
+			const html = fragments['.gl-cart-count'] || fragments['span.gl-cart-count'];
+
+			if (!html) return false;
+
+			const temp = document.createElement('div');
+			temp.innerHTML = html;
+
+			const incoming = temp.querySelector('.gl-cart-count') || temp.firstElementChild;
+
+			if (!incoming) return false;
+
+			document.querySelectorAll('.gl-cart-count').forEach(function(node){
+				node.textContent = incoming.textContent;
+			});
+
+			return true;
+		}
+
+		function incrementCartCountFallback() {
+			document.querySelectorAll('.gl-cart-count').forEach(function(node){
+				const current = parseInt((node.textContent || '').replace(/\D+/g, ''), 10);
+				node.textContent = String((isNaN(current) ? 0 : current) + 1);
+			});
+		}
+
+		function renderMiniCartFromFragments(fragments) {
+			const panel = ensureMiniCart();
+			const itemsNode = panel.querySelector('.gl-full-mini-cart__items');
+			const totalNode = panel.querySelector('.gl-full-mini-cart__total strong');
+			const footerNode = panel.querySelector('.gl-full-mini-cart__footer');
+
+			let miniCartHtml = '';
+
+			if (fragments && fragments['div.widget_shopping_cart_content']) {
+				miniCartHtml = fragments['div.widget_shopping_cart_content'];
+			}
+
+			if (!miniCartHtml && window.jQuery) {
+				const widgetContent = window.jQuery('.widget_shopping_cart_content').first();
+
+				if (widgetContent.length) {
+					miniCartHtml = widgetContent.html();
+				}
+			}
+
+			if (!miniCartHtml) {
+				return;
+			}
+
+			const temp = document.createElement('div');
+			temp.innerHTML = miniCartHtml;
+
+			const wooItems = temp.querySelectorAll('.woocommerce-mini-cart-item, .mini_cart_item');
+			const wooTotal = temp.querySelector('.woocommerce-mini-cart__total .amount, .woocommerce-mini-cart__total bdi, .total .amount, .total bdi');
+
+			if (!wooItems.length) {
+				itemsNode.innerHTML = '<div class="gl-full-mini-cart__empty">Корзина пуста</div>';
+				totalNode.textContent = '0 ₽';
+
+				if (footerNode) {
+					footerNode.style.display = 'none';
+				}
+
+				panel.classList.remove('is-loading');
+				return;
+			}
+
+			if (footerNode) {
+				footerNode.style.display = '';
+			}
+
+			let html = '';
+
+			wooItems.forEach(function(item){
+				const img = item.querySelector('img');
+				const remove = item.querySelector('.remove, .remove_from_cart_button');
+				const qtyNode = item.querySelector('.quantity');
+
+				const removeHref = remove ? remove.href : '#';
+				const removeKey = remove ? remove.getAttribute('data-cart_item_key') : '';
+				const removeProductId = remove ? remove.getAttribute('data-product_id') : '';
+				const qtyText = qtyNode ? qtyNode.textContent.replace(/\s+/g, ' ').trim() : '';
+
+				if (qtyNode) {
+					qtyNode.remove();
+				}
+
+				if (remove) {
+					remove.remove();
+				}
+
+				const link = item.querySelector('a:not(.remove)');
+				const name = link ? stripHtml(link.innerHTML).replace(/\s+/g, ' ').trim() : stripHtml(item.innerHTML).trim();
+				const href = link ? link.href : '#';
+				const imgSrc = img ? img.src : '';
+
+				html += `
+					<div class="gl-full-mini-cart__item">
+						<a
+							class="gl-full-mini-cart__remove"
+							href="${removeHref}"
+							data-cart_item_key="${removeKey || ''}"
+							data-product_id="${removeProductId || ''}"
+							aria-label="Удалить товар"
+						>×</a>
+
+						${imgSrc ? `<img class="gl-full-mini-cart__image" src="${imgSrc}" alt="">` : `<div class="gl-full-mini-cart__image"></div>`}
+
+						<div>
+							<a class="gl-full-mini-cart__name" href="${href}">${name}</a>
+
+							<div class="gl-full-mini-cart__meta">
+								<span class="gl-full-mini-cart__qty">${qtyText}</span>
+							</div>
+						</div>
+					</div>
+				`;
+			});
+
+			itemsNode.innerHTML = html;
+			totalNode.textContent = wooTotal ? wooTotal.textContent.replace(/\s+/g, ' ').trim() : '';
+
+			panel.classList.remove('is-loading');
+		}
+
+		function refreshMiniCartAjax(callback) {
+			if (!window.wc_cart_fragments_params || !window.jQuery) return;
+
+			setMiniCartLoading();
+
+			window.jQuery.ajax({
+				url: window.wc_cart_fragments_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
+				type: 'POST',
+				success: function(data) {
+					if (data && data.fragments) {
+						renderMiniCartFromFragments(data.fragments);
+						updateCartCountFromFragments(data.fragments);
+
+						if (typeof callback === 'function') {
+							callback(data);
+						}
+					}
+				},
+				complete: function() {
+					ensureMiniCart().classList.remove('is-loading');
+				}
+			});
+		}
+
+		function removeMiniCartItem(removeButton) {
+			if (!removeButton || !window.jQuery) {
+				return;
+			}
+
+			const cartItemKey = removeButton.getAttribute('data-cart_item_key');
+			const item = removeButton.closest('.gl-full-mini-cart__item');
+
+			if (!cartItemKey) {
+				return;
+			}
+
+			removeButton.classList.add('is-loading');
+
+			if (item) {
+				item.style.opacity = '.45';
+				item.style.pointerEvents = 'none';
+			}
+
+			window.jQuery.ajax({
+				type: 'POST',
+				url: ajaxUrl,
+				data: {
+					action: 'gelikon_remove_cart_item',
+					cart_item_key: cartItemKey
+				},
+				success: function(response) {
+					if (!response || !response.success || !response.data) {
+						refreshMiniCartAjax();
+						return;
+					}
+
+					if (response.data.fragments) {
+						renderMiniCartFromFragments(response.data.fragments);
+					}
+
+					if (typeof response.data.count !== 'undefined') {
+						setCartCount(response.data.count);
+					}
+
+					showMiniCart();
+					clearHideTimer();
+				},
+				error: function() {
+					refreshMiniCartAjax();
+				}
+			});
+		}
+
+		function removePostponedNotice() {
+			document.querySelectorAll('.woocommerce-message, .woocommerce-info, .woocommerce-error li, .woocommerce-notices-wrapper > *').forEach(function(notice){
+				const text = (notice.textContent || '').toLowerCase();
+
+				if (
+					text.includes('вы отложили товар') ||
+					text.includes('отложили товар')
+				) {
+					notice.remove();
+				}
+			});
+		}
+
+		document.querySelectorAll('.gl-product-card__button.added, .single_add_to_cart_button.added').forEach(setButtonInCartState);
+
+		document.body.addEventListener('click', function(event){
+			const removeButton = event.target.closest('.gl-full-mini-cart__remove');
+
+			if (removeButton) {
+				event.preventDefault();
+				removeMiniCartItem(removeButton);
+				return;
+			}
+
+			const btn = event.target.closest('.ajax_add_to_cart, .single_add_to_cart_button');
+
+			if (btn) {
+				lastCartTrigger = btn;
+			}
+		});
+
+		document.addEventListener('mouseenter', function(event){
+			const cartLink = event.target.closest('.gl-cart-link');
+
+			if (!cartLink) return;
+
+			showMiniCart();
+			refreshMiniCartAjax();
+			clearHideTimer();
+		}, true);
+
+		document.addEventListener('mouseleave', function(event){
+			const cartLink = event.target.closest('.gl-cart-link');
+
+			if (!cartLink) return;
+
+			scheduleHide();
+		}, true);
+
+		window.addEventListener('resize', function(){
+			const panel = ensureMiniCart();
+
+			if (panel.classList.contains('is-visible')) {
+				positionMiniCart(panel);
+			}
+		});
+
+		if (window.jQuery) {
+			window.jQuery(document.body).on('adding_to_cart', function(_e, button){
+				if (button && button[0]) {
+					lastCartTrigger = button[0];
+				}
+
+				showMiniCart();
+				setMiniCartLoading();
+			});
+
+			window.jQuery(document.body).on('added_to_cart', function(_e, fragments, _hash, button){
+				const target = (button && button[0]) || lastCartTrigger;
+
+				if (target) {
+					setButtonInCartState(target);
+				}
+
+				renderMiniCartFromFragments(fragments);
+
+				if (!updateCartCountFromFragments(fragments)) {
+					incrementCartCountFallback();
+				}
+
+				showMiniCart();
+			});
+		}
+
+		document.body.addEventListener('submit', function(event){
+			const form = event.target.closest('form.cart');
+
+			if (!form) return;
+
+			const submitButton = form.querySelector('.single_add_to_cart_button');
+
+			if (!submitButton || submitButton.disabled) return;
+
+			lastCartTrigger = submitButton;
+
+			showMiniCart();
+			setMiniCartLoading();
+
+			window.setTimeout(function(){
+				setButtonInCartState(submitButton);
+				refreshMiniCartAjax();
+			}, 300);
+		});
+
+		removePostponedNotice();
+
+		const noticeObserver = new MutationObserver(removePostponedNotice);
+		noticeObserver.observe(document.body, {
+			childList: true,
+			subtree: true
+		});
+	})();
+	</script>
+	<?php
+}, 99);
+
+
+
+
+
+
+
+/**
+ * Checkout: RU compact flow.
+ */
+add_filter('woocommerce_checkout_fields', function ($fields) {
+	if (isset($fields['billing'])) {
+		$fields['billing']['billing_first_name']['label'] = 'ФИО';
+		$fields['billing']['billing_first_name']['placeholder'] = 'Иванов Иван Иванович';
+		$fields['billing']['billing_first_name']['required'] = true;
+		$fields['billing']['billing_first_name']['priority'] = 10;
+
+		unset($fields['billing']['billing_last_name'], $fields['billing']['billing_company'], $fields['billing']['billing_country'], $fields['billing']['billing_state'], $fields['billing']['billing_postcode'], $fields['billing']['billing_city'], $fields['billing']['billing_address_1'], $fields['billing']['billing_address_2']);
+
+		$fields['billing']['billing_phone']['label'] = 'Телефон';
+		$fields['billing']['billing_phone']['placeholder'] = '+7 (___) ___-__-__';
+		$fields['billing']['billing_phone']['required'] = true;
+		$fields['billing']['billing_phone']['priority'] = 20;
+
+		$fields['billing']['billing_email']['label'] = 'Email';
+		$fields['billing']['billing_email']['placeholder'] = 'example@mail.ru';
+		$fields['billing']['billing_email']['required'] = false;
+		$fields['billing']['billing_email']['priority'] = 30;
+	}
+
+	if (isset($fields['shipping'])) {
+		unset($fields['shipping']['shipping_first_name'], $fields['shipping']['shipping_last_name'], $fields['shipping']['shipping_company'], $fields['shipping']['shipping_country'], $fields['shipping']['shipping_state'], $fields['shipping']['shipping_postcode'], $fields['shipping']['shipping_address_2']);
+		$fields['shipping']['shipping_city']['label'] = 'Город';
+		$fields['shipping']['shipping_city']['placeholder'] = 'Москва';
+		$fields['shipping']['shipping_city']['priority'] = 10;
+		$fields['shipping']['shipping_address_1']['label'] = 'Улица и дом';
+		$fields['shipping']['shipping_address_1']['placeholder'] = 'Ленинский проспект, 10';
+		$fields['shipping']['shipping_address_1']['priority'] = 20;
+	}
+
+	if (isset($fields['order']['order_comments'])) {
+		$fields['order']['order_comments']['label'] = 'Комментарий к заказу';
+	}
+
+	return $fields;
+}, 20);
+
+add_filter('gettext', function ($translated, $text, $domain) {
+	if ('woocommerce' !== $domain) {
+		return $translated;
+	}
+	if ('Have a coupon? %s' === $text) {
+		return 'Есть купон? %s';
+	}
+	if ('Click here to enter your code' === $text) {
+		return 'Показать поле';
+	}
+	return $translated;
+}, 10, 3);
+
+add_action('wp', function () {
+	if (function_exists('is_checkout') && is_checkout()) {
+		remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10);
+	}
+});
+
+
+
+
+
+
+
+
+
+
+/**
+ * Product description fields: plain textarea instead of Gutenberg/visual editors.
+ */
+
+/**
+ * Отключаем Gutenberg для товаров.
+ */
+add_filter('use_block_editor_for_post_type', function ($use_block_editor, $post_type) {
+	return $post_type === 'product' ? false : $use_block_editor;
+}, 10, 2);
+
+
+/**
+ * Убираем стандартный редактор описания товара.
+ */
+add_action('init', function () {
+	remove_post_type_support('product', 'editor');
+}, 100);
+
+
+/**
+ * Добавляем обычное textarea для полного описания товара.
+ */
+add_action('add_meta_boxes_product', function () {
+	add_meta_box(
+		'gelikon_plain_product_description',
+		'Описание товара',
+		'gelikon_plain_product_description_metabox',
+		'product',
+		'normal',
+		'high'
+	);
+});
+
+function gelikon_plain_product_description_metabox($post) {
+	wp_nonce_field('gelikon_save_plain_product_description', 'gelikon_plain_product_description_nonce');
+
+	$content = get_post_field('post_content', $post->ID);
+
+	echo '<p style="margin-top:0;color:#666;">Вставляйте обычный текст. Лишние стили, шрифты и HTML будут удалены при сохранении.</p>';
+
+	echo '<textarea name="gelikon_product_description" style="width:100%;min-height:260px;font-family:monospace;font-size:14px;line-height:1.5;">' . esc_textarea($content) . '</textarea>';
+}
+
+
+/**
+ * Заменяем краткое описание товара на обычное textarea.
+ */
+add_action('add_meta_boxes_product', function () {
+	remove_meta_box('postexcerpt', 'product', 'normal');
+
+	add_meta_box(
+		'gelikon_plain_product_excerpt',
+		'Краткое описание товара',
+		'gelikon_plain_product_excerpt_metabox',
+		'product',
+		'normal',
+		'high'
+	);
+}, 99);
+
+function gelikon_plain_product_excerpt_metabox($post) {
+	$excerpt = get_post_field('post_excerpt', $post->ID);
+
+	echo '<p style="margin-top:0;color:#666;">Краткий текст рядом с ценой/кнопкой покупки. Без сторонних стилей и шрифтов.</p>';
+
+	echo '<textarea name="gelikon_product_excerpt" style="width:100%;min-height:160px;font-family:monospace;font-size:14px;line-height:1.5;">' . esc_textarea($excerpt) . '</textarea>';
+}
+
+
+/**
+ * Сохраняем оба поля.
+ */
+add_action('save_post_product', function ($post_id) {
+	if (
+		defined('DOING_AUTOSAVE') && DOING_AUTOSAVE
+		|| wp_is_post_revision($post_id)
+		|| !current_user_can('edit_product', $post_id)
+	) {
+		return;
+	}
+
+	if (
+		empty($_POST['gelikon_plain_product_description_nonce'])
+		|| !wp_verify_nonce(
+			sanitize_text_field(wp_unslash($_POST['gelikon_plain_product_description_nonce'])),
+			'gelikon_save_plain_product_description'
+		)
+	) {
+		return;
+	}
+
+	remove_action('save_post_product', __FUNCTION__);
+
+	if (isset($_POST['gelikon_product_description'])) {
+		$description = gelikon_clean_plain_product_text(wp_unslash($_POST['gelikon_product_description']));
+
+		wp_update_post([
+			'ID'           => $post_id,
+			'post_content' => $description,
+		]);
+	}
+
+	if (isset($_POST['gelikon_product_excerpt'])) {
+		$excerpt = gelikon_clean_plain_product_text(wp_unslash($_POST['gelikon_product_excerpt']));
+
+		wp_update_post([
+			'ID'           => $post_id,
+			'post_excerpt' => $excerpt,
+		]);
+	}
+
+	add_action('save_post_product', __FUNCTION__);
+}, 20);
+
+
+/**
+ * Чистка текста от мусора Word / Google Docs / inline-стилей.
+ */
+function gelikon_clean_plain_product_text($content) {
+	$content = trim($content);
+
+	$content = preg_replace('/<!--(.|\s)*?-->/', '', $content);
+	$content = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $content);
+	$content = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $content);
+	$content = preg_replace('/<font\b[^>]*>(.*?)<\/font>/is', '$1', $content);
+	$content = preg_replace('/<span\b[^>]*>(.*?)<\/span>/is', '$1', $content);
+
+	$content = preg_replace('/\s(style|class|id|face|font-family|lang|width|height)="[^"]*"/i', '', $content);
+	$content = preg_replace("/\s(style|class|id|face|font-family|lang|width|height)='[^']*'/i", '', $content);
+
+	$content = wp_kses($content, [
+		'p'      => [],
+		'br'     => [],
+		'strong' => [],
+		'b'      => [],
+		'em'     => [],
+		'i'      => [],
+		'ul'     => [],
+		'ol'     => [],
+		'li'     => [],
+		'h2'     => [],
+		'h3'     => [],
+		'h4'     => [],
+		'a'      => [
+			'href'   => [],
+			'title'  => [],
+			'target' => [],
+			'rel'    => [],
+		],
+	]);
+
+	$content = wpautop($content);
+
+	return $content;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Разрешить загрузку SVG в медиабиблиотеку.
+ */
+
+/**
+ * Добавляем SVG в список разрешённых MIME.
+ */
+add_filter('upload_mimes', function ($mimes) {
+	if (current_user_can('manage_options')) {
+		$mimes['svg'] = 'image/svg+xml';
+		$mimes['svgz'] = 'image/svg+xml';
+	}
+
+	return $mimes;
+});
+
+
+/**
+ * Исправляем проверку типа файла для SVG.
+ */
+add_filter('wp_check_filetype_and_ext', function ($data, $file, $filename, $mimes) {
+	$filetype = wp_check_filetype($filename, $mimes);
+
+	if (isset($filetype['ext']) && in_array($filetype['ext'], ['svg', 'svgz'], true)) {
+		$data['ext']  = $filetype['ext'];
+		$data['type'] = 'image/svg+xml';
+	}
+
+	return $data;
+}, 10, 4);
+
+
+/**
+ * Показываем SVG-превью в медиабиблиотеке.
+ */
+add_action('admin_head', function () {
+	echo '<style>
+		.attachment-266x266, 
+		.thumbnail img[src$=".svg"] {
+			width: 100% !important;
+			height: auto !important;
+		}
+
+		.media-icon img[src$=".svg"],
+		img[src$=".svg"].attachment-post-thumbnail {
+			width: 100% !important;
+			height: auto !important;
+		}
+	</style>';
+});
