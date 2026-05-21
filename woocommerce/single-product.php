@@ -959,7 +959,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 .gl-product-summary__subtitle {
 	margin: 16px 0 16px;
-	font-size: 17px;
 	line-height: 1.5;
 	font-weight: 400;
 	color: #5A5A5A;

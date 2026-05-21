@@ -1640,6 +1640,112 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 
+
+
+<!-- Сортировка -->
+<style>
+	/* Catalog sort */
+.gl-catalog-page__toolbar {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	margin-left: auto;
+}
+
+.gl-catalog-sort {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.gl-catalog-sort__label {
+	color: #7c838c;
+	font-size: 14px;
+	line-height: 1.3;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.gl-catalog-sort__select {
+	appearance: none;
+	-webkit-appearance: none;
+	min-width: 210px;
+	height: 46px;
+	padding: 0 44px 0 18px;
+	border: 1px solid #dfe6e1;
+	border-radius: 999px;
+	background-color: #fff;
+	background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.5 1.5L6 6L10.5 1.5' fill='none' stroke='%237c838c' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 18px center;
+	background-size: 12px 8px;
+	color: #171d2a;
+	font-size: 14px;
+	line-height: 1;
+	font-weight: 600;
+	cursor: pointer;
+	box-shadow: 0 10px 24px rgba(23, 29, 42, 0.04);
+	transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+
+.gl-catalog-sort__select:hover {
+	border-color: #cfd9d2;
+	background-color: #fbfcfb;
+}
+
+.gl-catalog-sort__select:focus {
+	outline: none;
+	border-color: var(--gl-color-accent, #2f8f5b);
+	box-shadow: 0 0 0 3px rgba(47, 143, 91, 0.12);
+}
+
+.gl-catalog-sort__select option {
+	color: #171d2a;
+	background: #fff;
+	font-size: 14px;
+}
+
+@media (max-width: 767px) {
+	.gl-catalog-page__toolbar {
+		width: 100%;
+		align-items: stretch;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.gl-catalog-sort {
+		width: 100%;
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.gl-catalog-sort__select {
+		width: 100%;
+		min-width: 0;
+	}
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+	const sortSelect = document.getElementById('gl-catalog-sort');
+
+	if (!sortSelect) {
+		return;
+	}
+
+	sortSelect.addEventListener('change', function () {
+		const url = new URL(window.location.href);
+
+		url.searchParams.set('orderby', this.value);
+		url.searchParams.delete('paged');
+
+		window.location.href = url.toString();
+	});
+});
+</script>
+
 <?php
 wp_reset_postdata();
 get_footer('shop');

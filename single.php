@@ -67,7 +67,7 @@ while (have_posts()) :
 							</div>
 						<?php endif; ?>
 
-						<h1 class="gl-single-blog-hero__title"><?php the_title(); ?></h1>
+						<h1 class="gl-blog-head h1"><?php the_title(); ?></h1>
 
 						<div class="gl-single-blog-hero__meta">
 							<span><?php echo esc_html(get_the_date('d.m.Y')); ?></span>
@@ -82,11 +82,7 @@ while (have_posts()) :
 						<?php endif; ?>
 					</div>
 
-					<?php if (has_post_thumbnail()) : ?>
-						<div class="gl-card gl-single-blog-hero__image">
-							<?php the_post_thumbnail('full'); ?>
-						</div>
-					<?php endif; ?>
+					
 				</div>
 			</section>
 
@@ -215,7 +211,6 @@ while (have_posts()) :
 	<style>
 	.gl-single-blog-page {
 		padding: 28px 0 80px;
-		background: #f3f4f2;
 	}
 
 	.gl-single-blog-page .woocommerce-breadcrumb {
@@ -271,13 +266,14 @@ while (have_posts()) :
 		color: var(--gl-color-accent);
 	}
 
-	.gl-single-blog-hero__title {
-		margin: 0 0 18px;
-		font-size: clamp(34px, 4vw, 64px);
-		line-height: 0.98;
-		letter-spacing: -0.05em;
-		color: #171d2a;
-	}
+	.gl-blog-head h1 {
+	margin: 0 0 14px;
+	color: #171d2a;
+	font-size: clamp(34px, 4vw, 56px);
+	line-height: 1;
+	letter-spacing: -0.045em;
+	font-weight: 800;
+}
 
 	.gl-single-blog-hero__meta {
 		display: flex;
@@ -633,26 +629,26 @@ while (have_posts()) :
 		color: #656b73;
 	}
 
-	.gl-blog-card__more {
-		display: inline-flex;
-		align-items: center;
-		min-height: 46px;
-		padding: 0 18px;
-		margin-top: auto;
-		border-radius: 999px;
-		background: rgba(34, 197, 94, 0.10);
-		color: var(--gl-color-accent);
-		text-decoration: none;
-		font-size: 14px;
-		font-weight: 700;
-		transition: .2s ease;
-	}
+.gl-blog-card__more {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: fit-content;
+	min-height: 42px;
+	margin-top: auto;
+	padding: 0 17px;
+	border-radius: 999px;
+	background: rgba(47, 143, 91, .10);
+	color: var(--gl-color-accent, #2f8f5b);
+	text-decoration: none;
+	font-size: 14px;
+	font-weight: 800;
+}
 
-	.gl-blog-card__more:hover {
-		transform: translateY(-1px);
-		background: var(--gl-color-accent);
-		color: #fff;
-	}
+.gl-blog-card__more:hover {
+	background: var(--gl-color-accent, #2f8f5b);
+	color: #fff;
+}
 
 	.gl-home-section {
 		margin: 50px 0;
@@ -683,9 +679,9 @@ while (have_posts()) :
 			margin-bottom: 14px;
 		}
 
-		.gl-single-blog-hero__title {
-			font-size: 34px;
-			line-height: 1.02;
+		.gl-blog-head h1 {
+			font-size: 36px;
+			line-height: 1.35;
 		}
 
 		.gl-single-blog-hero__excerpt {

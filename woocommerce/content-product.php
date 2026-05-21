@@ -3,7 +3,7 @@ defined('ABSPATH') || exit;
 
 global $product;
 
-if (empty($product) || !$product->is_visible()) {
+if (empty($product) || !$product instanceof WC_Product || !$product->is_visible()) {
 	return;
 }
 
@@ -11,17 +11,8 @@ $product_id   = $product->get_id();
 $product_url  = get_permalink($product_id);
 $product_name = $product->get_name();
 $price_html   = $product->get_price_html();
-$is_featured  = $product->is_featured();
-$is_on_sale   = $product->is_on_sale();
 $is_in_stock  = $product->is_in_stock();
 $product_type = $product->get_type();
-
-$badge = '';
-if ($is_on_sale) {
-	$badge = 'Sale';
-} elseif ($is_featured) {
-	$badge = 'Хит';
-}
 
 $image_html = $product->get_image('woocommerce_thumbnail', [
 	'class'   => 'gl-product-card__image',
@@ -30,25 +21,40 @@ $image_html = $product->get_image('woocommerce_thumbnail', [
 
 $add_to_cart_url  = $product->add_to_cart_url();
 $add_to_cart_desc = $product->add_to_cart_description();
-$is_catalog_view  = function_exists('is_shop') && (is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy());
-$primary_cta_text = $is_catalog_view ? __('В корзину', 'gelikon') : __('Купить', 'gelikon');
+
+/**
+ * Важно:
+ * При AJAX-фильтрации и AJAX-пагинации is_shop(), is_product_category()
+ * и похожие условные теги могут не работать, потому что запрос идет через admin-ajax.php.
+ * Поэтому текст кнопки фиксируем напрямую.
+ */
+$primary_cta_text = __('В корзину', 'gelikon');
 ?>
+
 <li <?php wc_product_class('gl-product-card', $product); ?>>
 	<div class="gl-product-card__inner">
 
 		<a class="gl-product-card__link" href="<?php echo esc_url($product_url); ?>">
 			<div class="gl-product-card__media">
-				<?php echo gelikon_render_product_badges($product_id, 'card'); ?>
+				<?php
+				if (function_exists('gelikon_render_product_badges')) {
+					echo gelikon_render_product_badges($product_id, 'card');
+				}
+				?>
 
-				<?php if ($image_html) : ?>
-					<?php echo $image_html; ?>
+				<?php if (!empty($image_html)) : ?>
+					<?php echo wp_kses_post($image_html); ?>
 				<?php else : ?>
-					<?php echo wc_placeholder_img('woocommerce_thumbnail', ['class' => 'gl-product-card__image']); ?>
+					<?php echo wc_placeholder_img('woocommerce_thumbnail', [
+						'class' => 'gl-product-card__image',
+					]); ?>
 				<?php endif; ?>
 			</div>
 
 			<div class="gl-product-card__content">
-				<h3 class="gl-product-card__title"><?php echo esc_html($product_name); ?></h3>
+				<h3 class="gl-product-card__title">
+					<?php echo esc_html($product_name); ?>
+				</h3>
 
 				<div class="gl-product-card__meta">
 					<span class="gl-product-card__stock <?php echo $is_in_stock ? 'is-in-stock' : 'is-out-of-stock'; ?>">
@@ -59,7 +65,7 @@ $primary_cta_text = $is_catalog_view ? __('В корзину', 'gelikon') : __('
 		</a>
 
 		<div class="gl-product-card__purchase">
-			<?php if ($price_html) : ?>
+			<?php if (!empty($price_html)) : ?>
 				<div class="gl-product-card__price">
 					<?php echo wp_kses_post($price_html); ?>
 				</div>
@@ -87,9 +93,11 @@ $primary_cta_text = $is_catalog_view ? __('В корзину', 'gelikon') : __('
 					<?php endif; ?>
 
 				<?php else : ?>
+
 					<a href="<?php echo esc_url($product_url); ?>" class="gl-product-card__button gl-product-card__button--disabled">
 						<?php esc_html_e('Подробнее', 'gelikon'); ?>
 					</a>
+
 				<?php endif; ?>
 			</div>
 		</div>

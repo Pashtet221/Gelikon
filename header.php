@@ -669,9 +669,9 @@ button {
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
-	gap: 4px;
-	width: 42px;
-	height: 42px;
+	gap: 6px;
+	width: 52px;
+	height: 52px;
 	padding: 0;
 	border: 0;
 	background: transparent;
@@ -681,8 +681,8 @@ button {
 
 .gl-burger span {
 	display: block;
-	width: 20px;
-	height: 2px;
+	width: 28px;
+	height: 3px;
 	border-radius: 2px;
 	background: var(--gl-color-text);
 }
@@ -1313,7 +1313,7 @@ body.gl-modal-open {
 @media (max-width: 767px) {
 	.gl-logo img,
 	.gl-logo svg {
-		max-width: 132px;
+		max-width: 170px;
 	}
 
 	.gl-contact-modal__dialog {

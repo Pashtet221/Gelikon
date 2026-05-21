@@ -4603,9 +4603,9 @@ add_action('wp_footer', function () {
 			display: block;
 			margin: 0 0 6px;
 			font-size: 14px;
-			font-weight: 700;
+			font-weight: 600;
 			line-height: 1.35;
-			color: #171d2a !important;
+			color: #15191f !important;
 			text-decoration: none !important;
 		}
 
@@ -5537,3 +5537,585 @@ add_action('admin_head', function () {
 		}
 	</style>';
 });
+
+
+
+
+
+
+
+
+
+
+/**
+ * Gelikon: чистим НДС и строки доставки в заказе / письмах.
+ */
+function gelikon_clean_includes_tax_text($html) {
+	if (!is_string($html)) {
+		return $html;
+	}
+
+	$html = preg_replace(
+		'~<small\b([^>]*)>\(\s*включая\s*(.*?)\s*НДС\s*\)</small>~su',
+		'<small$1>$2 НДС</small>',
+		$html
+	);
+
+	$html = preg_replace_callback(
+		'~<small\b([^>]*)>(.*?)</small>~su',
+		function($matches) {
+			$attrs = $matches[1];
+			$content = $matches[2];
+
+			if (strpos($content, 'НДС') === false) {
+				return $matches[0];
+			}
+
+			if (strpos($attrs, 'style=') !== false) {
+				$attrs = preg_replace(
+					'~style="([^"]*)"~',
+					'style="$1;font-weight:normal;font-size:14px;line-height:1.3;white-space:nowrap;"',
+					$attrs
+				);
+			} else {
+				$attrs .= ' style="font-weight:normal;font-size:14px;line-height:1.3;white-space:nowrap;"';
+			}
+
+			return '<small' . $attrs . '>' . $content . '</small>';
+		},
+		$html
+	);
+
+	return $html;
+}
+
+/**
+ * Checkout / Cart total.
+ */
+add_filter('woocommerce_cart_totals_order_total_html', 'gelikon_clean_includes_tax_text', 20);
+
+/**
+ * Thank you page / My account / Emails totals.
+ */
+add_filter('woocommerce_get_order_item_totals', function($total_rows, $order, $tax_display) {
+
+	foreach ($total_rows as $key => $row) {
+
+		/**
+		 * Убираем дубль доставки:
+		 * было: Доставка: Доставка - Бесплатно / Доставка - Бесплатно
+		 * будет: Доставка: / Бесплатно
+		 */
+		if ($key === 'shipping') {
+			$total_rows[$key]['label'] = 'Доставка:';
+			$total_rows[$key]['value'] = 'Бесплатно';
+		}
+
+		if (!empty($total_rows[$key]['value'])) {
+			$total_rows[$key]['value'] = gelikon_clean_includes_tax_text($total_rows[$key]['value']);
+		}
+	}
+
+	return $total_rows;
+
+}, 20, 3);
+
+/**
+ * Formatted order total.
+ */
+add_filter('woocommerce_get_formatted_order_total', 'gelikon_clean_includes_tax_text', 20);
+
+/**
+ * Email items table.
+ */
+add_filter('woocommerce_email_order_items_table', 'gelikon_clean_includes_tax_text', 20);
+
+
+
+
+
+
+
+
+
+
+/**
+ * Gelikon: добавляем настройку скидки в метод оплаты Т-Банк.
+ */
+add_filter('woocommerce_settings_api_form_fields_tbank', 'gelikon_add_tbank_discount_setting');
+
+function gelikon_add_tbank_discount_setting($fields) {
+
+	$fields['gelikon_discount_percent'] = array(
+		'title'       => 'Скидка за онлайн-оплату (%)',
+		'type'        => 'number',
+		'description' => 'Укажите процент скидки при выборе оплаты через Т-Банк. Например: 5',
+		'default'     => '5',
+		'desc_tip'    => true,
+		'custom_attributes' => array(
+			'min'  => '0',
+			'max'  => '100',
+			'step' => '0.1',
+		),
+	);
+
+	return $fields;
+}
+
+/**
+ * Gelikon: скидка при выборе онлайн-оплаты Т-Банк.
+ */
+add_action('woocommerce_cart_calculate_fees', 'gelikon_tbank_payment_discount', 20);
+
+function gelikon_tbank_payment_discount($cart) {
+	if (is_admin() && !defined('DOING_AJAX')) {
+		return;
+	}
+
+	if (!$cart || $cart->is_empty()) {
+		return;
+	}
+
+	$chosen_payment_method = WC()->session ? WC()->session->get('chosen_payment_method') : '';
+
+	if ($chosen_payment_method !== 'tbank') {
+		return;
+	}
+
+	$tbank_settings = get_option('woocommerce_tbank_settings', array());
+
+	$discount_percent = isset($tbank_settings['gelikon_discount_percent'])
+		? (float) str_replace(',', '.', $tbank_settings['gelikon_discount_percent'])
+		: 0;
+
+	if ($discount_percent <= 0) {
+		return;
+	}
+
+	$discount = $cart->get_subtotal() * ($discount_percent / 100);
+
+	if ($discount <= 0) {
+		return;
+	}
+
+	$cart->add_fee('Скидка', -$discount, false);
+}
+
+/**
+ * Обновляем checkout при выборе способа оплаты.
+ */
+add_action('wp_footer', 'gelikon_update_checkout_on_payment_change');
+
+function gelikon_update_checkout_on_payment_change() {
+	if (!is_checkout() || is_order_received_page()) {
+		return;
+	}
+	?>
+	<script>
+		jQuery(function($) {
+			$(document.body).on('change', 'input[name="payment_method"]', function() {
+				$(document.body).trigger('update_checkout');
+			});
+		});
+	</script>
+	<?php
+}
+
+
+
+
+
+/**
+ * Gelikon: принудительно выбираем Т-Банк по умолчанию на checkout.
+ */
+add_action('template_redirect', 'gelikon_set_default_checkout_payment_method');
+
+function gelikon_set_default_checkout_payment_method() {
+	if (!function_exists('WC') || !WC()->session) {
+		return;
+	}
+
+	if (!is_checkout() || is_order_received_page()) {
+		return;
+	}
+
+	$default_gateway = 'tbank';
+
+	$chosen_gateway = WC()->session->get('chosen_payment_method');
+
+	/**
+	 * Если ничего не выбрано или выбран Яндекс Сплит — ставим Т-Банк.
+	 */
+	if (empty($chosen_gateway) || strpos($chosen_gateway, 'split') !== false || strpos($chosen_gateway, 'yandex') !== false) {
+		WC()->session->set('chosen_payment_method', $default_gateway);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+add_action('wp_ajax_gelikon_checkout_remove_cart_item', 'gelikon_checkout_remove_cart_item');
+add_action('wp_ajax_nopriv_gelikon_checkout_remove_cart_item', 'gelikon_checkout_remove_cart_item');
+
+function gelikon_checkout_remove_cart_item() {
+	if (
+		empty($_POST['nonce']) ||
+		! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'update-order-review')
+	) {
+		wp_send_json_error();
+	}
+
+	if (! class_exists('WooCommerce') || ! WC()->cart) {
+		wp_send_json_error();
+	}
+
+	$cart_item_key = isset($_POST['cart_item_key'])
+		? sanitize_text_field(wp_unslash($_POST['cart_item_key']))
+		: '';
+
+	if (! $cart_item_key || ! WC()->cart->get_cart_item($cart_item_key)) {
+		wp_send_json_error();
+	}
+
+	WC()->cart->remove_cart_item($cart_item_key);
+	WC()->cart->calculate_totals();
+
+	wp_send_json_success();
+}
+
+
+
+
+
+
+
+
+
+
+add_action('wp_footer', 'gelikon_checkout_phone_mask_script', 100);
+
+function gelikon_checkout_phone_mask_script() {
+	if (! is_checkout() || is_order_received_page()) {
+		return;
+	}
+	?>
+	<script>
+		jQuery(function($) {
+			function gelikonInitPhoneMask() {
+				const phone = $('#billing_phone');
+
+				if (!phone.length || typeof Inputmask === 'undefined') {
+					return;
+				}
+
+				Inputmask({
+					mask: '+7 (999) 999-99-99',
+					showMaskOnHover: false,
+					clearIncomplete: false
+				}).mask(phone);
+			}
+
+			gelikonInitPhoneMask();
+
+			$(document.body).on('updated_checkout', function() {
+				gelikonInitPhoneMask();
+			});
+		});
+	</script>
+	<?php
+}
+
+add_action('wp_enqueue_scripts', 'gelikon_enqueue_inputmask');
+
+function gelikon_enqueue_inputmask() {
+	if (! is_checkout() || is_order_received_page()) {
+		return;
+	}
+
+	wp_enqueue_script(
+		'inputmask',
+		'https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js',
+		array('jquery'),
+		'5.0.9',
+		true
+	);
+}
+
+
+
+
+
+
+/**
+ * Текст кнопки оформления заказа только для T-Bank.
+ */
+add_filter('woocommerce_available_payment_gateways', function($gateways) {
+	if (is_admin() && !wp_doing_ajax()) {
+		return $gateways;
+	}
+
+	if (isset($gateways['tbank'])) {
+		$gateways['tbank']->order_button_text = 'Оплатить';
+	}
+
+	return $gateways;
+});
+
+
+
+
+
+
+/**
+ * Gelikon — стилизация WooCommerce уведомлений.
+ */
+add_action('wp_head', function () {
+	?>
+	<style>
+		.woocommerce-notices-wrapper,
+		.woocommerce-NoticeGroup,
+		.woocommerce-NoticeGroup-checkout {
+			margin: 0 0 22px;
+		}
+
+		.woocommerce-error,
+		.woocommerce-info,
+		.woocommerce-message {
+			position: relative;
+			margin: 0 0 18px !important;
+			padding: 18px 22px 18px 56px !important;
+			border: 1px solid #E5EBE7 !important;
+			border-left: 5px solid #12D457 !important;
+			border-radius: 22px !important;
+			background: #fff !important;
+			color: #171D2A !important;
+			box-shadow: 0 14px 34px rgba(23, 29, 42, 0.08) !important;
+			font-size: 15px;
+			line-height: 1.45;
+			list-style: none !important;
+		}
+
+		.woocommerce-error {
+			border-left-color: #EF4444 !important;
+			background: #FFF7F7 !important;
+		}
+
+		.woocommerce-info {
+			border-left-color: #3B82F6 !important;
+			background: #F7FBFF !important;
+		}
+
+		.woocommerce-message {
+			border-left-color: #12D457 !important;
+			background: #F7FFF9 !important;
+		}
+
+		.woocommerce-error::before,
+		.woocommerce-info::before,
+		.woocommerce-message::before {
+			position: absolute;
+			top: 18px;
+			left: 22px;
+			width: 22px;
+			height: 22px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 50%;
+			font-size: 13px;
+			font-weight: 700;
+			line-height: 1;
+		}
+
+		.woocommerce-error::before {
+			content: "!";
+			background: #EF4444;
+			color: #fff;
+		}
+
+		.woocommerce-info::before {
+			content: "i";
+			background: #3B82F6;
+			color: #fff;
+		}
+
+		.woocommerce-message::before {
+			content: "✓";
+			background: #12D457;
+			color: #fff;
+		}
+
+		.woocommerce-error li,
+		.woocommerce-info li,
+		.woocommerce-message li {
+			margin: 0 0 8px !important;
+			padding: 0 !important;
+			list-style: none !important;
+		}
+
+		.woocommerce-error li:last-child,
+		.woocommerce-info li:last-child,
+		.woocommerce-message li:last-child {
+			margin-bottom: 0 !important;
+		}
+
+		.woocommerce-error a,
+		.woocommerce-info a,
+		.woocommerce-message a {
+			color: inherit !important;
+			text-decoration: none !important;
+			font-weight: 500;
+		}
+
+		.woocommerce-error strong,
+		.woocommerce-info strong,
+		.woocommerce-message strong {
+			font-weight: 700;
+			color: #171D2A;
+		}
+
+		.woocommerce-message .button,
+		.woocommerce-info .button,
+		.woocommerce-error .button {
+			float: none !important;
+			display: inline-flex !important;
+			align-items: center;
+			justify-content: center;
+			margin: 10px 0 0 !important;
+			padding: 10px 18px !important;
+			border-radius: 999px !important;
+			background: #12D457 !important;
+			color: #fff !important;
+			font-size: 14px !important;
+			font-weight: 600 !important;
+			line-height: 1 !important;
+			text-decoration: none !important;
+		}
+
+		.woocommerce-error .button {
+			background: #EF4444 !important;
+		}
+
+		.woocommerce-info .button {
+			background: #3B82F6 !important;
+		}
+
+		@media (max-width: 767px) {
+			.woocommerce-error,
+			.woocommerce-info,
+			.woocommerce-message {
+				padding: 16px 18px 16px 50px !important;
+				border-radius: 18px !important;
+				font-size: 14px;
+			}
+
+			.woocommerce-error::before,
+			.woocommerce-info::before,
+			.woocommerce-message::before {
+				top: 16px;
+				left: 18px;
+			}
+		}
+	</style>
+	<?php
+}, 99);
+
+
+/**
+ * Gelikon — отключаем inline-ошибки под полями checkout.
+ */
+add_action('wp_head', function () {
+	if (!is_checkout()) {
+		return;
+	}
+	?>
+	<style>
+		.checkout-inline-error-message,
+		p.checkout-inline-error-message,
+		.woocommerce-checkout .checkout-inline-error-message,
+		.woocommerce-checkout [id$="_description"].checkout-inline-error-message {
+			display: none !important;
+		}
+	</style>
+	<?php
+}, 100);
+
+
+
+
+add_filter('woocommerce_thankyou_order_received_text', function($text, $order) {
+	return 'Благодарим за заказ';
+}, 10, 2);
+
+add_filter('woocommerce_email_heading_customer_processing_order', function($heading, $order, $email) {
+	return 'Благодарим за заказ';
+}, 10, 3);
+
+add_filter('woocommerce_email_heading_customer_completed_order', function($heading, $order, $email) {
+	return 'Благодарим за заказ';
+}, 10, 3);
+
+
+
+
+
+
+
+/**
+ * Thank you page: сохраняем адрес доставки из shipping_city / shipping_address_1.
+ */
+add_action('woocommerce_checkout_create_order', function($order, $data) {
+
+	if (!empty($_POST['shipping_city'])) {
+		$order->set_shipping_city(sanitize_text_field(wp_unslash($_POST['shipping_city'])));
+	}
+
+	if (!empty($_POST['shipping_address_1'])) {
+		$order->set_shipping_address_1(sanitize_text_field(wp_unslash($_POST['shipping_address_1'])));
+	}
+
+	// Если доставка не заполнена, подставляем платежный адрес, чтобы не было Н/Д.
+	if (!$order->get_shipping_city() && $order->get_billing_city()) {
+		$order->set_shipping_city($order->get_billing_city());
+	}
+
+	if (!$order->get_shipping_address_1() && $order->get_billing_address_1()) {
+		$order->set_shipping_address_1($order->get_billing_address_1());
+	}
+
+}, 20, 2);
+
+
+add_filter('woocommerce_order_get_formatted_shipping_address', function($address, $order) {
+
+	if (!$order instanceof WC_Order) {
+		return $address;
+	}
+
+	$city      = $order->get_shipping_city();
+	$address_1 = $order->get_shipping_address_1();
+
+	if (!$city && !$address_1) {
+		return $address;
+	}
+
+	$parts = array_filter([
+		$address_1,
+		$city,
+	]);
+
+	return esc_html(implode(', ', $parts));
+
+}, 20, 2);
