@@ -4089,9 +4089,68 @@ add_action('acf/init', function () {
 	]);
 });
 
+
+add_action('acf/init', function () {
+	if (!function_exists('acf_add_options_page')) return;
+
+	acf_add_options_page([
+		'page_title' => 'Общие настройки',
+		'menu_title' => 'Общие настройки',
+		'menu_slug'  => 'gelikon-general',
+		'capability' => 'edit_posts',
+		'redirect'   => false,
+	]);
+});
+
 /**
  * Fields
  */
+
+add_action('acf/init', function () {
+	if (!function_exists('acf_add_local_field_group')) return;
+
+	acf_add_local_field_group([
+		'key' => 'group_gelikon_general_product',
+		'title' => 'Общие настройки — карточка товара',
+		'fields' => [
+			[
+				'key' => 'field_product_global_benefits',
+				'label' => 'Преимущества в карточке товара',
+				'name' => 'product_global_benefits',
+				'type' => 'repeater',
+				'layout' => 'row',
+				'min' => 0,
+				'button_label' => 'Добавить преимущество',
+				'sub_fields' => [
+					[
+						'key' => 'field_product_global_benefit_icon',
+						'label' => 'Иконка',
+						'name' => 'icon',
+						'type' => 'image',
+						'return_format' => 'array',
+						'preview_size' => 'thumbnail',
+					],
+					[
+						'key' => 'field_product_global_benefit_text',
+						'label' => 'Текст',
+						'name' => 'text',
+						'type' => 'text',
+					],
+				],
+			],
+		],
+		'location' => [
+			[
+				[
+					'param' => 'options_page',
+					'operator' => '==',
+					'value' => 'gelikon-general',
+				],
+			],
+		],
+	]);
+});
+
 add_action('acf/init', function () {
 	if (!function_exists('acf_add_local_field_group')) return;
 
