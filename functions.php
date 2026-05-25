@@ -5450,7 +5450,9 @@ function gelikon_plain_product_excerpt_metabox($post) {
 /**
  * Сохраняем оба поля.
  */
-add_action('save_post_product', function ($post_id) {
+add_action('save_post_product', 'gelikon_save_plain_product_fields', 20);
+
+function gelikon_save_plain_product_fields($post_id) {
 	if (
 		defined('DOING_AUTOSAVE') && DOING_AUTOSAVE
 		|| wp_is_post_revision($post_id)
@@ -5469,7 +5471,7 @@ add_action('save_post_product', function ($post_id) {
 		return;
 	}
 
-	remove_action('save_post_product', __FUNCTION__);
+	remove_action('save_post_product', 'gelikon_save_plain_product_fields', 20);
 
 	if (isset($_POST['gelikon_product_description'])) {
 		$description = gelikon_clean_plain_product_text(wp_unslash($_POST['gelikon_product_description']));
@@ -5489,8 +5491,8 @@ add_action('save_post_product', function ($post_id) {
 		]);
 	}
 
-	add_action('save_post_product', __FUNCTION__);
-}, 20);
+	add_action('save_post_product', 'gelikon_save_plain_product_fields', 20);
+}
 
 
 /**
