@@ -6178,3 +6178,95 @@ add_filter('woocommerce_order_get_formatted_shipping_address', function($address
 	return esc_html(implode(', ', $parts));
 
 }, 20, 2);
+
+
+
+
+
+
+
+
+/**
+ * Убираем сообщение "Товар добавлен в корзину" на странице оформления заказа
+ */
+add_action('template_redirect', function () {
+	if (function_exists('is_checkout') && is_checkout() && !is_order_received_page()) {
+		wc_clear_notices();
+	}
+});
+
+
+
+
+/**
+ * AJAX добавление товара в корзину на странице товара без перезагрузки
+ */
+add_action('wp_footer', function () {
+	if (!is_product()) {
+		return;
+	}
+	?>
+	<script>
+	jQuery(function ($) {
+
+		$(document).on('submit', 'form.cart', function (e) {
+			e.preventDefault();
+
+			const $form = $(this);
+			const $button = $form.find('.single_add_to_cart_button');
+
+			if ($button.hasClass('disabled')) {
+				return;
+			}
+
+			let productId = $form.find('[name="add-to-cart"]').val() || $button.val();
+			let quantity  = $form.find('input.qty').val() || 1;
+
+			if (!productId) {
+				return;
+			}
+
+			$button.addClass('loading').prop('disabled', true);
+
+			$.ajax({
+				type: 'POST',
+				url: wc_add_to_cart_params.wc_ajax_url.replace('%%endpoint%%', 'add_to_cart'),
+				data: {
+					product_id: productId,
+					quantity: quantity
+				},
+				success: function (response) {
+					if (!response) {
+						return;
+					}
+
+					if (response.error && response.product_url) {
+						window.location = response.product_url;
+						return;
+					}
+
+					$(document.body).trigger('added_to_cart', [
+						response.fragments,
+						response.cart_hash,
+						$button
+					]);
+
+					$button.removeClass('loading').addClass('added');
+				},
+				complete: function () {
+					$button.prop('disabled', false).removeClass('loading');
+				}
+			});
+		});
+
+	});
+	</script>
+	<?php
+});
+
+add_action('wp_enqueue_scripts', function () {
+	if (is_product()) {
+		wp_enqueue_script('wc-add-to-cart');
+		wp_enqueue_script('wc-cart-fragments');
+	}
+});

@@ -224,14 +224,6 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 		flex-direction: column;
 	}
 
-	.gl-product-summary__subtitle {
-		font-size: 18px;
-		line-height: 1.45;
-		font-weight: 500;
-		color: #585D63;
-		margin-top: 14px;
-	}
-	
 	.gl-product-summary__meta-inline {
 	display: flex;
 	flex-wrap: wrap;
@@ -976,10 +968,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 .gl-product-summary__subtitle {
-	margin: 16px 0 16px;
-	line-height: 1.5;
-	font-weight: 400;
-	color: #5A5A5A;
+	font-size: 18px;
+	margin: 24px 0 16px;
+	line-height: 150%;
+	font-weight: 500;
+	color: #414141;
 }
 
 .gl-product-summary__description {
@@ -1090,19 +1083,22 @@ transition: transform .2s ease, filter .2s ease;
 
 .gl-product-benefit__icon {
 	width: 36px;
-	height: 36px;
 	border-radius: 50%;
-	background: rgba(34, 197, 94, 0.10);
 	flex: 0 0 36px;
 	position: relative;
 }
 
 .gl-product-benefit__icon::before {
+    display: none;
 	content: "";
 	position: absolute;
 	inset: 9px;
 	border: 2px solid var(--gl-color-accent);
 	border-radius: 50%;
+}
+
+.gl-product-benefit__icon img{
+	margin: auto;
 }
 
 .gl-product-benefit__text {
@@ -1277,9 +1273,11 @@ transition: transform .2s ease, filter .2s ease;
 	}
 
 	.gl-product-summary__subtitle {
-		margin: 12px 0 12px;
-		font-size: 15px;
-		line-height: 1.45;
+		font-size: 18px;
+	margin: 24px 0 16px;
+	line-height: 150%;
+	font-weight: 500;
+	color: #414141;
 	}
 
 	.gl-product-summary__description {
@@ -2101,6 +2099,10 @@ body.gl-popup-open{
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
+}
+	
+.added_to_cart.wc-forward {
+display: none;
 }
 </style>
 
