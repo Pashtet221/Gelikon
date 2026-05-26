@@ -5333,13 +5333,12 @@ add_filter('woocommerce_checkout_fields', function ($fields) {
 	}
 
 	if (isset($fields['shipping'])) {
-		unset($fields['shipping']['shipping_first_name'], $fields['shipping']['shipping_last_name'], $fields['shipping']['shipping_company'], $fields['shipping']['shipping_country'], $fields['shipping']['shipping_state'], $fields['shipping']['shipping_postcode'], $fields['shipping']['shipping_address_2']);
 		$fields['shipping']['shipping_city']['label'] = 'Город';
 		$fields['shipping']['shipping_city']['placeholder'] = 'Москва';
-		$fields['shipping']['shipping_city']['priority'] = 10;
+		$fields['shipping']['shipping_city']['priority'] = 40;
 		$fields['shipping']['shipping_address_1']['label'] = 'Улица и дом';
 		$fields['shipping']['shipping_address_1']['placeholder'] = 'Ленинский проспект, 10';
-		$fields['shipping']['shipping_address_1']['priority'] = 20;
+		$fields['shipping']['shipping_address_1']['priority'] = 50;
 	}
 
 	if (isset($fields['order']['order_comments'])) {
