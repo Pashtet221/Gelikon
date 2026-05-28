@@ -4943,7 +4943,7 @@ function gelikon_update_cart_item_qty_ajax() {
 	if ($qty <= 0) {
 		WC()->cart->remove_cart_item($cart_item_key);
 	} else {
-		WC()->cart->set_quantity($cart_item_key, $qty, true);
+		WC()->cart->set_quantity($cart_item_key, $qty, false);
 	}
 
 	WC()->cart->calculate_totals();
@@ -5287,6 +5287,9 @@ add_action('wp_footer', function () {
 
 		let hideTimer = null;
 		let lastCartTrigger = null;
+		const qtyTimers = {};
+		const qtyRequests = {};
+		const qtyDelay = 1500;
 
 		function ensureMiniCart() {
 			let panel = document.getElementById(MINI_CART_ID);
@@ -5663,8 +5666,16 @@ add_action('wp_footer', function () {
 
 			const cartItemKey = control.getAttribute('data-cart_item_key');
 			const valueNode = control.querySelector('.gl-full-mini-cart__qty-value');
-			const currentQty = parseInt(control.getAttribute('data-qty'), 10) || 1;
 			const action = button.getAttribute('data-qty-action');
+			let currentQty = parseInt(control.getAttribute('data-pending-qty'), 10);
+
+			if (Number.isNaN(currentQty)) {
+				currentQty = valueNode ? parseInt(valueNode.textContent, 10) : parseInt(control.getAttribute('data-qty'), 10);
+			}
+
+			if (Number.isNaN(currentQty) || currentQty < 1) {
+				currentQty = 1;
+			}
 
 			let newQty = currentQty;
 
@@ -5680,41 +5691,69 @@ add_action('wp_footer', function () {
 				return;
 			}
 
-			control.classList.add('is-loading');
+			control.classList.remove('is-loading');
+			control.setAttribute('data-pending-qty', String(newQty));
+			control.setAttribute('data-qty', String(newQty));
 
-			if (valueNode && newQty > 0) {
+			if (valueNode) {
 				valueNode.textContent = String(newQty);
 			}
 
-			window.jQuery.ajax({
-				type: 'POST',
-				url: ajaxUrl,
-				data: {
-					action: 'gelikon_update_cart_item_qty',
-					cart_item_key: cartItemKey,
-					qty: newQty
-				},
-				success: function(response) {
-					if (!response || !response.success || !response.data) {
-						refreshMiniCartAjax();
-						return;
-					}
+			const item = control.closest('.gl-full-mini-cart__item');
 
-					if (response.data.fragments) {
-						renderMiniCartFromFragments(response.data.fragments);
-					}
+			if (item) {
+				item.style.opacity = newQty === 0 ? '.45' : '';
+				item.style.pointerEvents = '';
+			}
 
-					if (typeof response.data.count !== 'undefined') {
-						setCartCount(response.data.count);
-					}
+			if (qtyTimers[cartItemKey]) {
+				window.clearTimeout(qtyTimers[cartItemKey]);
+			}
 
-					showMiniCart();
-					clearHideTimer();
-				},
-				error: function() {
-					refreshMiniCartAjax();
+			qtyTimers[cartItemKey] = window.setTimeout(function(){
+				const finalQty = parseInt(control.getAttribute('data-pending-qty'), 10);
+
+				control.classList.add('is-loading');
+
+				if (qtyRequests[cartItemKey]) {
+					qtyRequests[cartItemKey].abort();
 				}
-			});
+
+				qtyRequests[cartItemKey] = window.jQuery.ajax({
+					type: 'POST',
+					url: ajaxUrl,
+					data: {
+						action: 'gelikon_update_cart_item_qty',
+						cart_item_key: cartItemKey,
+						qty: finalQty
+					},
+					success: function(response) {
+						if (!response || !response.success || !response.data) {
+							refreshMiniCartAjax();
+							return;
+						}
+
+						if (response.data.fragments) {
+							renderMiniCartFromFragments(response.data.fragments);
+						}
+
+						if (typeof response.data.count !== 'undefined') {
+							setCartCount(response.data.count);
+						}
+
+						showMiniCart();
+						clearHideTimer();
+					},
+					error: function(xhr, status) {
+						if (status !== 'abort') {
+							refreshMiniCartAjax();
+						}
+					},
+					complete: function() {
+						qtyRequests[cartItemKey] = null;
+					}
+				});
+			}, qtyDelay);
 		}
 
 		function removePostponedNotice() {
@@ -7021,7 +7060,7 @@ function gelikon_checkout_update_cart_item_qty() {
 	if ($quantity <= 0) {
 		WC()->cart->remove_cart_item($cart_item_key);
 	} else {
-		WC()->cart->set_quantity($cart_item_key, $quantity, true);
+		WC()->cart->set_quantity($cart_item_key, $quantity, false);
 	}
 
 	WC()->cart->calculate_totals();
