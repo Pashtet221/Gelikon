@@ -365,11 +365,29 @@ defined('ABSPATH') || exit;
 
 <script>
 jQuery(function($) {
-	const qtyTimers = {};
-	const qtyRequests = {};
-	const qtyDelay = 600;
+	const checkoutCart = window.gelikonCheckoutCart || {
+		qtyTimers: {},
+		qtyRequests: {},
+		qtyDelay: 1500
+	};
 
-	$(document).on('click', '.gl-checkout-cart-item__remove', function(e) {
+	window.gelikonCheckoutCart = checkoutCart;
+
+	const qtyTimers = checkoutCart.qtyTimers;
+	const qtyRequests = checkoutCart.qtyRequests;
+	const qtyDelay = checkoutCart.qtyDelay;
+	const eventNamespace = '.gelikonCheckoutCart';
+
+	function setCheckoutCartCount(count) {
+		const safeCount = Math.max(parseInt(count, 10) || 0, 0);
+
+		$('.gl-cart-count').text(String(safeCount));
+	}
+
+	$(document).off('click' + eventNamespace, '.gl-checkout-cart-item__remove');
+	$(document).off('click' + eventNamespace, '.gl-checkout-cart-item__qty-btn');
+
+	$(document).on('click' + eventNamespace, '.gl-checkout-cart-item__remove', function(e) {
 		e.preventDefault();
 
 		const $button = $(this);
@@ -394,6 +412,10 @@ jQuery(function($) {
 			},
 			success: function(response) {
 				if (response && response.success) {
+					if (response.data && typeof response.data.count !== 'undefined') {
+						setCheckoutCartCount(response.data.count);
+					}
+
 					$(document.body).trigger('update_checkout');
 					$(document.body).trigger('wc_fragment_refresh');
 				} else {
@@ -408,7 +430,7 @@ jQuery(function($) {
 		});
 	});
 
-	$(document).on('click', '.gl-checkout-cart-item__qty-btn', function(e) {
+	$(document).on('click' + eventNamespace, '.gl-checkout-cart-item__qty-btn', function(e) {
 		e.preventDefault();
 
 		const $button = $(this);
@@ -423,7 +445,11 @@ jQuery(function($) {
 			return;
 		}
 
-		let currentQty = parseInt($value.text(), 10) || 1;
+		let currentQty = parseInt($qty.data('pending-quantity'), 10);
+
+		if (Number.isNaN(currentQty)) {
+			currentQty = parseInt($value.text(), 10) || 1;
+		}
 		let newQty = currentQty;
 
 		if (action === 'plus') {
@@ -473,6 +499,10 @@ jQuery(function($) {
 				},
 				success: function(response) {
 					if (response && response.success) {
+						if (response.data && typeof response.data.count !== 'undefined') {
+							setCheckoutCartCount(response.data.count);
+						}
+
 						$(document.body).trigger('update_checkout');
 						$(document.body).trigger('wc_fragment_refresh');
 					} else {
