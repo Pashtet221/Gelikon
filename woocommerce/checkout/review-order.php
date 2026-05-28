@@ -378,6 +378,12 @@ jQuery(function($) {
 	const qtyDelay = checkoutCart.qtyDelay;
 	const eventNamespace = '.gelikonCheckoutCart';
 
+	function updateHeaderCartCount(count) {
+		const safeCount = Math.max(parseInt(count, 10) || 0, 0);
+
+		$('.gl-cart-count').text(String(safeCount));
+	}
+
 	$(document).off('click' + eventNamespace, '.gl-checkout-cart-item__remove');
 	$(document).off('click' + eventNamespace, '.gl-checkout-cart-item__qty-btn');
 
@@ -406,6 +412,10 @@ jQuery(function($) {
 			},
 			success: function(response) {
 				if (response && response.success) {
+					if (response.data && typeof response.data.count !== 'undefined') {
+						updateHeaderCartCount(response.data.count);
+					}
+
 					$(document.body).trigger('update_checkout');
 					$(document.body).trigger('wc_fragment_refresh');
 				} else {
@@ -489,6 +499,10 @@ jQuery(function($) {
 				},
 				success: function(response) {
 					if (response && response.success) {
+						if (response.data && typeof response.data.count !== 'undefined') {
+							updateHeaderCartCount(response.data.count);
+						}
+
 						$(document.body).trigger('update_checkout');
 						$(document.body).trigger('wc_fragment_refresh');
 					} else {

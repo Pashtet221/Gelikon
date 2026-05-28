@@ -4882,6 +4882,22 @@ add_action('acf/init', function () {
 
 
 
+
+/**
+ * Gelikon header cart counter fragment.
+ */
+add_filter('woocommerce_add_to_cart_fragments', 'gelikon_header_cart_count_fragment');
+
+function gelikon_header_cart_count_fragment($fragments) {
+	$count = (class_exists('WooCommerce') && WC()->cart) ? WC()->cart->get_cart_contents_count() : 0;
+
+	$fragments['span.gl-cart-count'] = '<span class="gl-cart-count">' . esc_html($count) . '</span>';
+	$fragments['.gl-cart-count']      = '<span class="gl-cart-count">' . esc_html($count) . '</span>';
+
+	return $fragments;
+}
+
+
 /**
  * Gelikon AJAX remove cart item.
  */
@@ -6594,7 +6610,9 @@ function gelikon_checkout_remove_cart_item() {
 	WC()->cart->remove_cart_item($cart_item_key);
 	WC()->cart->calculate_totals();
 
-	wp_send_json_success();
+	wp_send_json_success([
+		'count' => WC()->cart->get_cart_contents_count(),
+	]);
 }
 
 
