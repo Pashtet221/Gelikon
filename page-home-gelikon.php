@@ -589,51 +589,71 @@ a.gl-card:hover .gl-home-banner__action{
 		
 <!--     Секция Доверия -->
 <section class="gl-home-trust gl-home-section gl-card">
-    <div class="gl-section-head">
-        <h2><?php echo esc_html($trust_title); ?></h2>
-    </div>
+	<div class="gl-section-head">
+		<h2><?php echo esc_html($trust_title); ?></h2>
+	</div>
 
-    <div class="gl-trust-grid">
-        <?php foreach ($trust_items as $trust_item) :
-            $trust_item_title = is_array($trust_item) && !empty($trust_item['title']) ? $trust_item['title'] : '';
-            $trust_item_text  = is_array($trust_item) && !empty($trust_item['text']) ? $trust_item['text'] : '';
-            if (!$trust_item_title && !$trust_item_text) {
-                continue;
-            }
-            ?>
-            <article class="gl-trust-item">
-                <div class="gl-trust-item__icon" aria-hidden="true"></div>
-                <?php if ($trust_item_title) : ?>
-                    <h3><?php echo esc_html($trust_item_title); ?></h3>
-                <?php endif; ?>
-                <?php if ($trust_item_text) : ?>
-                    <p><?php echo esc_html($trust_item_text); ?></p>
-                <?php endif; ?>
-            </article>
-        <?php endforeach; ?>
-    </div>
+	<div class="gl-trust-grid">
+		<?php foreach ($trust_items as $trust_item) :
+			$trust_item_title = is_array($trust_item) && !empty($trust_item['title']) ? $trust_item['title'] : '';
+			$trust_item_text  = is_array($trust_item) && !empty($trust_item['text']) ? $trust_item['text'] : '';
+			$trust_item_icon  = is_array($trust_item) && !empty($trust_item['icon']) ? $trust_item['icon'] : '';
+			$trust_item_link  = is_array($trust_item) && !empty($trust_item['link']) ? $trust_item['link'] : '';
 
-    <div class="gl-trust-payments">
-        <div class="gl-trust-payments__head">
-            <h3 class="gl-trust-payments__title"><?php esc_html_e('Способы оплаты', 'gelikon'); ?></h3>
-            <p class="gl-trust-payments__text"><?php esc_html_e('Поддерживаем популярные способы онлайн-оплаты', 'gelikon'); ?></p>
-        </div>
+			if (!$trust_item_title && !$trust_item_text && !$trust_item_icon) {
+				continue;
+			}
 
-        <div class="gl-trust-payments__list" aria-label="<?php esc_attr_e('Поддерживаемые способы оплаты', 'gelikon'); ?>">
-            <div class="gl-trust-payments__logo">
-                <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/mir.png'); ?>" alt="МИР">
-            </div>
-            <div class="gl-trust-payments__logo">
-                <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/visa.jpg'); ?>" alt="Visa">
-            </div>
-            <div class="gl-trust-payments__logo">
-                <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/mastercard.png'); ?>" alt="Mastercard">
-            </div>
-            <div class="gl-trust-payments__logo">
-                <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/sbp.png'); ?>" alt="СБП">
-            </div>
-        </div>
-    </div>
+			$tag        = $trust_item_link ? 'a' : 'article';
+			$link_attrs = $trust_item_link ? ' href="' . esc_url($trust_item_link) . '"' : '';
+			?>
+
+			<<?php echo esc_attr($tag); ?> class="gl-trust-item<?php echo $trust_item_link ? ' is-clickable' : ''; ?>"<?php echo $link_attrs; ?>>
+
+				<?php if ($trust_item_icon) : ?>
+					<div class="gl-trust-item__icon" aria-hidden="true">
+						<img
+							src="<?php echo esc_url($trust_item_icon['url']); ?>"
+							alt="<?php echo esc_attr($trust_item_icon['alt'] ?: $trust_item_title); ?>"
+							loading="lazy"
+						>
+					</div>
+				<?php endif; ?>
+
+				<?php if ($trust_item_title) : ?>
+					<h3><?php echo esc_html($trust_item_title); ?></h3>
+				<?php endif; ?>
+
+				<?php if ($trust_item_text) : ?>
+					<p><?php echo esc_html($trust_item_text); ?></p>
+				<?php endif; ?>
+
+			</<?php echo esc_attr($tag); ?>>
+
+		<?php endforeach; ?>
+	</div>
+
+	<div class="gl-trust-payments">
+		<div class="gl-trust-payments__head">
+			<h3 class="gl-trust-payments__title"><?php esc_html_e('Способы оплаты', 'gelikon'); ?></h3>
+			<p class="gl-trust-payments__text"><?php esc_html_e('Поддерживаем популярные способы онлайн-оплаты', 'gelikon'); ?></p>
+		</div>
+
+		<div class="gl-trust-payments__list" aria-label="<?php esc_attr_e('Поддерживаемые способы оплаты', 'gelikon'); ?>">
+			<div class="gl-trust-payments__logo">
+				<img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/mir.png'); ?>" alt="МИР">
+			</div>
+			<div class="gl-trust-payments__logo">
+				<img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/visa.jpg'); ?>" alt="Visa">
+			</div>
+			<div class="gl-trust-payments__logo">
+				<img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/mastercard.png'); ?>" alt="Mastercard">
+			</div>
+			<div class="gl-trust-payments__logo">
+				<img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/sbp.png'); ?>" alt="СБП">
+			</div>
+		</div>
+	</div>
 </section>
 		
 <style>
@@ -665,6 +685,23 @@ a.gl-card:hover .gl-home-banner__action{
     line-height: 1.45;
     color: #6f7782;
 }
+	
+.gl-trust-item__icon{
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	
+	background: linear-gradient(
+	180deg,
+	rgba(44,188,99,.12),
+	rgba(44,188,99,.03));
+}
+	
+.gl-trust-item__icon svg{
+	color: #12D457;
+	fill: currentColor;
+}
+	
 
 .gl-trust-payments__list {
     display: grid;

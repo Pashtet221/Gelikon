@@ -65,17 +65,32 @@ $return_email = gelikon_warranty_get_field('warranty_email', 'info@gelikon-line.
 	</section>
 
 	<div class="gl-container gl-page-single gl-about-sections">
-		<section class="gl-home-trust gl-card">
-			<div class="gl-trust-grid">
-				<?php foreach ($benefits as $benefit) : ?>
-					<article class="gl-trust-item">
-						<div class="gl-trust-item__icon" aria-hidden="true"></div>
-						<h3><?php echo esc_html($benefit['title'] ?? ''); ?></h3>
-						<p><?php echo esc_html($benefit['text'] ?? ''); ?></p>
-					</article>
-				<?php endforeach; ?>
-			</div>
-		</section>
+		
+		
+<section class="gl-home-trust gl-card">
+	<div class="gl-trust-grid">
+		<?php foreach ($benefits as $benefit) : ?>
+			<a class="gl-trust-item" href="http://paveld9o.beget.tech/gelikon/user-agreement/">
+				<div class="gl-trust-item__icon" aria-hidden="true">
+					<?php if (!empty($benefit['icon'])) : ?>
+						<?php if (is_array($benefit['icon']) && !empty($benefit['icon']['url'])) : ?>
+							<img
+								src="<?php echo esc_url($benefit['icon']['url']); ?>"
+								alt="<?php echo esc_attr($benefit['icon']['alt'] ?? ''); ?>"
+								loading="lazy"
+							>
+						<?php elseif (is_string($benefit['icon'])) : ?>
+							<?php echo $benefit['icon']; ?>
+						<?php endif; ?>
+					<?php endif; ?>
+				</div>
+
+				<h3><?php echo esc_html($benefit['title'] ?? ''); ?></h3>
+				<p><?php echo esc_html($benefit['text'] ?? ''); ?></p>
+			</a>
+		<?php endforeach; ?>
+	</div>
+</section>
 
 		<section class="gl-card"><h2>Гарантия</h2><div class="gl-about-text"><?php echo wp_kses_post(wpautop($warranty_text)); ?></div></section>
 		<section class="gl-card"><h2>Условия возврата</h2><p>Возврат товара возможен в течение 14 дней с момента получения при соблюдении следующих условий:</p><div class="gl-warranty-list"><?php echo wp_kses_post(wpautop($return_conditions)); ?></div></section>
@@ -94,6 +109,17 @@ $return_email = gelikon_warranty_get_field('warranty_email', 'info@gelikon-line.
 	}
 	.gl-warranty-list p { margin: 0 0 10px; }
 .gl-warranty-list p:last-child { margin-bottom: 0; }
+	
+	
+	.gl-trust-item__icon{
+		display: flex;
+align-items: center;
+justify-content: center;
+background: linear-gradient(
+180deg,
+rgba(44,188,99,.12),
+rgba(44,188,99,.03));
+	}
 </style>
 
 <?php get_footer(); ?>

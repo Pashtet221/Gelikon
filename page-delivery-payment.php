@@ -101,108 +101,108 @@ if (empty($check_return_items) || !is_array($check_return_items)) {
 	<div class="gl-container gl-page-single gl-about-sections">
 
 		<section class="gl-home-trust gl-card gl-delivery-benefits">
-			<h2>Почему у нас покупают</h2>
+	<h2>Почему у нас покупают</h2>
 
-			<div class="gl-trust-grid">
-				<?php foreach ($global_benefits as $item) : ?>
-					<article class="gl-trust-item">
+	<div class="gl-trust-grid">
+		<?php foreach ($global_benefits as $item) : ?>
+			<a class="gl-trust-item" href="http://paveld9o.beget.tech/gelikon/user-agreement/">
 
-						<div class="gl-trust-item__icon-wrap" aria-hidden="true">
-							<?php if (!empty($item['icon']['url'])) : ?>
-								<img
-									class="gl-trust-item__icon-image"
-									src="<?php echo esc_url($item['icon']['url']); ?>"
-									alt=""
-									loading="lazy"
-								>
-							<?php else : ?>
-								<span class="gl-trust-item__icon"></span>
-							<?php endif; ?>
-						</div>
+				<div class="gl-trust-item__icon-wrap" aria-hidden="true">
+					<?php if (!empty($item['icon']['url'])) : ?>
+						<img
+							class="gl-trust-item__icon-image"
+							src="<?php echo esc_url($item['icon']['url']); ?>"
+							alt=""
+							loading="lazy"
+						>
+					<?php else : ?>
+						<span class="gl-trust-item__icon"></span>
+					<?php endif; ?>
+				</div>
 
-						<?php if (!empty($item['title'])) : ?>
-							<h3><?php echo esc_html($item['title']); ?></h3>
-						<?php endif; ?>
+				<?php if (!empty($item['title'])) : ?>
+					<h3><?php echo esc_html($item['title']); ?></h3>
+				<?php endif; ?>
 
-						<?php if (!empty($item['description'])) : ?>
-							<p><?php echo wp_kses_post($item['description']); ?></p>
-						<?php endif; ?>
+				<?php if (!empty($item['description'])) : ?>
+					<p><?php echo wp_kses_post($item['description']); ?></p>
+				<?php endif; ?>
 
-					</article>
+			</a>
+		<?php endforeach; ?>
+	</div>
+</section>
+
+<section class="gl-card">
+	<h2>Способы получения</h2>
+
+	<div class="gl-delivery-cards">
+		<?php foreach ($pickup_methods as $method) : ?>
+			<a class="gl-delivery-card" href="http://paveld9o.beget.tech/gelikon/user-agreement/">
+
+				<?php if (!empty($method['icon']['url'])) : ?>
+					<img
+						class="gl-delivery-card__icon-image"
+						src="<?php echo esc_url($method['icon']['url']); ?>"
+						alt="<?php echo esc_attr($method['title'] ?? ''); ?>"
+						loading="lazy"
+					>
+				<?php endif; ?>
+
+				<?php if (!empty($method['title'])) : ?>
+					<h3><?php echo esc_html($method['title']); ?></h3>
+				<?php endif; ?>
+
+				<?php if (!empty($method['description'])) : ?>
+					<p><?php echo wp_kses_post($method['description']); ?></p>
+				<?php endif; ?>
+
+			</a>
+		<?php endforeach; ?>
+	</div>
+</section>
+
+<section class="gl-card">
+	<h2>Сроки доставки</h2>
+
+	<div class="gl-delivery-table-wrap">
+		<table class="gl-delivery-table">
+			<tbody>
+				<?php foreach ($delivery_terms as $row) : ?>
+					<tr>
+						<td><?php echo esc_html($row['method'] ?? ''); ?></td>
+						<td><?php echo esc_html($row['term'] ?? ''); ?></td>
+					</tr>
 				<?php endforeach; ?>
-			</div>
-		</section>
+			</tbody>
+		</table>
+	</div>
+</section>
 
-		<section class="gl-card">
-			<h2>Способы получения</h2>
+<section class="gl-card">
+	<h2>Способы оплаты</h2>
 
-			<div class="gl-delivery-cards">
-				<?php foreach ($pickup_methods as $method) : ?>
-					<article class="gl-delivery-card">
+	<div class="gl-delivery-cards gl-delivery-payments">
+		<?php foreach ($payment_methods as $method) : ?>
+			<a class="gl-delivery-card gl-delivery-card--iconed" href="http://paveld9o.beget.tech/gelikon/user-agreement/">
 
-						<?php if (!empty($method['icon']['url'])) : ?>
-							<img
-								class="gl-delivery-card__icon-image"
-								src="<?php echo esc_url($method['icon']['url']); ?>"
-								alt="<?php echo esc_attr($method['title'] ?? ''); ?>"
-								loading="lazy"
-							>
-						<?php endif; ?>
+				<?php if (!empty($method['icon']['url'])) : ?>
+					<img
+						class="gl-delivery-card__icon-image"
+						src="<?php echo esc_url($method['icon']['url']); ?>"
+						alt=""
+						loading="lazy"
+					>
+				<?php else : ?>
+					<span class="gl-delivery-card__icon" aria-hidden="true"></span>
+				<?php endif; ?>
 
-						<?php if (!empty($method['title'])) : ?>
-							<h3><?php echo esc_html($method['title']); ?></h3>
-						<?php endif; ?>
+				<?php echo esc_html($method['title'] ?? ''); ?>
 
-						<?php if (!empty($method['description'])) : ?>
-							<p><?php echo wp_kses_post($method['description']); ?></p>
-						<?php endif; ?>
-
-					</article>
-				<?php endforeach; ?>
-			</div>
-		</section>
-
-		<section class="gl-card">
-			<h2>Сроки доставки</h2>
-
-			<div class="gl-delivery-table-wrap">
-				<table class="gl-delivery-table">
-					<tbody>
-						<?php foreach ($delivery_terms as $row) : ?>
-							<tr>
-								<td><?php echo esc_html($row['method'] ?? ''); ?></td>
-								<td><?php echo esc_html($row['term'] ?? ''); ?></td>
-							</tr>
-						<?php endforeach; ?>
-					</tbody>
-				</table>
-			</div>
-		</section>
-
-		<section class="gl-card">
-			<h2>Способы оплаты</h2>
-
-			<div class="gl-delivery-cards gl-delivery-payments">
-				<?php foreach ($payment_methods as $method) : ?>
-					<article class="gl-delivery-card gl-delivery-card--iconed">
-
-						<?php if (!empty($method['icon']['url'])) : ?>
-							<img
-								class="gl-delivery-card__icon-image"
-								src="<?php echo esc_url($method['icon']['url']); ?>"
-								alt=""
-								loading="lazy"
-							>
-						<?php else : ?>
-							<span class="gl-delivery-card__icon" aria-hidden="true"></span>
-						<?php endif; ?>
-
-						<?php echo esc_html($method['title'] ?? ''); ?>
-
-					</article>
-				<?php endforeach; ?>
-			</div>
-		</section>
+			</a>
+		<?php endforeach; ?>
+	</div>
+</section>
 
 		<section class="gl-card">
 			<h2>Проверка и возврат</h2>

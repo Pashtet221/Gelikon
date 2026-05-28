@@ -168,6 +168,7 @@ add_action('after_setup_theme', function () {
 
 
 
+
 /**
  * Gelikon Catalog Dropdown for WooCommerce product categories
  */
@@ -266,6 +267,7 @@ if (!function_exists('gelikon_render_catalog_dropdown')) {
 
 		ob_start();
 		?>
+
 		<div class="gl-catalog-dropdown" id="<?php echo esc_attr($instance_id); ?>">
 			<button
 				class="gl-catalog-dropdown__toggle"
@@ -274,7 +276,7 @@ if (!function_exists('gelikon_render_catalog_dropdown')) {
 				aria-controls="<?php echo esc_attr($instance_id); ?>-panel"
 			>
 				<span class="gl-catalog-dropdown__toggle-icon" aria-hidden="true">
-					<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
 						<rect x="2" y="3" width="12" height="1.5" rx="0.75" fill="currentColor"/>
 						<rect x="2" y="7" width="12" height="1.5" rx="0.75" fill="currentColor"/>
 						<rect x="2" y="11" width="12" height="1.5" rx="0.75" fill="currentColor"/>
@@ -286,7 +288,7 @@ if (!function_exists('gelikon_render_catalog_dropdown')) {
 				</span>
 
 				<span class="gl-catalog-dropdown__toggle-arrow" aria-hidden="true">
-					<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<svg width="14" height="14" viewBox="0 0 14 14" fill="none">
 						<path d="M3 5.5L7 9.5L11 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
 					</svg>
 				</span>
@@ -328,6 +330,12 @@ if (!function_exists('gelikon_render_catalog_dropdown')) {
 					</div>
 
 					<div class="gl-catalog-dropdown__content">
+
+						<button class="gl-catalog-dropdown__back" type="button">
+							<span>‹</span>
+							Назад
+						</button>
+
 						<?php foreach ($tree as $index => $item) :
 							$term      = $item['term'];
 							$children  = $item['children'];
@@ -376,13 +384,14 @@ if (!function_exists('gelikon_render_catalog_dropdown')) {
 								<?php endif; ?>
 							</div>
 						<?php endforeach; ?>
+
 					</div>
 
 				</div>
 			</div>
 		</div>
-		<?php
 
+		<?php
 		return ob_get_clean();
 	}
 }
@@ -402,25 +411,11 @@ if (!function_exists('gelikon_catalog_dropdown_shortcode')) {
 add_shortcode('gelikon_catalog_dropdown', 'gelikon_catalog_dropdown_shortcode');
 
 /**
- * Скрипт
- */
-add_action('wp_enqueue_scripts', function () {
-	wp_enqueue_script(
-		'gelikon-catalog-dropdown',
-		get_template_directory_uri() . '/assets/js/catalog-dropdown.js',
-		[],
-		file_exists(get_template_directory() . '/assets/js/catalog-dropdown.js')
-			? filemtime(get_template_directory() . '/assets/js/catalog-dropdown.js')
-			: wp_get_theme()->get('Version'),
-		true
-	);
-}, 30);
-
-/**
- * Стили каталога
+ * Стили и скрипт каталога
  */
 add_action('wp_head', function () {
 	?>
+
 	<style id="gelikon-catalog-dropdown-styles">
 		.gl-catalog-dropdown {
 			position: relative;
@@ -448,14 +443,24 @@ add_action('wp_head', function () {
 			background: rgba(23, 29, 42, 0.04);
 		}
 
-		.gl-catalog-dropdown__toggle-icon {
+		.gl-catalog-dropdown__toggle-icon,
+		.gl-catalog-dropdown__toggle-arrow {
 			display: inline-flex;
 			align-items: center;
 			justify-content: center;
+			color: #7d828a;
+			flex: 0 0 auto;
+		}
+
+		.gl-catalog-dropdown__toggle-icon {
 			width: 16px;
 			height: 16px;
-			color: #7d828a;
-			flex: 0 0 16px;
+		}
+
+		.gl-catalog-dropdown__toggle-arrow {
+			width: 14px;
+			height: 14px;
+			transition: transform .2s ease;
 		}
 
 		.gl-catalog-dropdown__toggle-icon svg,
@@ -466,21 +471,8 @@ add_action('wp_head', function () {
 		}
 
 		.gl-catalog-dropdown__toggle-text {
-			flex: 0 0 auto;
-			text-align: left;
 			white-space: nowrap;
 			font-weight: 700;
-		}
-
-		.gl-catalog-dropdown__toggle-arrow {
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			width: 14px;
-			height: 14px;
-			color: #7d828a;
-			transition: transform .2s ease;
-			flex: 0 0 14px;
 		}
 
 		.gl-catalog-dropdown.is-open .gl-catalog-dropdown__toggle-arrow {
@@ -569,6 +561,11 @@ add_action('wp_head', function () {
 
 		.gl-catalog-dropdown__content {
 			padding: 20px 22px;
+			background: #fff;
+		}
+
+		.gl-catalog-dropdown__back {
+			display: none;
 		}
 
 		.gl-catalog-dropdown__children-head {
@@ -637,47 +634,82 @@ add_action('wp_head', function () {
 		}
 
 		@media (max-width: 991px) {
-			.gl-catalog-dropdown__toggle {
-				min-width: auto;
-			}
-
-			.gl-catalog-dropdown__toggle-icon{
-				display: none;
-			}
-
-			.gl-catalog-dropdown__panel {
-				position: static;
+			.gl-catalog-dropdown__parent-arrow {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 38px;
+		height: 38px;
+		margin: -8px -8px -8px 0;
+		cursor: pointer;
+	}
+			
+			.gl-catalog-dropdown {
+				position: relative;
 				width: 100%;
-				margin-top: 8px;
-				border-radius: 18px;
-				box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
 			}
 
-			.gl-catalog-dropdown__grid {
-				grid-template-columns: 1fr;
-				min-height: auto;
-			}
-
-			.gl-catalog-dropdown__sidebar {
-				border-right: 0;
-				border-bottom: 1px solid #eceff1;
-			}
-
-			.gl-catalog-dropdown__content {
-				padding: 18px;
-			}
-
-			.gl-catalog-dropdown__children-list {
-				grid-template-columns: 1fr;
-			}
-		}
-
-		@media (max-width: 767px) {
 			.gl-catalog-dropdown__toggle {
 				min-height: 38px;
 				padding: 0 6px 0 2px;
 				font-size: 15px;
 				border-radius: 8px;
+			}
+
+			.gl-catalog-dropdown__toggle-icon {
+				display: none;
+			}
+
+			.gl-catalog-dropdown__panel {
+				position: absolute;
+				top: calc(100% + 8px);
+				left: 0;
+				width: min(420px, 92vw);
+				max-width: 92vw;
+				border-radius: 18px;
+				box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+				overflow: hidden;
+			}
+
+			.gl-catalog-dropdown__grid {
+				position: relative;
+				display: block;
+				min-height: 360px;
+				overflow: hidden;
+				background: #fff;
+			}
+
+			.gl-catalog-dropdown__sidebar,
+			.gl-catalog-dropdown__content {
+				width: 100%;
+				min-height: 360px;
+				transition: transform .28s ease;
+			}
+
+			.gl-catalog-dropdown__sidebar {
+				position: relative;
+				z-index: 1;
+				border-right: 0;
+				border-bottom: 0;
+				background: #fafafa;
+				transform: translateX(0);
+			}
+
+			.gl-catalog-dropdown__content {
+				position: absolute;
+				top: 0;
+				left: 0;
+				z-index: 2;
+				padding: 18px;
+				transform: translateX(100%);
+			}
+
+			.gl-catalog-dropdown.is-mobile-submenu .gl-catalog-dropdown__sidebar {
+				transform: translateX(-100%);
+			}
+
+			.gl-catalog-dropdown.is-mobile-submenu .gl-catalog-dropdown__content {
+				transform: translateX(0);
 			}
 
 			.gl-catalog-dropdown__parents {
@@ -690,8 +722,21 @@ add_action('wp_head', function () {
 				border-radius: 12px;
 			}
 
+			.gl-catalog-dropdown__parent-row.is-active {
+				background: transparent;
+			}
+
+			.gl-catalog-dropdown__parent-row.is-active .gl-catalog-dropdown__parent-link-main {
+				color: #171d2a;
+			}
+
 			.gl-catalog-dropdown__parent-name {
 				font-size: 14px;
+			}
+
+			.gl-catalog-dropdown__children-list {
+				grid-template-columns: 1fr;
+				gap: 10px;
 			}
 
 			.gl-catalog-dropdown__parent-link {
@@ -701,11 +746,150 @@ add_action('wp_head', function () {
 			.gl-catalog-dropdown__child-link {
 				font-size: 13px;
 			}
+
+			.gl-catalog-dropdown__back {
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+				margin: 0 0 18px;
+				padding: 0;
+				border: 0;
+				background: transparent;
+				color: #171d2a;
+				font-size: 15px;
+				font-weight: 700;
+				cursor: pointer;
+			}
+
+			.gl-catalog-dropdown__back span {
+				font-size: 26px;
+				line-height: 1;
+			}
+
+			.gl-catalog-dropdown__parent-row:hover,
+			.gl-catalog-dropdown__child-link:hover,
+			.gl-catalog-dropdown__parent-link:hover,
+			.gl-catalog-dropdown__parent-link-main:hover {
+				background: inherit;
+				color: inherit;
+				text-decoration: none;
+			}
 		}
 	</style>
+
+<script id="gelikon-catalog-dropdown-script">
+	document.addEventListener('DOMContentLoaded', function () {
+		const dropdowns = document.querySelectorAll('.gl-catalog-dropdown');
+
+		if (!dropdowns.length) return;
+
+		const isMobile = () => window.matchMedia('(max-width: 991px)').matches;
+
+		dropdowns.forEach(function (dropdown) {
+			const toggle = dropdown.querySelector('.gl-catalog-dropdown__toggle');
+			const panel = dropdown.querySelector('.gl-catalog-dropdown__panel');
+			const parentRows = dropdown.querySelectorAll('.gl-catalog-dropdown__parent-row');
+			const childrenPanels = dropdown.querySelectorAll('.gl-catalog-dropdown__children-panel');
+			const backButton = dropdown.querySelector('.gl-catalog-dropdown__back');
+
+			if (!toggle || !panel) return;
+
+			function closeDropdown() {
+				dropdown.classList.remove('is-open', 'is-mobile-submenu');
+				toggle.setAttribute('aria-expanded', 'false');
+				panel.hidden = true;
+			}
+
+			function openDropdown() {
+				dropdown.classList.add('is-open');
+				toggle.setAttribute('aria-expanded', 'true');
+				panel.hidden = false;
+			}
+
+			function setActivePanel(target) {
+				parentRows.forEach(function (item) {
+					const isCurrent = item.dataset.target === target;
+
+					item.classList.toggle('is-active', isCurrent);
+					item.setAttribute('aria-selected', isCurrent ? 'true' : 'false');
+				});
+
+				childrenPanels.forEach(function (panelItem) {
+					const isCurrent = panelItem.dataset.panel === target;
+
+					panelItem.classList.toggle('is-active', isCurrent);
+					panelItem.hidden = !isCurrent;
+				});
+			}
+
+			toggle.addEventListener('click', function () {
+				if (dropdown.classList.contains('is-open')) {
+					closeDropdown();
+				} else {
+					openDropdown();
+				}
+			});
+
+			parentRows.forEach(function (row) {
+				const arrow = row.querySelector('.gl-catalog-dropdown__parent-arrow');
+
+				row.addEventListener('click', function () {
+					if (isMobile()) return;
+
+					const target = row.dataset.target;
+
+					if (!target) return;
+
+					setActivePanel(target);
+				});
+
+				row.addEventListener('mouseenter', function () {
+					if (isMobile()) return;
+
+					const target = row.dataset.target;
+
+					if (!target) return;
+
+					setActivePanel(target);
+				});
+
+				if (arrow) {
+					arrow.addEventListener('click', function (event) {
+						if (!isMobile()) return;
+
+						event.preventDefault();
+						event.stopPropagation();
+
+						const target = row.dataset.target;
+
+						if (!target) return;
+
+						setActivePanel(target);
+						dropdown.classList.add('is-mobile-submenu');
+					});
+				}
+			});
+
+			if (backButton) {
+				backButton.addEventListener('click', function () {
+					dropdown.classList.remove('is-mobile-submenu');
+				});
+			}
+
+			document.addEventListener('click', function (event) {
+				if (dropdown.contains(event.target)) return;
+
+				closeDropdown();
+			});
+
+			window.addEventListener('resize', function () {
+				dropdown.classList.remove('is-mobile-submenu');
+			});
+		});
+	});
+</script>
 	<?php
 }, 99);
-
 
 
 
@@ -1848,6 +2032,7 @@ add_action('admin_head-comment.php', function () {
 
 
 
+
 if (!defined('ABSPATH')) {
 	exit;
 }
@@ -1879,10 +2064,15 @@ function gelikon_breadcrumbs_shortcode($atts = []) {
 				$title   = isset($item['title']) ? wp_strip_all_tags($item['title']) : '';
 				$url     = isset($item['url']) ? $item['url'] : '';
 				$home    = !empty($item['home']);
+
+				if ($is_last && empty($url)) {
+					$url = gelikon_get_current_breadcrumb_url();
+				}
 				?>
+
 				<li class="gl-breadcrumbs__item<?php echo $is_last ? ' is-current' : ''; ?>">
-					<?php if (!$is_last && !empty($url)) : ?>
-						<a class="gl-breadcrumbs__link<?php echo $home ? ' is-home' : ''; ?>" href="<?php echo esc_url($url); ?>">
+					<?php if (!empty($url) && !is_wp_error($url)) : ?>
+						<a class="gl-breadcrumbs__link<?php echo $home ? ' is-home' : ''; ?><?php echo $is_last ? ' is-current' : ''; ?>" href="<?php echo esc_url($url); ?>">
 							<?php if ($home) : ?>
 								<span class="gl-breadcrumbs__home-icon" aria-hidden="true">
 									<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -1890,6 +2080,7 @@ function gelikon_breadcrumbs_shortcode($atts = []) {
 									</svg>
 								</span>
 							<?php endif; ?>
+
 							<span class="gl-breadcrumbs__text"><?php echo esc_html($title); ?></span>
 						</a>
 					<?php else : ?>
@@ -1911,6 +2102,47 @@ function gelikon_breadcrumbs_shortcode($atts = []) {
 }
 
 /**
+ * URL текущей страницы для последней крошки
+ */
+function gelikon_get_current_breadcrumb_url() {
+	if (function_exists('is_shop') && is_shop()) {
+		$shop_page_id = wc_get_page_id('shop');
+
+		if ($shop_page_id && $shop_page_id > 0) {
+			return get_permalink($shop_page_id);
+		}
+
+		return home_url('/shop/');
+	}
+
+	if (is_singular()) {
+		return get_permalink();
+	}
+
+	if (is_category() || is_tag() || (function_exists('is_product_category') && is_product_category())) {
+		$term = get_queried_object();
+
+		if ($term instanceof WP_Term) {
+			$link = get_term_link($term);
+
+			if (!is_wp_error($link)) {
+				return $link;
+			}
+		}
+	}
+
+	if (is_search()) {
+		return get_search_link();
+	}
+
+	if (is_404()) {
+		return home_url(add_query_arg([], $GLOBALS['wp']->request));
+	}
+
+	return home_url(add_query_arg([], $GLOBALS['wp']->request));
+}
+
+/**
  * Собираем элементы хлебных крошек
  */
 function gelikon_get_breadcrumb_items() {
@@ -1929,8 +2161,9 @@ function gelikon_get_breadcrumb_items() {
 	if (function_exists('is_shop') && is_shop()) {
 		$items[] = [
 			'title' => $shop_page_title ?: 'Каталог',
-			'url'   => '',
+			'url'   => $shop_page_url,
 		];
+
 		return $items;
 	}
 
@@ -1941,11 +2174,13 @@ function gelikon_get_breadcrumb_items() {
 		];
 
 		$term = get_queried_object();
+
 		if ($term instanceof WP_Term) {
 			$ancestors = array_reverse(get_ancestors($term->term_id, 'product_cat'));
 
 			foreach ($ancestors as $ancestor_id) {
 				$ancestor = get_term($ancestor_id, 'product_cat');
+
 				if ($ancestor && !is_wp_error($ancestor)) {
 					$items[] = [
 						'title' => $ancestor->name,
@@ -1956,7 +2191,7 @@ function gelikon_get_breadcrumb_items() {
 
 			$items[] = [
 				'title' => $term->name,
-				'url'   => '',
+				'url'   => get_term_link($term),
 			];
 		}
 
@@ -1980,6 +2215,7 @@ function gelikon_get_breadcrumb_items() {
 
 				foreach ($ancestors as $ancestor_id) {
 					$ancestor = get_term($ancestor_id, 'product_cat');
+
 					if ($ancestor && !is_wp_error($ancestor)) {
 						$items[] = [
 							'title' => $ancestor->name,
@@ -1995,7 +2231,6 @@ function gelikon_get_breadcrumb_items() {
 			}
 		}
 
-		// Название товара убрано
 		return $items;
 	}
 
@@ -2012,32 +2247,58 @@ function gelikon_get_breadcrumb_items() {
 
 		$items[] = [
 			'title' => get_the_title($page_id),
-			'url'   => '',
+			'url'   => get_permalink($page_id),
 		];
 
 		return $items;
 	}
 
 	if (is_singular('post')) {
-		// Название статьи убрано
+		$categories = get_the_category();
+
+		if (!empty($categories)) {
+			$category = $categories[0];
+
+			$ancestors = array_reverse(get_ancestors($category->term_id, 'category'));
+
+			foreach ($ancestors as $ancestor_id) {
+				$ancestor = get_term($ancestor_id, 'category');
+
+				if ($ancestor && !is_wp_error($ancestor)) {
+					$items[] = [
+						'title' => $ancestor->name,
+						'url'   => get_term_link($ancestor),
+					];
+				}
+			}
+
+			$items[] = [
+				'title' => $category->name,
+				'url'   => get_category_link($category->term_id),
+			];
+		}
+
 		return $items;
 	}
 
 	if (is_singular()) {
 		$items[] = [
 			'title' => get_the_title(),
-			'url'   => '',
+			'url'   => get_permalink(),
 		];
+
 		return $items;
 	}
 
 	if (is_category()) {
 		$term = get_queried_object();
+
 		if ($term instanceof WP_Term) {
 			$ancestors = array_reverse(get_ancestors($term->term_id, 'category'));
 
 			foreach ($ancestors as $ancestor_id) {
 				$ancestor = get_term($ancestor_id, 'category');
+
 				if ($ancestor && !is_wp_error($ancestor)) {
 					$items[] = [
 						'title' => $ancestor->name,
@@ -2048,17 +2309,17 @@ function gelikon_get_breadcrumb_items() {
 
 			$items[] = [
 				'title' => $term->name,
-				'url'   => '',
+				'url'   => get_term_link($term),
 			];
 		}
+
 		return $items;
 	}
 
 	if (is_search()) {
 		$search_query = get_search_query();
 
-		// Добавляем "Каталог" перед результатами поиска
-		if (function_exists('is_woocommerce') || isset($_GET['post_type']) && $_GET['post_type'] === 'product') {
+		if (isset($_GET['post_type']) && $_GET['post_type'] === 'product') {
 			$items[] = [
 				'title' => $shop_page_title ?: 'Каталог',
 				'url'   => $shop_page_url,
@@ -2069,7 +2330,7 @@ function gelikon_get_breadcrumb_items() {
 			'title' => $search_query
 				? 'Результаты поиска: ' . $search_query
 				: 'Результаты поиска',
-			'url'   => '',
+			'url'   => get_search_link(),
 		];
 
 		return $items;
@@ -2078,14 +2339,15 @@ function gelikon_get_breadcrumb_items() {
 	if (is_404()) {
 		$items[] = [
 			'title' => 'Страница не найдена',
-			'url'   => '',
+			'url'   => home_url('/'),
 		];
+
 		return $items;
 	}
 
 	$items[] = [
 		'title' => wp_get_document_title(),
-		'url'   => '',
+		'url'   => gelikon_get_current_breadcrumb_url(),
 	];
 
 	return $items;
@@ -2099,7 +2361,7 @@ function gelikon_get_deepest_term($terms, $taxonomy) {
 		return null;
 	}
 
-	$deepest = null;
+	$deepest   = null;
 	$max_depth = -1;
 
 	foreach ($terms as $term) {
@@ -2123,15 +2385,14 @@ function gelikon_get_deepest_term($terms, $taxonomy) {
  */
 add_action('wp_head', 'gelikon_breadcrumbs_inline_styles', 99);
 
-
 function gelikon_breadcrumbs_inline_styles() {
 	?>
 	<style>
-		.gl-breadcrumbs{
+		.gl-breadcrumbs {
 			margin: 0 0 24px;
 		}
 
-		.gl-breadcrumbs__list{
+		.gl-breadcrumbs__list {
 			display: flex;
 			flex-wrap: wrap;
 			align-items: center;
@@ -2141,7 +2402,7 @@ function gelikon_breadcrumbs_inline_styles() {
 			list-style: none;
 		}
 
-		.gl-breadcrumbs__item{
+		.gl-breadcrumbs__item {
 			display: inline-flex;
 			align-items: center;
 			gap: 8px;
@@ -2151,7 +2412,7 @@ function gelikon_breadcrumbs_inline_styles() {
 			font-weight: 600;
 		}
 
-		.gl-breadcrumbs__link{
+		.gl-breadcrumbs__link {
 			display: inline-flex;
 			align-items: center;
 			gap: 8px;
@@ -2161,15 +2422,25 @@ function gelikon_breadcrumbs_inline_styles() {
 			min-width: 0;
 		}
 
-		.gl-breadcrumbs__link:hover{
+		.gl-breadcrumbs__link:hover {
 			color: var(--gl-color-text);
 		}
 
-		.gl-breadcrumbs__link.is-home{
+		.gl-breadcrumbs__link.is-current {
+			color: var(--gl-color-helper);
+			font-weight: 500;
+			cursor: pointer;
+		}
+
+		.gl-breadcrumbs__link.is-current:hover {
+			color: var(--gl-color-text);
+		}
+
+		.gl-breadcrumbs__link.is-home {
 			gap: 10px;
 		}
 
-		.gl-breadcrumbs__home-icon{
+		.gl-breadcrumbs__home-icon {
 			display: inline-flex;
 			align-items: center;
 			justify-content: center;
@@ -2179,25 +2450,25 @@ function gelikon_breadcrumbs_inline_styles() {
 			flex: 0 0 auto;
 		}
 
-		.gl-breadcrumbs__home-icon svg{
+		.gl-breadcrumbs__home-icon svg {
 			display: block;
 			width: 100%;
 			height: 100%;
 		}
 
 		.gl-breadcrumbs__text,
-		.gl-breadcrumbs__current{
+		.gl-breadcrumbs__current {
 			display: inline-block;
 			white-space: normal;
 			word-break: break-word;
 		}
 
-		.gl-breadcrumbs__current{
+		.gl-breadcrumbs__current {
 			color: var(--gl-color-helper);
 			font-weight: 500;
 		}
 
-		.gl-breadcrumbs__sep{
+		.gl-breadcrumbs__sep {
 			display: inline-flex;
 			align-items: center;
 			justify-content: center;
@@ -2208,25 +2479,25 @@ function gelikon_breadcrumbs_inline_styles() {
 			flex: 0 0 auto;
 		}
 
-		@media (max-width: 767px){
-			.gl-breadcrumbs{
+		@media (max-width: 767px) {
+			.gl-breadcrumbs {
 				margin: 0 0 18px;
 			}
 
-			.gl-breadcrumbs__list{
+			.gl-breadcrumbs__list {
 				gap: 6px 8px;
 			}
 
-			.gl-breadcrumbs__item{
+			.gl-breadcrumbs__item {
 				font-size: 14px;
 				line-height: 1.3;
 			}
 
-			.gl-breadcrumbs__sep{
+			.gl-breadcrumbs__sep {
 				font-size: 18px;
 			}
 
-			.gl-breadcrumbs__home-icon{
+			.gl-breadcrumbs__home-icon {
 				width: 18px;
 				height: 18px;
 			}
@@ -2234,7 +2505,6 @@ function gelikon_breadcrumbs_inline_styles() {
 	</style>
 	<?php
 }
-
 
 
 
@@ -4102,12 +4372,15 @@ add_action('acf/init', function () {
 	]);
 });
 
+
 /**
  * Fields
  */
 
 add_action('acf/init', function () {
-	if (!function_exists('acf_add_local_field_group')) return;
+	if (!function_exists('acf_add_local_field_group')) {
+		return;
+	}
 
 	acf_add_local_field_group([
 		'key' => 'group_gelikon_general_product',
@@ -4129,12 +4402,20 @@ add_action('acf/init', function () {
 						'type' => 'image',
 						'return_format' => 'array',
 						'preview_size' => 'thumbnail',
+						'library' => 'all',
 					],
 					[
 						'key' => 'field_product_global_benefit_text',
 						'label' => 'Текст',
 						'name' => 'text',
 						'type' => 'text',
+					],
+					[
+						'key' => 'field_product_global_benefit_link',
+						'label' => 'Ссылка',
+						'name' => 'link',
+						'type' => 'url',
+						'placeholder' => 'https://site.ru/page/',
 					],
 				],
 			],
@@ -4150,6 +4431,8 @@ add_action('acf/init', function () {
 		],
 	]);
 });
+
+
 
 add_action('acf/init', function () {
 	if (!function_exists('acf_add_local_field_group')) return;
@@ -4464,8 +4747,20 @@ add_action('acf/init', function () {
 		'key' => 'group_gelikon_warranty_page',
 		'title' => 'Гарантия и возврат — контент страницы',
 		'fields' => [
-			['key' => 'field_warranty_hero_title', 'label' => 'Hero title', 'name' => 'warranty_hero_title', 'type' => 'text', 'default_value' => 'Гарантия и возврат'],
-			['key' => 'field_warranty_hero_subtitle', 'label' => 'Hero subtitle', 'name' => 'warranty_hero_subtitle', 'type' => 'text', 'default_value' => 'Прозрачные условия обслуживания и возврата продукции'],
+			[
+				'key' => 'field_warranty_hero_title',
+				'label' => 'Hero title',
+				'name' => 'warranty_hero_title',
+				'type' => 'text',
+				'default_value' => 'Гарантия и возврат',
+			],
+			[
+				'key' => 'field_warranty_hero_subtitle',
+				'label' => 'Hero subtitle',
+				'name' => 'warranty_hero_subtitle',
+				'type' => 'text',
+				'default_value' => 'Прозрачные условия обслуживания и возврата продукции',
+			],
 			[
 				'key' => 'field_warranty_benefits',
 				'label' => 'Основные преимущества',
@@ -4474,24 +4769,108 @@ add_action('acf/init', function () {
 				'layout' => 'row',
 				'button_label' => 'Добавить пункт',
 				'sub_fields' => [
-					['key' => 'field_warranty_benefits_title', 'label' => 'Title', 'name' => 'title', 'type' => 'text'],
-					['key' => 'field_warranty_benefits_text', 'label' => 'Text', 'name' => 'text', 'type' => 'text'],
+					[
+						'key' => 'field_warranty_benefits_icon',
+						'label' => 'Icon',
+						'name' => 'icon',
+						'type' => 'image',
+						'return_format' => 'array',
+						'preview_size' => 'thumbnail',
+						'library' => 'all',
+					],
+					[
+						'key' => 'field_warranty_benefits_title',
+						'label' => 'Title',
+						'name' => 'title',
+						'type' => 'text',
+					],
+					[
+						'key' => 'field_warranty_benefits_text',
+						'label' => 'Text',
+						'name' => 'text',
+						'type' => 'text',
+					],
 				],
 			],
-			['key' => 'field_warranty_main_text', 'label' => 'Текст блока «Гарантия»', 'name' => 'warranty_main_text', 'type' => 'wysiwyg'],
-			['key' => 'field_warranty_return_conditions', 'label' => 'Условия возврата', 'name' => 'warranty_return_conditions', 'type' => 'textarea', 'rows' => 6],
-			['key' => 'field_warranty_exclusions', 'label' => 'Когда гарантия не действует', 'name' => 'warranty_exclusions', 'type' => 'textarea', 'rows' => 6],
-			['key' => 'field_warranty_return_steps', 'label' => 'Как оформить возврат', 'name' => 'warranty_return_steps', 'type' => 'textarea', 'rows' => 6],
-			['key' => 'field_warranty_refund_text', 'label' => 'Возврат денежных средств', 'name' => 'warranty_refund_text', 'type' => 'wysiwyg'],
-			['key' => 'field_warranty_defect_text', 'label' => 'Товары ненадлежащего качества', 'name' => 'warranty_defect_text', 'type' => 'textarea', 'rows' => 6],
-			['key' => 'field_warranty_return_address', 'label' => 'Адрес для возврата', 'name' => 'warranty_return_address', 'type' => 'textarea', 'rows' => 3],
-			['key' => 'field_warranty_return_schedule', 'label' => 'График работы', 'name' => 'warranty_return_schedule', 'type' => 'text'],
-			['key' => 'field_warranty_phones', 'label' => 'Телефоны', 'name' => 'warranty_phones', 'type' => 'textarea', 'rows' => 2],
-			['key' => 'field_warranty_email', 'label' => 'Email', 'name' => 'warranty_email', 'type' => 'email'],
+			[
+				'key' => 'field_warranty_main_text',
+				'label' => 'Текст блока «Гарантия»',
+				'name' => 'warranty_main_text',
+				'type' => 'wysiwyg',
+			],
+			[
+				'key' => 'field_warranty_return_conditions',
+				'label' => 'Условия возврата',
+				'name' => 'warranty_return_conditions',
+				'type' => 'textarea',
+				'rows' => 6,
+			],
+			[
+				'key' => 'field_warranty_exclusions',
+				'label' => 'Когда гарантия не действует',
+				'name' => 'warranty_exclusions',
+				'type' => 'textarea',
+				'rows' => 6,
+			],
+			[
+				'key' => 'field_warranty_return_steps',
+				'label' => 'Как оформить возврат',
+				'name' => 'warranty_return_steps',
+				'type' => 'textarea',
+				'rows' => 6,
+			],
+			[
+				'key' => 'field_warranty_refund_text',
+				'label' => 'Возврат денежных средств',
+				'name' => 'warranty_refund_text',
+				'type' => 'wysiwyg',
+			],
+			[
+				'key' => 'field_warranty_defect_text',
+				'label' => 'Товары ненадлежащего качества',
+				'name' => 'warranty_defect_text',
+				'type' => 'textarea',
+				'rows' => 6,
+			],
+			[
+				'key' => 'field_warranty_return_address',
+				'label' => 'Адрес для возврата',
+				'name' => 'warranty_return_address',
+				'type' => 'textarea',
+				'rows' => 3,
+			],
+			[
+				'key' => 'field_warranty_return_schedule',
+				'label' => 'График работы',
+				'name' => 'warranty_return_schedule',
+				'type' => 'text',
+			],
+			[
+				'key' => 'field_warranty_phones',
+				'label' => 'Телефоны',
+				'name' => 'warranty_phones',
+				'type' => 'textarea',
+				'rows' => 2,
+			],
+			[
+				'key' => 'field_warranty_email',
+				'label' => 'Email',
+				'name' => 'warranty_email',
+				'type' => 'email',
+			],
 		],
-		'location' => [[['param' => 'page_template', 'operator' => '==', 'value' => 'page-warranty-returns.php']]],
+		'location' => [
+			[
+				[
+					'param' => 'page_template',
+					'operator' => '==',
+					'value' => 'page-warranty-returns.php',
+				],
+			],
+		],
 	]);
 });
+
 
 
 
@@ -4523,6 +4902,50 @@ function gelikon_remove_cart_item_ajax() {
 	}
 
 	WC()->cart->remove_cart_item($cart_item_key);
+	WC()->cart->calculate_totals();
+
+	ob_start();
+	woocommerce_mini_cart();
+	$mini_cart = ob_get_clean();
+
+	wp_send_json_success([
+		'count'     => WC()->cart->get_cart_contents_count(),
+		'fragments' => [
+			'div.widget_shopping_cart_content' => '<div class="widget_shopping_cart_content">' . $mini_cart . '</div>',
+		],
+	]);
+}
+
+
+/**
+ * Gelikon AJAX update cart item quantity.
+ */
+add_action('wp_ajax_gelikon_update_cart_item_qty', 'gelikon_update_cart_item_qty_ajax');
+add_action('wp_ajax_nopriv_gelikon_update_cart_item_qty', 'gelikon_update_cart_item_qty_ajax');
+
+function gelikon_update_cart_item_qty_ajax() {
+	if (!class_exists('WooCommerce') || !WC()->cart) {
+		wp_send_json_error();
+	}
+
+	$cart_item_key = isset($_POST['cart_item_key'])
+		? sanitize_text_field(wp_unslash($_POST['cart_item_key']))
+		: '';
+
+	$qty = isset($_POST['qty'])
+		? max(0, (int) $_POST['qty'])
+		: 1;
+
+	if (!$cart_item_key) {
+		wp_send_json_error();
+	}
+
+	if ($qty <= 0) {
+		WC()->cart->remove_cart_item($cart_item_key);
+	} else {
+		WC()->cart->set_quantity($cart_item_key, $qty, true);
+	}
+
 	WC()->cart->calculate_totals();
 
 	ob_start();
@@ -4628,15 +5051,6 @@ add_action('wp_footer', function () {
 			padding: 6px 18px;
 		}
 
-		.gl-full-mini-cart__items::-webkit-scrollbar {
-			width: 6px;
-		}
-
-		.gl-full-mini-cart__items::-webkit-scrollbar-thumb {
-			background: #d8dde2;
-			border-radius: 20px;
-		}
-
 		.gl-full-mini-cart__item {
 			position: relative;
 			display: grid;
@@ -4668,9 +5082,55 @@ add_action('wp_footer', function () {
 			text-decoration: none !important;
 		}
 
-		.gl-full-mini-cart__qty {
-			font-size: 13px;
-			color: #7d8490;
+		.gl-full-mini-cart__meta {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 10px;
+			flex-wrap: wrap;
+		}
+
+		.gl-full-mini-cart__qty-control {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			margin-top: 8px;
+			padding: 4px;
+			border-radius: 999px;
+			background: #f4f6f8;
+		}
+
+		.gl-full-mini-cart__qty-btn {
+			width: 28px;
+			height: 28px;
+			border: 0;
+			border-radius: 50%;
+			background: #fff;
+			color: #171d2a;
+			font-size: 18px;
+			font-weight: 700;
+			line-height: 1;
+			cursor: pointer;
+			box-shadow: 0 3px 10px rgba(23, 29, 42, .08);
+			transition: .18s ease;
+		}
+
+		.gl-full-mini-cart__qty-btn:hover {
+			background: #12D457;
+			color: #fff;
+		}
+
+		.gl-full-mini-cart__qty-value {
+			min-width: 24px;
+			text-align: center;
+			font-size: 14px;
+			font-weight: 700;
+			color: #171d2a;
+		}
+
+		.gl-full-mini-cart__qty-control.is-loading {
+			opacity: .45;
+			pointer-events: none;
 		}
 
 		.gl-full-mini-cart__remove {
@@ -4693,11 +5153,6 @@ add_action('wp_footer', function () {
 		.gl-full-mini-cart__remove:hover {
 			background: #ffecec;
 			color: #ff3b30 !important;
-		}
-
-		.gl-full-mini-cart__remove.is-loading {
-			pointer-events: none;
-			opacity: .45;
 		}
 
 		.gl-full-mini-cart__footer {
@@ -4888,6 +5343,7 @@ add_action('wp_footer', function () {
 							<div class="gl-full-mini-cart__skeleton-line"></div>
 						</div>
 					</div>
+
 					<div class="gl-full-mini-cart__skeleton">
 						<div class="gl-full-mini-cart__skeleton-img"></div>
 						<div>
@@ -5070,7 +5526,10 @@ add_action('wp_footer', function () {
 				const removeHref = remove ? remove.href : '#';
 				const removeKey = remove ? remove.getAttribute('data-cart_item_key') : '';
 				const removeProductId = remove ? remove.getAttribute('data-product_id') : '';
+
 				const qtyText = qtyNode ? qtyNode.textContent.replace(/\s+/g, ' ').trim() : '';
+				const qtyNumberMatch = qtyText.match(/(\d+)/);
+				const qtyNumber = qtyNumberMatch ? parseInt(qtyNumberMatch[1], 10) : 1;
 
 				if (qtyNode) {
 					qtyNode.remove();
@@ -5101,7 +5560,11 @@ add_action('wp_footer', function () {
 							<a class="gl-full-mini-cart__name" href="${href}">${name}</a>
 
 							<div class="gl-full-mini-cart__meta">
-								<span class="gl-full-mini-cart__qty">${qtyText}</span>
+								<div class="gl-full-mini-cart__qty-control" data-cart_item_key="${removeKey || ''}" data-qty="${qtyNumber}">
+									<button type="button" class="gl-full-mini-cart__qty-btn" data-qty-action="minus" aria-label="Уменьшить количество">−</button>
+									<span class="gl-full-mini-cart__qty-value">${qtyNumber}</span>
+									<button type="button" class="gl-full-mini-cart__qty-btn" data-qty-action="plus" aria-label="Увеличить количество">+</button>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -5187,6 +5650,73 @@ add_action('wp_footer', function () {
 			});
 		}
 
+		function updateMiniCartItemQty(button) {
+			if (!button || !window.jQuery) {
+				return;
+			}
+
+			const control = button.closest('.gl-full-mini-cart__qty-control');
+
+			if (!control) {
+				return;
+			}
+
+			const cartItemKey = control.getAttribute('data-cart_item_key');
+			const valueNode = control.querySelector('.gl-full-mini-cart__qty-value');
+			const currentQty = parseInt(control.getAttribute('data-qty'), 10) || 1;
+			const action = button.getAttribute('data-qty-action');
+
+			let newQty = currentQty;
+
+			if (action === 'plus') {
+				newQty = currentQty + 1;
+			}
+
+			if (action === 'minus') {
+				newQty = currentQty - 1;
+			}
+
+			if (!cartItemKey || newQty < 0) {
+				return;
+			}
+
+			control.classList.add('is-loading');
+
+			if (valueNode && newQty > 0) {
+				valueNode.textContent = String(newQty);
+			}
+
+			window.jQuery.ajax({
+				type: 'POST',
+				url: ajaxUrl,
+				data: {
+					action: 'gelikon_update_cart_item_qty',
+					cart_item_key: cartItemKey,
+					qty: newQty
+				},
+				success: function(response) {
+					if (!response || !response.success || !response.data) {
+						refreshMiniCartAjax();
+						return;
+					}
+
+					if (response.data.fragments) {
+						renderMiniCartFromFragments(response.data.fragments);
+					}
+
+					if (typeof response.data.count !== 'undefined') {
+						setCartCount(response.data.count);
+					}
+
+					showMiniCart();
+					clearHideTimer();
+				},
+				error: function() {
+					refreshMiniCartAjax();
+				}
+			});
+		}
+
 		function removePostponedNotice() {
 			document.querySelectorAll('.woocommerce-message, .woocommerce-info, .woocommerce-error li, .woocommerce-notices-wrapper > *').forEach(function(notice){
 				const text = (notice.textContent || '').toLowerCase();
@@ -5203,6 +5733,14 @@ add_action('wp_footer', function () {
 		document.querySelectorAll('.gl-product-card__button.added, .single_add_to_cart_button.added').forEach(setButtonInCartState);
 
 		document.body.addEventListener('click', function(event){
+			const qtyButton = event.target.closest('.gl-full-mini-cart__qty-btn');
+
+			if (qtyButton) {
+				event.preventDefault();
+				updateMiniCartItemQty(qtyButton);
+				return;
+			}
+
 			const removeButton = event.target.closest('.gl-full-mini-cart__remove');
 
 			if (removeButton) {
@@ -5333,12 +5871,13 @@ add_filter('woocommerce_checkout_fields', function ($fields) {
 	}
 
 	if (isset($fields['shipping'])) {
+		unset($fields['shipping']['shipping_first_name'], $fields['shipping']['shipping_last_name'], $fields['shipping']['shipping_company'], $fields['shipping']['shipping_country'], $fields['shipping']['shipping_state'], $fields['shipping']['shipping_postcode'], $fields['shipping']['shipping_address_2']);
 		$fields['shipping']['shipping_city']['label'] = 'Город';
 		$fields['shipping']['shipping_city']['placeholder'] = 'Москва';
-		$fields['shipping']['shipping_city']['priority'] = 40;
+		$fields['shipping']['shipping_city']['priority'] = 10;
 		$fields['shipping']['shipping_address_1']['label'] = 'Улица и дом';
 		$fields['shipping']['shipping_address_1']['placeholder'] = 'Ленинский проспект, 10';
-		$fields['shipping']['shipping_address_1']['priority'] = 50;
+		$fields['shipping']['shipping_address_1']['priority'] = 20;
 	}
 
 	if (isset($fields['order']['order_comments'])) {
@@ -5366,6 +5905,170 @@ add_action('wp', function () {
 		remove_action('woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10);
 	}
 });
+
+
+/**
+ * Checkout: RU compact flow + sync shipping address to billing for CDEK.
+ */
+add_filter('woocommerce_checkout_fields', function ($fields) {
+	if (isset($fields['billing'])) {
+		$fields['billing']['billing_first_name']['label'] = 'ФИО';
+		$fields['billing']['billing_first_name']['placeholder'] = 'Иванов Иван Иванович';
+		$fields['billing']['billing_first_name']['required'] = true;
+		$fields['billing']['billing_first_name']['priority'] = 10;
+
+		unset($fields['billing']['billing_last_name'], $fields['billing']['billing_company'], $fields['billing']['billing_country'], $fields['billing']['billing_state'], $fields['billing']['billing_postcode'], $fields['billing']['billing_city'], $fields['billing']['billing_address_1'], $fields['billing']['billing_address_2']);
+
+		$fields['billing']['billing_phone']['label'] = 'Телефон';
+		$fields['billing']['billing_phone']['placeholder'] = '+7 (___) ___-__-__';
+		$fields['billing']['billing_phone']['required'] = true;
+		$fields['billing']['billing_phone']['priority'] = 20;
+
+		$fields['billing']['billing_email']['label'] = 'Email';
+		$fields['billing']['billing_email']['placeholder'] = 'example@mail.ru';
+		$fields['billing']['billing_email']['required'] = false;
+		$fields['billing']['billing_email']['priority'] = 30;
+	}
+
+	if (isset($fields['shipping'])) {
+		unset($fields['shipping']['shipping_first_name'], $fields['shipping']['shipping_last_name'], $fields['shipping']['shipping_company'], $fields['shipping']['shipping_country'], $fields['shipping']['shipping_state'], $fields['shipping']['shipping_postcode'], $fields['shipping']['shipping_address_2']);
+
+		$fields['shipping']['shipping_city']['label'] = 'Город';
+		$fields['shipping']['shipping_city']['placeholder'] = 'Москва';
+		$fields['shipping']['shipping_city']['priority'] = 10;
+
+		$fields['shipping']['shipping_address_1']['label'] = 'Улица и дом';
+		$fields['shipping']['shipping_address_1']['placeholder'] = 'Ленинский проспект, 10';
+		$fields['shipping']['shipping_address_1']['priority'] = 20;
+	}
+
+	if (isset($fields['order']['order_comments'])) {
+		$fields['order']['order_comments']['label'] = 'Комментарий к заказу';
+	}
+
+	return $fields;
+}, 20);
+
+
+/**
+ * During WooCommerce AJAX checkout update:
+ * copy shipping city/address into billing customer data for CDEK.
+ */
+add_action('woocommerce_checkout_update_order_review', function ($post_data) {
+	parse_str($post_data, $data);
+
+	$city    = !empty($data['shipping_city']) ? wc_clean(wp_unslash($data['shipping_city'])) : '';
+	$address = !empty($data['shipping_address_1']) ? wc_clean(wp_unslash($data['shipping_address_1'])) : '';
+
+	WC()->customer->set_billing_country('RU');
+	WC()->customer->set_shipping_country('RU');
+
+	if ($city) {
+		WC()->customer->set_billing_city($city);
+		WC()->customer->set_shipping_city($city);
+		WC()->customer->set_billing_state($city);
+		WC()->customer->set_shipping_state($city);
+	}
+
+	if ($address) {
+		WC()->customer->set_billing_address_1($address);
+		WC()->customer->set_shipping_address_1($address);
+	}
+
+	WC()->customer->save();
+});
+
+
+/**
+ * On order creation:
+ * save shipping city/address into billing fields too.
+ */
+add_action('woocommerce_checkout_create_order', function ($order, $data) {
+	$city    = !empty($data['shipping_city']) ? wc_clean($data['shipping_city']) : '';
+	$address = !empty($data['shipping_address_1']) ? wc_clean($data['shipping_address_1']) : '';
+
+	$order->set_billing_country('RU');
+	$order->set_shipping_country('RU');
+
+	if ($city) {
+		$order->set_billing_city($city);
+		$order->set_shipping_city($city);
+		$order->set_billing_state($city);
+		$order->set_shipping_state($city);
+	}
+
+	if ($address) {
+		$order->set_billing_address_1($address);
+		$order->set_shipping_address_1($address);
+	}
+}, 20, 2);
+
+
+/**
+ * Frontend checkout JS:
+ * create hidden billing fields and sync values on input, before CDEK/WooCommerce recalculation.
+ */
+add_action('wp_footer', function () {
+	if (!function_exists('is_checkout') || !is_checkout() || is_order_received_page()) {
+		return;
+	}
+	?>
+	<script>
+		jQuery(function ($) {
+			function glCreateBillingField(name) {
+				var $field = $('[name="' + name + '"]');
+
+				if (!$field.length) {
+					$field = $('<input>', {
+						type: 'hidden',
+						name: name,
+						id: name,
+						value: ''
+					});
+
+					$('form.checkout').append($field);
+				}
+
+				return $field;
+			}
+
+			function glSyncShippingToBilling() {
+				var shippingCity = $('[name="shipping_city"]').val() || '';
+				var shippingAddress = $('[name="shipping_address_1"]').val() || '';
+
+				glCreateBillingField('billing_country').val('RU');
+				glCreateBillingField('billing_city').val(shippingCity);
+				glCreateBillingField('billing_address_1').val(shippingAddress);
+				glCreateBillingField('billing_state').val(shippingCity);
+				glCreateBillingField('billing_postcode').val('');
+			}
+
+			$(document.body).on(
+				'input change blur keyup',
+				'[name="shipping_city"], [name="shipping_address_1"]',
+				function () {
+					glSyncShippingToBilling();
+
+					clearTimeout(window.glCdekUpdateTimer);
+					window.glCdekUpdateTimer = setTimeout(function () {
+						$(document.body).trigger('update_checkout');
+					}, 500);
+				}
+			);
+
+			$(document.body).on('update_checkout checkout_place_order', function () {
+				glSyncShippingToBilling();
+			});
+
+			$('form.checkout').on('submit', function () {
+				glSyncShippingToBilling();
+			});
+
+			glSyncShippingToBilling();
+		});
+	</script>
+	<?php
+}, 99);
 
 
 
@@ -6271,3 +6974,59 @@ add_action('wp_enqueue_scripts', function () {
 		wp_enqueue_script('wc-cart-fragments');
 	}
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Gelikon checkout update cart item quantity.
+ */
+add_action('wp_ajax_gelikon_checkout_update_cart_item_qty', 'gelikon_checkout_update_cart_item_qty');
+add_action('wp_ajax_nopriv_gelikon_checkout_update_cart_item_qty', 'gelikon_checkout_update_cart_item_qty');
+
+function gelikon_checkout_update_cart_item_qty() {
+	if (
+		empty($_POST['nonce']) ||
+		! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'update-order-review')
+	) {
+		wp_send_json_error();
+	}
+
+	if (! class_exists('WooCommerce') || ! WC()->cart) {
+		wp_send_json_error();
+	}
+
+	$cart_item_key = isset($_POST['cart_item_key'])
+		? sanitize_text_field(wp_unslash($_POST['cart_item_key']))
+		: '';
+
+	$quantity = isset($_POST['quantity'])
+		? max(0, (int) $_POST['quantity'])
+		: 1;
+
+	if (! $cart_item_key || ! WC()->cart->get_cart_item($cart_item_key)) {
+		wp_send_json_error();
+	}
+
+	if ($quantity <= 0) {
+		WC()->cart->remove_cart_item($cart_item_key);
+	} else {
+		WC()->cart->set_quantity($cart_item_key, $quantity, true);
+	}
+
+	WC()->cart->calculate_totals();
+
+	wp_send_json_success([
+		'count' => WC()->cart->get_cart_contents_count(),
+	]);
+}

@@ -126,25 +126,30 @@ $brand_text = gelikon_about_get_field('brand_text', 'В 2022 году был з�
 
 		<section class="gl-card gl-about-approach">
 			<h2>Подход к продукции</h2>
+			
+			
 			<div class="gl-about-approach__grid">
-				<?php foreach ($approach_items as $item) :
-					$icon_url = !empty($item['icon']) ? gelikon_about_media_url($item['icon'], 'thumbnail') : '';
-					$title = !empty($item['title']) ? $item['title'] : 'Пункт';
-					$description = !empty($item['description']) ? $item['description'] : '';
-				?>
-					<article class="gl-about-approach__item">
-						<div class="gl-about-approach__icon">
-							<?php if ($icon_url) : ?>
-								<img src="<?php echo esc_url($icon_url); ?>" alt="">
-							<?php else : ?>
-								<span>•</span>
-							<?php endif; ?>
-						</div>
-						<h3><?php echo esc_html($title); ?></h3>
-						<p><?php echo esc_html($description); ?></p>
-					</article>
-				<?php endforeach; ?>
+	<?php foreach ($approach_items as $item) :
+		$icon_url = !empty($item['icon']) ? gelikon_about_media_url($item['icon'], 'thumbnail') : '';
+		$title = !empty($item['title']) ? $item['title'] : 'Пункт';
+		$description = !empty($item['description']) ? $item['description'] : '';
+	?>
+		<a class="gl-about-approach__item" href="http://paveld9o.beget.tech/gelikon/user-agreement/">
+			<div class="gl-about-approach__icon">
+				<?php if ($icon_url) : ?>
+					<img src="<?php echo esc_url($icon_url); ?>" alt="">
+				<?php else : ?>
+					<span>•</span>
+				<?php endif; ?>
 			</div>
+
+			<h3><?php echo esc_html($title); ?></h3>
+			<p><?php echo esc_html($description); ?></p>
+		</a>
+	<?php endforeach; ?>
+</div>
+			
+			
 		</section>
 
 		<section class="gl-card gl-about-split">

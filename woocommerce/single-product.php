@@ -61,25 +61,24 @@ while (have_posts()) :
 	$subtitle = gelikon_product_get_field('product_subtitle', '', $product_id);
 	$top_note = gelikon_product_get_field('product_top_note', 'Боль в суставах или спорте', $product_id);
 
-	$global_benefits = function_exists('get_field') ? get_field('product_global_benefits', 'option') : [];
-	$product_benefits = [];
+$global_benefits = function_exists('get_field') ? get_field('product_global_benefits', 'option') : [];
+$product_benefits = [];
 
-	if (!empty($global_benefits) && is_array($global_benefits)) {
-		foreach ($global_benefits as $benefit_item) {
-			$benefit_text = isset($benefit_item['text']) ? trim((string) $benefit_item['text']) : '';
-			$benefit_icon = isset($benefit_item['icon']) ? $benefit_item['icon'] : '';
-			$benefit_icon_url = gelikon_product_image_url($benefit_icon, 'thumbnail');
+if (!empty($global_benefits) && is_array($global_benefits)) {
+	foreach ($global_benefits as $benefit) {
+		$icon_url = '';
 
-			if ($benefit_text === '') {
-				continue;
-			}
-
-			$product_benefits[] = [
-				'text' => $benefit_text,
-				'icon_url' => $benefit_icon_url,
-			];
+		if (!empty($benefit['icon']) && is_array($benefit['icon']) && !empty($benefit['icon']['url'])) {
+			$icon_url = $benefit['icon']['url'];
 		}
+
+		$product_benefits[] = [
+			'icon_url' => $icon_url,
+			'text'     => $benefit['text'] ?? '',
+			'link'     => $benefit['link'] ?? '',
+		];
 	}
+}
 
 	if (empty($product_benefits)) {
 		$product_benefits = [
@@ -485,24 +484,50 @@ document.addEventListener('DOMContentLoaded', function () {
 							</div>
 								</div>
 
-								<div class="gl-product-benefits">
-							<?php foreach ($product_benefits as $benefit_item) : ?>
-								<div class="gl-card gl-product-benefit">
-									<div class="gl-product-benefit__icon">
-										<?php if (!empty($benefit_item['icon_url'])) : ?>
-											<img src="<?php echo esc_url($benefit_item['icon_url']); ?>" alt="" loading="lazy" decoding="async">
-										<?php endif; ?>
-									</div>
-									<div class="gl-product-benefit__text"><?php echo esc_html($benefit_item['text']); ?></div>
-								</div>
-							<?php endforeach; ?>
-							</div>	
+<div class="gl-product-benefits">
+	<?php foreach ($product_benefits as $benefit_item) :
+		$benefit_link = !empty($benefit_item['link']) ? $benefit_item['link'] : '#';
+	?>
+		<a 
+			class="gl-card gl-product-benefit"
+			href="<?php echo esc_url($benefit_link); ?>"
+		>
+			<div class="gl-trust-item__icon">
+				<?php if (!empty($benefit_item['icon_url'])) : ?>
+					<img 
+						src="<?php echo esc_url($benefit_item['icon_url']); ?>" 
+						alt="" 
+						loading="lazy" 
+						decoding="async"
+					>
+				<?php endif; ?>
+			</div>
+
+			<div class="gl-product-benefit__text">
+				<?php echo esc_html($benefit_item['text']); ?>
+			</div>
+		</a>
+	<?php endforeach; ?>
+</div>
+								
+								
 						</div>
 					</div>
 				</div>
 			</section>
 			
-			
+<style>
+	.gl-trust-item__icon{
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	
+	background: linear-gradient(
+	180deg,
+	rgba(44,188,99,.12),
+	rgba(44,188,99,.03));
+}
+</style>
 			
 			
 			<div id="gl-product-details" class="gl-product-summary__description">

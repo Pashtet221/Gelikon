@@ -38,11 +38,18 @@ defined('ABSPATH') || exit;
 							</button>
 
 							<div class="gl-checkout-cart-item__content">
-								<?php
-								echo wp_kses_post(apply_filters('woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key));
-								echo wp_kses_post(apply_filters('woocommerce_checkout_cart_item_quantity', ' <strong class="product-quantity">× ' . $cart_item['quantity'] . '</strong>', $cart_item, $cart_item_key));
-								echo wc_get_formatted_cart_item_data($cart_item);
-								?>
+								<div class="gl-checkout-cart-item__name">
+									<?php
+									echo wp_kses_post(apply_filters('woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key));
+									echo wc_get_formatted_cart_item_data($cart_item);
+									?>
+								</div>
+
+								<div class="gl-checkout-cart-item__qty" data-cart-item-key="<?php echo esc_attr($cart_item_key); ?>">
+									<button type="button" class="gl-checkout-cart-item__qty-btn" data-qty-action="minus" aria-label="Уменьшить количество">−</button>
+									<span class="gl-checkout-cart-item__qty-value"><?php echo esc_html($cart_item['quantity']); ?></span>
+									<button type="button" class="gl-checkout-cart-item__qty-btn" data-qty-action="plus" aria-label="Увеличить количество">+</button>
+								</div>
 							</div>
 						</div>
 					</td>
@@ -80,7 +87,7 @@ defined('ABSPATH') || exit;
 			</tr>
 		<?php endforeach; ?>
 
-		<?php if (wc_tax_enabled() && ! WC()->cart->display_prices_including_tax()) : ?>
+		<?php if (wc_tax_enabled() && !WC()->cart->display_prices_including_tax()) : ?>
 			<?php if ('itemized' === get_option('woocommerce_tax_total_display')) : ?>
 				<?php foreach (WC()->cart->get_tax_totals() as $code => $tax) : ?>
 					<tr class="tax-rate tax-rate-<?php echo esc_attr(sanitize_title($code)); ?>">
@@ -140,13 +147,64 @@ defined('ABSPATH') || exit;
 	opacity: .45;
 }
 
-.gl-checkout-cart-item.is-removing {
+.gl-checkout-cart-item__qty.is-loading {
 	opacity: .45;
-	pointer-events: none;
 }
 
+.gl-checkout-cart-item.is-removing,
+.gl-checkout-cart-item.is-updating {
+	opacity: .55;
+}
 .gl-checkout-cart-item__content {
 	min-width: 0;
+}
+
+.gl-checkout-cart-item__name {
+	min-width: 0;
+}
+
+.gl-checkout-cart-item__qty {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin-top: 8px;
+	padding: 3px;
+	border-radius: 999px;
+	background: #f4f6f8;
+	vertical-align: middle;
+}
+
+.gl-checkout-cart-item__qty-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: #fff;
+	color: #171b20;
+	font-size: 16px;
+	line-height: 1;
+	font-weight: 700;
+	cursor: pointer;
+	box-shadow: 0 2px 8px rgba(23, 29, 42, .08);
+	transition: background .2s ease, color .2s ease, opacity .2s ease;
+}
+
+.gl-checkout-cart-item__qty-btn:hover {
+	background: #12D457;
+	color: #fff;
+}
+
+.gl-checkout-cart-item__qty-value {
+	min-width: 22px;
+	text-align: center;
+	font-size: 13px;
+	line-height: 1;
+	font-weight: 700;
+	color: #252b33;
 }
 
 .gl-checkout-sidebar__desc {
@@ -188,13 +246,6 @@ defined('ABSPATH') || exit;
 	color: #252b33;
 	white-space: nowrap;
 	text-align: right;
-}
-
-.gl-order-review-table tbody .product-quantity {
-	font-size: 13px;
-	line-height: 1.35;
-	font-weight: 500;
-	color: #7a8491;
 }
 
 .gl-order-review-table .cart-subtotal {
@@ -298,11 +349,26 @@ defined('ABSPATH') || exit;
 		font-size: 11px;
 		white-space: normal;
 	}
+
+	.gl-checkout-cart-item__qty-btn {
+		width: 23px;
+		height: 23px;
+		font-size: 15px;
+	}
+
+	.gl-checkout-cart-item__qty-value {
+		min-width: 20px;
+		font-size: 12px;
+	}
 }
 </style>
 
 <script>
 jQuery(function($) {
+	const qtyTimers = {};
+	const qtyRequests = {};
+	const qtyDelay = 600;
+
 	$(document).on('click', '.gl-checkout-cart-item__remove', function(e) {
 		e.preventDefault();
 
@@ -341,5 +407,234 @@ jQuery(function($) {
 			}
 		});
 	});
+
+	$(document).on('click', '.gl-checkout-cart-item__qty-btn', function(e) {
+		e.preventDefault();
+
+		const $button = $(this);
+		const $qty = $button.closest('.gl-checkout-cart-item__qty');
+		const $row = $button.closest('.gl-checkout-cart-item');
+		const $value = $qty.find('.gl-checkout-cart-item__qty-value');
+
+		const cartItemKey = $qty.data('cart-item-key');
+		const action = $button.data('qty-action');
+
+		if (!cartItemKey) {
+			return;
+		}
+
+		let currentQty = parseInt($value.text(), 10) || 1;
+		let newQty = currentQty;
+
+		if (action === 'plus') {
+			newQty++;
+		}
+
+		if (action === 'minus') {
+			newQty--;
+		}
+
+		if (newQty < 0) {
+			return;
+		}
+
+		$value.text(newQty);
+		$qty.data('pending-quantity', newQty);
+		$qty.removeClass('is-loading');
+		$row.removeClass('is-updating');
+
+		if (newQty === 0) {
+			$row.addClass('is-removing');
+		} else {
+			$row.removeClass('is-removing');
+		}
+
+		clearTimeout(qtyTimers[cartItemKey]);
+
+		qtyTimers[cartItemKey] = setTimeout(function() {
+			const finalQty = parseInt($qty.data('pending-quantity'), 10);
+
+			$qty.addClass('is-loading');
+			$row.addClass('is-updating');
+
+			if (qtyRequests[cartItemKey]) {
+				qtyRequests[cartItemKey].abort();
+			}
+
+			qtyRequests[cartItemKey] = $.ajax({
+				type: 'POST',
+				url: wc_checkout_params.ajax_url,
+				dataType: 'json',
+				data: {
+					action: 'gelikon_checkout_update_cart_item_qty',
+					cart_item_key: cartItemKey,
+					quantity: finalQty,
+					nonce: wc_checkout_params.update_order_review_nonce
+				},
+				success: function(response) {
+					if (response && response.success) {
+						$(document.body).trigger('update_checkout');
+						$(document.body).trigger('wc_fragment_refresh');
+					} else {
+						$qty.removeClass('is-loading');
+						$row.removeClass('is-updating is-removing');
+					}
+				},
+				error: function(xhr, status) {
+					if (status !== 'abort') {
+						$qty.removeClass('is-loading');
+						$row.removeClass('is-updating is-removing');
+					}
+				},
+				complete: function() {
+					qtyRequests[cartItemKey] = null;
+				}
+			});
+		}, qtyDelay);
+	});
 });
 </script>
+
+
+<style>
+	/* СДЭК в блоке оформления заказа */
+.gl-order-review-table .shipping th {
+	padding-top: 18px;
+	font-size: 15px;
+	font-weight: 700;
+	color: #171b20;
+}
+
+.gl-order-review-table .shipping td {
+	padding-top: 16px;
+}
+
+.gl-order-review-table #shipping_method {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.gl-order-review-table #shipping_method li {
+	position: relative;
+	display: grid;
+	grid-template-columns: 18px 1fr;
+	gap: 8px;
+	align-items: flex-start;
+	margin: 0 !important;
+	padding: 0;
+}
+
+.gl-order-review-table #shipping_method input[type="radio"] {
+	width: 15px;
+	height: 15px;
+	margin: 3px 0 0;
+	accent-color: #12D457;
+}
+
+.gl-order-review-table #shipping_method label {
+	display: block;
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.35;
+	font-weight: 500;
+	color: #252b33;
+}
+
+.gl-order-review-table #shipping_method label .amount {
+	display: inline-block;
+	margin-left: 4px;
+	font-size: 13px;
+	font-weight: 800;
+	color: #171b20;
+	white-space: nowrap;
+}
+
+.gl-order-review-table .cdek-office-info {
+	grid-column: 2 / -1;
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	width: 100%;
+	margin: 8px 0 0;
+	padding: 10px 12px;
+	border-radius: 14px;
+	background: #f4f8f5;
+	border: 1px solid rgba(18, 212, 87, .18);
+	font-size: 12px;
+	line-height: 1.35;
+	font-weight: 600;
+	color: #252b33;
+}
+
+.gl-order-review-table .cdek-office-info::before {
+	content: "";
+	width: 16px;
+	height: 16px;
+	min-width: 16px;
+	margin-top: 1px;
+	background: #12D457;
+	border-radius: 50%;
+	box-shadow: 0 0 0 4px rgba(18, 212, 87, .12);
+}
+
+.gl-order-review-table .open-pvz-btn {
+	grid-column: 2 / -1;
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	max-width: 190px;
+	min-height: 36px;
+	margin-top: 8px;
+	padding: 8px 14px;
+	border-radius: 999px;
+	background: #12D457;
+	color: #fff !important;
+	font-size: 12px;
+	line-height: 1.2;
+	font-weight: 700;
+	text-align: center;
+	white-space: normal;
+	cursor: pointer;
+	transition: background .2s ease, transform .2s ease;
+}
+
+.gl-order-review-table .open-pvz-btn:hover {
+	background: #10bf4f;
+	transform: translateY(-1px);
+}
+
+.gl-order-review-table .open-pvz-btn script {
+	display: none !important;
+}
+	
+	
+	
+
+@media (max-width: 480px) {
+	.gl-order-review-table .shipping th,
+	.gl-order-review-table .shipping td {
+		display: block;
+		width: 100%;
+		text-align: left;
+	}
+
+	.gl-order-review-table #shipping_method label {
+		font-size: 12px;
+	}
+
+	.gl-order-review-table .cdek-office-info {
+		font-size: 12px;
+		padding: 9px 10px;
+	}
+
+	.gl-order-review-table .open-pvz-btn {
+		max-width: 100%;
+		font-size: 12px;
+	}
+}
+</style>
