@@ -1496,35 +1496,24 @@ $products_query = new WP_Query($query_args);
 	
 	
 	
-/* Прилипающие фильтры */
+/* Прилипающие фильтры на ПК */
 @media (min-width: 992px) {
 	.gl-catalog-sidebar {
 		position: relative;
 		align-self: start;
+		min-width: 0;
 	}
 
 	.gl-catalog-sidebar__inner {
-		position: relative;
-		top: 0;
-		left: 0;
+		position: sticky !important;
+		top: 118px;
+		left: auto;
+		z-index: 30;
 		width: 100%;
-		will-change: transform;
-	}
-
-	.gl-catalog-sidebar__inner.is-js-fixed {
-		position: fixed;
-		top: 130px;
-		z-index: 30;
-		width: var(--gl-sidebar-width, 300px);
-		margin: 0;
-	}
-
-	.gl-catalog-sidebar__inner.is-js-stopped {
-		position: fixed;
-		top: 130px;
-		z-index: 30;
-		width: var(--gl-sidebar-width, 300px);
-		margin: 0;
+		max-height: calc(100vh - 142px);
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		will-change: auto;
 	}
 }
 
@@ -1536,108 +1525,11 @@ $products_query = new WP_Query($query_args);
 		top: auto;
 		left: auto;
 		width: 100%;
+		max-height: none;
 		transform: none !important;
 	}
 }
 </style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-	const sidebar = document.querySelector('.gl-catalog-sidebar');
-	const inner = document.querySelector('.gl-catalog-sidebar__inner');
-	const products = document.querySelector('.gl-catalog-products');
-
-	if (!sidebar || !inner || !products) return;
-
-	const media = window.matchMedia('(min-width: 992px)');
-	const TOP_OFFSET = 130;
-
-	function resetSidebar() {
-		sidebar.style.minHeight = '';
-		inner.classList.remove('is-js-fixed', 'is-js-stopped');
-		inner.style.width = '';
-		inner.style.left = '';
-		inner.style.top = '';
-		inner.style.transform = '';
-	}
-
-	function updateSidebar() {
-		if (!media.matches) {
-			resetSidebar();
-			return;
-		}
-
-		inner.classList.remove('is-js-fixed', 'is-js-stopped');
-		inner.style.width = '';
-		inner.style.left = '';
-		inner.style.top = '';
-		inner.style.transform = '';
-
-		const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-
-		const sidebarRect = sidebar.getBoundingClientRect();
-		const productsRect = products.getBoundingClientRect();
-
-		const sidebarTopDoc = scrollY + sidebarRect.top;
-		const productsBottomDoc = scrollY + productsRect.bottom;
-
-		const innerHeight = inner.offsetHeight;
-		const sidebarWidth = sidebarRect.width;
-		const left = sidebarRect.left;
-
-		const fixStart = sidebarTopDoc - TOP_OFFSET;
-		const maxTranslate = Math.max(0, productsBottomDoc - sidebarTopDoc - innerHeight);
-		const currentTranslate = Math.min(
-			Math.max(scrollY + TOP_OFFSET - sidebarTopDoc, 0),
-			maxTranslate
-		);
-
-		sidebar.style.minHeight = innerHeight + 'px';
-
-		if (scrollY < fixStart) {
-			resetSidebar();
-			return;
-		}
-
-		inner.style.width = sidebarWidth + 'px';
-		inner.style.left = left + 'px';
-		inner.style.top = TOP_OFFSET + 'px';
-
-		if (currentTranslate < maxTranslate) {
-			inner.classList.add('is-js-fixed');
-			inner.style.transform = 'translateY(0)';
-		} else {
-			inner.classList.add('is-js-stopped');
-			inner.style.transform = 'translateY(' + maxTranslate + 'px)';
-		}
-	}
-
-	let ticking = false;
-
-	function requestUpdate() {
-		if (ticking) return;
-
-		ticking = true;
-
-		requestAnimationFrame(function () {
-			updateSidebar();
-			ticking = false;
-		});
-	}
-
-	window.addEventListener('scroll', requestUpdate, { passive: true });
-	window.addEventListener('resize', requestUpdate);
-	window.addEventListener('load', requestUpdate);
-
-	document.querySelectorAll('img').forEach(function (img) {
-		if (!img.complete) {
-			img.addEventListener('load', requestUpdate);
-		}
-	});
-
-	requestUpdate();
-});
-</script>
 
 
 
