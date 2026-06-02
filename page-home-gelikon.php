@@ -698,7 +698,7 @@ a.gl-card:hover .gl-home-banner__action{
 }
 	
 .gl-trust-item__icon svg{
-	color: #12D457;
+	color: var(--gl-color-accent);
 	fill: currentColor;
 }
 	

@@ -313,10 +313,10 @@ a.gl-product-card__button {
 	min-width: 112px;
 	min-height: 38px;
 	padding: 8px 16px;
-	border: 1.5px solid #22C55E;
+	border: 1.5px solid var(--gl-color-buy-button);
 	border-radius: 999px;
 	background: transparent;
-	color: #22C55E !important;
+	color: var(--gl-color-buy-button) !important;
 	text-decoration: none;
 	font-size: 14px;
 	font-weight: 600;
@@ -329,23 +329,23 @@ a.gl-product-card__button {
 
 .gl-catalog-products .gl-product-card__button,
 .gl-catalog-products a.gl-product-card__button {
-	border: 1.5px solid #12D457;
-	color: #12D457 !important;
+	border: 1.5px solid var(--gl-color-buy-button);
+	color: var(--gl-color-buy-button) !important;
 }
 
 .gl-product-card__button:hover,
 a.gl-product-card__button:hover {
 	color: #fff !important;
-	background: #16A34A;
-	border-color: #16A34A;
+	background: var(--gl-color-buy-button);
+	border-color: var(--gl-color-buy-button);
 	transform: translateY(-1px);
 }
 
 .gl-catalog-products .gl-product-card__button:hover,
 .gl-catalog-products a.gl-product-card__button:hover {
 	color: #fff !important;
-	background: #12D457;
-	border-color: #12D457;
+	background: var(--gl-color-buy-button);
+	border-color: var(--gl-color-buy-button);
 	transform: translateY(-1px);
 }
 

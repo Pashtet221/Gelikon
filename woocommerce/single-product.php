@@ -722,7 +722,7 @@ if (!empty($products_to_show)) :
 	padding: 10px 20px;
 	border: 0;
 	border-radius: 999px;
-	background: #12D457;
+	background: var(--gl-color-buy-button);
 	color: #fff;
 	font-size: 16px;
 	font-weight: 700;
@@ -784,10 +784,10 @@ if (!empty($products_to_show)) :
 	justify-content: center;
 	min-height: 54px;
 	padding: 12px 26px;
-	border: 2px solid #12D457;
+	border: 2px solid var(--gl-color-accent);
 	border-radius: 999px;
 	background: transparent;
-	color: #12D457;
+	color: var(--gl-color-accent);
 	font-size: 16px;
 	font-weight: 600;
 	line-height: 1;
@@ -799,7 +799,7 @@ if (!empty($products_to_show)) :
 .gl-product-desktop-bar__consultation:hover {
 	background: rgba(18, 212, 87, 0.06);
 	transform: translateY(-1px);
-	color: #12D457;
+	color: var(--gl-color-accent);
 }
 
 .gl-product-desktop-bar__price {
@@ -842,7 +842,7 @@ if (!empty($products_to_show)) :
 	padding: 12px 26px;
 	border: 0;
 	border-radius: 999px;
-	background: #12D457;
+	background: var(--gl-color-buy-button);
 	color: #fff;
 	font-size: 16px;
 	font-weight: 700;
@@ -1071,7 +1071,7 @@ min-height: 54px;
 padding: 12px 26px;
 border: 0;
 border-radius: 999px;
-background: #12D457;
+background: var(--gl-color-buy-button);
 color: #fff;
 font-size: 16px;
 font-weight: 700;
@@ -1840,7 +1840,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	padding: 0 22px;
 	border: 0;
 	border-radius: 999px;
-	background: var(--gl-color-accent);
+	background: var(--gl-color-buy-button);
 	color: #fff;
 	font-weight: 700;
 	cursor: pointer;
@@ -2038,7 +2038,7 @@ body.gl-popup-open{
 	padding: 0 28px;
 	border: 0;
 	border-radius: 999px;
-	background: var(--gl-color-accent);
+	background: var(--gl-color-buy-button);
 	color: #fff;
 	font-size: 17px;
 	line-height: 1;
