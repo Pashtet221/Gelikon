@@ -5,43 +5,42 @@ $container: 1320px;
 $radius: 24px;
 $radius-sm: 14px;
 $button-radius: 999px;
+$shadow-card: 0 12px 32px rgba(22, 34, 51, 0.08);
 
-$space-1: 4px;
-$space-2: 8px;
-$space-3: 12px;
-$space-4: 16px;
-$space-5: 20px;
-$space-6: 24px;
-$space-7: 32px;
-$space-8: 40px;
-$space-9: 48px;
-$space-10: 64px;
-
-$color-bg: #f5f6f4;
+$color-bg: #ffff;
 $color-surface: #ffffff;
 $color-surface-alt: #eef2ef;
-$color-text: #1d232c;
+$color-text: #2B2B2B;
+$color-heading: #1A1A1A;
+$color-subtitle: #252525;
+$color-helper: #9CA3AF;
 $color-muted: #69707d;
 $color-line: #dde4dd;
-$color-accent: #2cbc63;
-$color-accent-2: #1ea751;
 $color-dark: #10161f;
 
-$shadow-card: 0 12px 32px rgba(22, 34, 51, 0.08);
+$color-buy-button: #12D457;
+$color-accent: #12D457;
+$color-accent-2: #1ea751;
+$color-menu: #9CA3AF;
 
 :root {
   --gl-container: #{$container};
   --gl-radius: #{$radius};
   --gl-radius-sm: #{$radius-sm};
   --gl-btn-radius: #{$button-radius};
+  --gl-shadow: #{$shadow-card};
   --gl-color-bg: #{$color-bg};
   --gl-color-surface: #{$color-surface};
   --gl-color-surface-alt: #{$color-surface-alt};
   --gl-color-text: #{$color-text};
+  --gl-color-heading: #{$color-heading};
+  --gl-color-subtitle: #{$color-subtitle};
+  --gl-color-helper: #{$color-helper};
   --gl-color-muted: #{$color-muted};
   --gl-color-line: #{$color-line};
+  --gl-color-dark: #{$color-dark};
+  --gl-color-buy-button: #{$color-buy-button};
   --gl-color-accent: #{$color-accent};
   --gl-color-accent-2: #{$color-accent-2};
-  --gl-color-dark: #{$color-dark};
-  --gl-shadow: #{$shadow-card};
+  --gl-color-menu: #{$color-menu};
 }

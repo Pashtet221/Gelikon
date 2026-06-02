@@ -168,7 +168,7 @@ defined( 'ABSPATH' ) || exit;
 }
 
 .woocommerce-table--order-details .product-name a:hover {
-	color: #1f7a3d;
+	color: var(--gl-color-accent);
 }
 
 .woocommerce-table--order-details .product-quantity {

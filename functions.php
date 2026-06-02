@@ -1404,7 +1404,7 @@ add_action('wp_head', function () {
 			min-height: 44px !important;
 			padding: 0 18px !important;
 			border-radius: 999px !important;
-			background: var(--gl-color-accent) !important;
+			background: var(--gl-color-buy-button) !important;
 			color: #fff !important;
 			font-size: 14px !important;
 			font-weight: 600 !important;
@@ -4998,8 +4998,8 @@ add_action('wp_footer', function () {
 		.gl-product-card__button.is-in-cart,
 		.gl-product-card__button.added,
 		.single_add_to_cart_button.is-in-cart {
-			background: #12D457 !important;
-			border-color: #12D457 !important;
+			background: var(--gl-color-buy-button) !important;
+			border-color: var(--gl-color-buy-button) !important;
 			color: #fff !important;
 		}
 
@@ -5132,7 +5132,7 @@ add_action('wp_footer', function () {
 		}
 
 		.gl-full-mini-cart__qty-btn:hover {
-			background: #12D457;
+			background: var(--gl-color-accent);
 			color: #fff;
 		}
 
@@ -5197,14 +5197,14 @@ add_action('wp_footer', function () {
 			font-size: 14px;
 			font-weight: 700;
 			text-decoration: none !important;
-			background: #12D457;
+			background: var(--gl-color-buy-button);
 			color: #fff !important;
-			border: 1px solid #12D457;
+			border: 1px solid var(--gl-color-buy-button);
 		}
 
 		.gl-full-mini-cart__checkout:hover {
-			background: #10bf4f;
-			border-color: #10bf4f;
+			background: var(--gl-color-accent-2);
+			border-color: var(--gl-color-accent-2);
 			color: #fff !important;
 		}
 
@@ -6717,7 +6717,7 @@ add_action('wp_head', function () {
 			margin: 0 0 18px !important;
 			padding: 18px 22px 18px 56px !important;
 			border: 1px solid #E5EBE7 !important;
-			border-left: 5px solid #12D457 !important;
+			border-left: 5px solid var(--gl-color-accent) !important;
 			border-radius: 22px !important;
 			background: #fff !important;
 			color: #171D2A !important;
@@ -6738,7 +6738,7 @@ add_action('wp_head', function () {
 		}
 
 		.woocommerce-message {
-			border-left-color: #12D457 !important;
+			border-left-color: var(--gl-color-accent) !important;
 			background: #F7FFF9 !important;
 		}
 
@@ -6773,7 +6773,7 @@ add_action('wp_head', function () {
 
 		.woocommerce-message::before {
 			content: "✓";
-			background: #12D457;
+			background: var(--gl-color-accent);
 			color: #fff;
 		}
 
@@ -6816,7 +6816,7 @@ add_action('wp_head', function () {
 			margin: 10px 0 0 !important;
 			padding: 10px 18px !important;
 			border-radius: 999px !important;
-			background: #12D457 !important;
+			background: var(--gl-color-buy-button) !important;
 			color: #fff !important;
 			font-size: 14px !important;
 			font-weight: 600 !important;
