@@ -1498,22 +1498,25 @@ $products_query = new WP_Query($query_args);
 	
 /* Прилипающие фильтры на ПК */
 @media (min-width: 992px) {
+	.gl-catalog-layout {
+		align-items: start;
+	}
+
 	.gl-catalog-sidebar {
-		position: relative;
+		position: sticky;
+		top: 118px;
 		align-self: start;
-		min-width: 0;
+		height: fit-content;
+		z-index: 30;
 	}
 
 	.gl-catalog-sidebar__inner {
-		position: sticky !important;
-		top: 118px;
-		left: auto;
-		z-index: 30;
+		position: relative !important;
+		top: auto !important;
 		width: 100%;
 		max-height: calc(100vh - 142px);
 		overflow-y: auto;
 		overscroll-behavior: contain;
-		will-change: auto;
 	}
 }
 
