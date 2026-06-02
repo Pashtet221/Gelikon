@@ -1424,6 +1424,43 @@ $products_query = new WP_Query($query_args);
 	padding-top: 14px;
 	min-width: 0;
 }
+
+
+
+
+/* Прилипающие фильтры на ПК */
+@media (min-width: 992px) {
+	.gl-catalog-sidebar {
+		position: relative;
+		align-self: start;
+		min-width: 0;
+	}
+
+	.gl-catalog-sidebar__inner {
+		position: sticky !important;
+		top: 118px;
+		left: auto;
+		z-index: 30;
+		width: 100%;
+		max-height: calc(100vh - 142px);
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		will-change: auto;
+	}
+}
+
+@media (max-width: 991px) {
+	.gl-catalog-sidebar__inner,
+	.gl-catalog-sidebar__inner.is-js-fixed,
+	.gl-catalog-sidebar__inner.is-js-stopped {
+		position: relative;
+		top: auto;
+		left: auto;
+		width: 100%;
+		max-height: none;
+		transform: none !important;
+	}
+}
 </style>
 
 
