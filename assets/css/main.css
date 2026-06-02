@@ -126,6 +126,28 @@ img { max-width: 100%; height: auto; display: block; }
 .gl-product-card .price { color: var(--gl-color-text); font-size: 28px; font-weight: 800; }
 .gl-product-card .price ins { text-decoration: none; }
 .gl-product-card .button { width: 100%; }
+.gl-product-card .button,
+.gl-product-card a.button,
+.gl-product-card__button,
+a.gl-product-card__button {
+  background: var(--gl-color-buy-button) !important;
+  border-color: var(--gl-color-buy-button) !important;
+  color: #fff !important;
+}
+.gl-product-card .button:hover,
+.gl-product-card a.button:hover,
+.gl-product-card__button:hover,
+a.gl-product-card__button:hover {
+  background: var(--gl-color-buy-button) !important;
+  border-color: var(--gl-color-buy-button) !important;
+  color: #fff !important;
+}
+.gl-product-card__button--disabled,
+a.gl-product-card__button--disabled {
+  background: #cfd6d1 !important;
+  border-color: #cfd6d1 !important;
+  color: #fff !important;
+}
 .onsale {
   position: absolute; top: 20px; left: 20px; z-index: 2; margin: 0 !important;
   min-height: 34px; line-height: 34px; padding: 0 14px !important; border-radius: 999px !important;
