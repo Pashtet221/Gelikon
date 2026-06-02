@@ -464,7 +464,6 @@ if (
 .woocommerce-checkout #payment ul.payment_methods li input.input-radio {
 	position: absolute;
 	left: 18px;
-	top: 22px;
 	width: 18px;
 	height: 18px;
 	margin: 0;
@@ -492,7 +491,7 @@ if (
 }
 
 .woocommerce-checkout #payment ul.payment_methods li.payment_method_tbank label img {
-	max-height: 29px;
+	max-height: 18px;
 	border-radius: 8px;
 }
 

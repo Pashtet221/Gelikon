@@ -115,6 +115,62 @@ defined('ABSPATH') || exit;
 </table>
 
 <style>
+/* Общая таблица */
+.gl-order-review-table {
+	width: 100%;
+	table-layout: fixed;
+	color: #171b20;
+}
+
+.gl-order-review-table th,
+.gl-order-review-table td {
+	box-sizing: border-box;
+}
+
+.gl-order-review-table .product-name,
+.gl-order-review-table tfoot th {
+	width: 42%;
+}
+
+.gl-order-review-table .product-total,
+.gl-order-review-table tfoot td {
+	width: 58%;
+}
+	
+
+
+/* Заголовок */
+.gl-order-review-table thead th {
+	font-size: 13px;
+	line-height: 1.35;
+	font-weight: 600;
+	color: #6b7480;
+}
+
+.gl-order-review-table thead th.product-total {
+	font-size: 0 !important;
+	color: transparent !important;
+}
+
+/* Товар */
+.gl-order-review-table tbody .product-name {
+	font-size: 14px;
+	line-height: 1.35;
+	font-weight: 500;
+	color: #252b33;
+	vertical-align: top;
+}
+
+.gl-order-review-table tbody .product-total {
+	font-size: 14px;
+	line-height: 1.35;
+	font-weight: 700;
+	color: #252b33;
+	white-space: nowrap;
+	text-align: right;
+	vertical-align: top;
+}
+
 .gl-checkout-cart-item__main {
 	display: flex;
 	align-items: flex-start;
@@ -135,7 +191,7 @@ defined('ABSPATH') || exit;
 	line-height: 20px;
 	font-weight: 500;
 	cursor: pointer;
-	transition: background .2s ease, color .2s ease, opacity .2s ease;
+	transition: color .2s ease, opacity .2s ease;
 }
 
 .gl-checkout-cart-item__remove:hover {
@@ -155,10 +211,8 @@ defined('ABSPATH') || exit;
 .gl-checkout-cart-item.is-updating {
 	opacity: .55;
 }
-.gl-checkout-cart-item__content {
-	min-width: 0;
-}
 
+.gl-checkout-cart-item__content,
 .gl-checkout-cart-item__name {
 	min-width: 0;
 }
@@ -207,51 +261,12 @@ defined('ABSPATH') || exit;
 	color: #252b33;
 }
 
-.gl-checkout-sidebar__desc {
-	margin: 0 0 16px;
-	font-size: 14px;
-	line-height: 1.4;
-	font-weight: 400;
-	color: #6b7480;
-	white-space: nowrap;
-}
-
-.gl-order-review-table {
-	color: #171b20;
-}
-
-.gl-order-review-table thead th {
-	font-size: 13px;
-	line-height: 1.35;
-	font-weight: 600;
-	color: #6b7480;
-}
-
-.gl-order-review-table thead th.product-total {
-	font-size: 0 !important;
-	color: transparent !important;
-}
-
-.gl-order-review-table tbody .product-name {
-	font-size: 14px;
-	line-height: 1.35;
-	font-weight: 500;
-	color: #252b33;
-}
-
-.gl-order-review-table tbody .product-total {
-	font-size: 14px;
-	line-height: 1.35;
-	font-weight: 600;
-	color: #252b33;
-	white-space: nowrap;
-	text-align: right;
-}
-
+/* Подытог WooCommerce скрываем */
 .gl-order-review-table .cart-subtotal {
 	display: none !important;
 }
 
+/* Footer таблицы */
 .gl-order-review-table tfoot th,
 .gl-order-review-table tfoot td {
 	font-size: 14px;
@@ -265,37 +280,177 @@ defined('ABSPATH') || exit;
 	text-align: right;
 }
 
-.gl-order-review-table tfoot .shipping th,
-.gl-order-review-table tfoot .shipping td,
+.gl-order-review-table tfoot tr:not(.order-total) th,
+.gl-order-review-table tfoot tr:not(.order-total) td {
+	padding-top: 16px;
+	padding-bottom: 16px;
+}
+
+/* Доставка */
+.gl-order-review-table tfoot .shipping th {
+	font-size: 16px;
+	line-height: 1.3;
+	font-weight: 800;
+	color: #5f6975;
+	text-align: left;
+	vertical-align: top;
+}
+
+.gl-order-review-table tfoot .shipping td {
+	text-align: left !important;
+	vertical-align: top;
+}
+
+.gl-order-review-table #shipping_method {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.gl-order-review-table #shipping_method li {
+	display: grid;
+	grid-template-columns: 20px minmax(0, 1fr);
+	gap: 10px;
+	align-items: flex-start;
+	width: 100%;
+	margin: 0 !important;
+	padding: 0;
+	text-align: left;
+}
+
+.gl-order-review-table #shipping_method input[type="radio"] {
+	width: 16px;
+	height: 16px;
+	min-width: 16px;
+	margin: 3px 0 0;
+	accent-color: #12D457;
+}
+
+.gl-order-review-table #shipping_method label {
+	display: block;
+	min-width: 0;
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.35;
+	font-weight: 500;
+	color: #252b33;
+	text-align: left;
+	white-space: normal;
+	word-break: normal;
+	overflow-wrap: normal;
+}
+
+.gl-order-review-table #shipping_method label .amount {
+	display: inline-block;
+	margin-left: 4px;
+	font-size: 13px;
+	line-height: 1.2;
+	font-weight: 800;
+	color: #171b20;
+	white-space: nowrap;
+}
+
+.gl-order-review-table .cdek-office-info {
+	grid-column: 2 / -1;
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	width: 100%;
+	margin: 8px 0 0;
+	padding: 11px 13px;
+	border-radius: 15px;
+	background: #f4f8f5;
+	border: 1px solid rgba(18, 212, 87, .22);
+	font-size: 12px;
+	line-height: 1.35;
+	font-weight: 600;
+	color: #252b33;
+	text-align: left;
+}
+
+.gl-order-review-table .cdek-office-info::before {
+	content: "";
+	width: 16px;
+	height: 16px;
+	min-width: 16px;
+	margin-top: 1px;
+	background: #12D457;
+	border-radius: 50%;
+	box-shadow: 0 0 0 5px rgba(18, 212, 87, .12);
+}
+
+.gl-order-review-table .open-pvz-btn {
+	grid-column: 2 / -1;
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	min-height: 40px;
+	margin: 8px 0 0;
+	padding: 9px 16px;
+	border-radius: 999px;
+	background: #12D457;
+	color: #fff !important;
+	font-size: 13px;
+	line-height: 1.2;
+	font-weight: 800;
+	text-align: center;
+	text-decoration: none !important;
+	white-space: normal;
+	cursor: pointer;
+	box-shadow: 0 5px 12px rgba(18, 212, 87, .22);
+	transition: background .2s ease, transform .2s ease;
+}
+
+.gl-order-review-table .open-pvz-btn:hover {
+	background: #10bf4f;
+	transform: translateY(-1px);
+}
+
+.gl-order-review-table .open-pvz-btn script {
+	display: none !important;
+}
+
+/* Скидки, сборы, налоги */
 .gl-order-review-table tfoot .fee th,
 .gl-order-review-table tfoot .fee td,
 .gl-order-review-table tfoot .tax-total th,
-.gl-order-review-table tfoot .tax-total td {
+.gl-order-review-table tfoot .tax-total td,
+.gl-order-review-table tfoot .cart-discount th,
+.gl-order-review-table tfoot .cart-discount td {
 	font-size: 14px;
-	font-weight: 500;
+	font-weight: 600;
 	color: #6b7480;
 }
 
 .gl-order-review-table tfoot .fee td,
 .gl-order-review-table tfoot .cart-discount td {
 	color: #276c3b;
-	font-weight: 600;
+	font-weight: 700;
 }
 
+/* Итого */
 .gl-order-review-table tfoot .order-total th {
+	padding-top: 20px;
 	font-size: 16px;
 	line-height: 1.25;
-	font-weight: 700;
+	font-weight: 800;
 	color: #171b20;
 	vertical-align: middle;
 }
 
 .gl-order-review-table tfoot .order-total td {
+	padding-top: 20px;
 	font-size: 20px;
 	line-height: 1.2;
 	font-weight: 800;
 	color: #171b20;
 	white-space: nowrap;
+	text-align: right;
 	vertical-align: middle;
 }
 
@@ -311,6 +466,7 @@ defined('ABSPATH') || exit;
 	white-space: nowrap;
 }
 
+/* Оплата */
 .woocommerce-checkout #payment ul.payment_methods li label {
 	font-size: 14px;
 	line-height: 1.35;
@@ -324,9 +480,31 @@ defined('ABSPATH') || exit;
 	white-space: nowrap;
 }
 
+/* Описание сайдбара */
+.gl-checkout-sidebar__desc {
+	margin: 0 0 16px;
+	font-size: 14px;
+	line-height: 1.4;
+	font-weight: 400;
+	color: #6b7480;
+	white-space: nowrap;
+}
+
+/* Мобильная версия */
 @media (max-width: 480px) {
 	.gl-checkout-sidebar__desc {
 		white-space: normal;
+	}
+
+	.gl-order-review-table {
+		table-layout: auto;
+	}
+
+	.gl-order-review-table .product-name,
+	.gl-order-review-table .product-total,
+	.gl-order-review-table tfoot th,
+	.gl-order-review-table tfoot td {
+		width: auto;
 	}
 
 	.gl-order-review-table tbody .product-name,
@@ -334,6 +512,36 @@ defined('ABSPATH') || exit;
 	.gl-order-review-table tfoot th,
 	.gl-order-review-table tfoot td {
 		font-size: 13px;
+	}
+
+	.gl-order-review-table #shipping_method {
+		gap: 10px;
+	}
+
+	.gl-order-review-table #shipping_method li {
+		grid-template-columns: 18px minmax(0, 1fr);
+		gap: 8px;
+	}
+
+	.gl-order-review-table #shipping_method input[type="radio"] {
+		width: 15px;
+		height: 15px;
+		min-width: 15px;
+	}
+
+	.gl-order-review-table #shipping_method label {
+		font-size: 12px;
+		line-height: 1.35;
+	}
+
+	.gl-order-review-table .cdek-office-info {
+		padding: 9px 10px;
+		font-size: 12px;
+	}
+
+	.gl-order-review-table .open-pvz-btn {
+		min-height: 38px;
+		font-size: 12px;
 	}
 
 	.gl-order-review-table tfoot .order-total th {
@@ -368,7 +576,7 @@ jQuery(function($) {
 	const checkoutCart = window.gelikonCheckoutCart || {
 		qtyTimers: {},
 		qtyRequests: {},
-		qtyDelay: 1500
+		qtyDelay: 500
 	};
 
 	window.gelikonCheckoutCart = checkoutCart;
@@ -380,7 +588,6 @@ jQuery(function($) {
 
 	function updateHeaderCartCount(count) {
 		const safeCount = Math.max(parseInt(count, 10) || 0, 0);
-
 		$('.gl-cart-count').text(String(safeCount));
 	}
 
@@ -450,6 +657,7 @@ jQuery(function($) {
 		if (Number.isNaN(currentQty)) {
 			currentQty = parseInt($value.text(), 10) || 1;
 		}
+
 		let newQty = currentQty;
 
 		if (action === 'plus') {
@@ -524,147 +732,3 @@ jQuery(function($) {
 	});
 });
 </script>
-
-
-<style>
-	/* СДЭК в блоке оформления заказа */
-.gl-order-review-table .shipping th {
-	padding-top: 18px;
-	font-size: 15px;
-	font-weight: 700;
-	color: #171b20;
-}
-
-.gl-order-review-table .shipping td {
-	padding-top: 16px;
-}
-
-.gl-order-review-table #shipping_method {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.gl-order-review-table #shipping_method li {
-	position: relative;
-	display: grid;
-	grid-template-columns: 18px 1fr;
-	gap: 8px;
-	align-items: flex-start;
-	margin: 0 !important;
-	padding: 0;
-}
-
-.gl-order-review-table #shipping_method input[type="radio"] {
-	width: 15px;
-	height: 15px;
-	margin: 3px 0 0;
-	accent-color: #12D457;
-}
-
-.gl-order-review-table #shipping_method label {
-	display: block;
-	margin: 0;
-	font-size: 13px;
-	line-height: 1.35;
-	font-weight: 500;
-	color: #252b33;
-}
-
-.gl-order-review-table #shipping_method label .amount {
-	display: inline-block;
-	margin-left: 4px;
-	font-size: 13px;
-	font-weight: 800;
-	color: #171b20;
-	white-space: nowrap;
-}
-
-.gl-order-review-table .cdek-office-info {
-	grid-column: 2 / -1;
-	display: flex;
-	align-items: flex-start;
-	gap: 8px;
-	width: 100%;
-	margin: 8px 0 0;
-	padding: 10px 12px;
-	border-radius: 14px;
-	background: #f4f8f5;
-	border: 1px solid rgba(18, 212, 87, .18);
-	font-size: 12px;
-	line-height: 1.35;
-	font-weight: 600;
-	color: #252b33;
-}
-
-.gl-order-review-table .cdek-office-info::before {
-	content: "";
-	width: 16px;
-	height: 16px;
-	min-width: 16px;
-	margin-top: 1px;
-	background: #12D457;
-	border-radius: 50%;
-	box-shadow: 0 0 0 4px rgba(18, 212, 87, .12);
-}
-
-.gl-order-review-table .open-pvz-btn {
-	grid-column: 2 / -1;
-	display: inline-flex !important;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	max-width: 190px;
-	min-height: 36px;
-	margin-top: 8px;
-	padding: 8px 14px;
-	border-radius: 999px;
-	background: #12D457;
-	color: #fff !important;
-	font-size: 12px;
-	line-height: 1.2;
-	font-weight: 700;
-	text-align: center;
-	white-space: normal;
-	cursor: pointer;
-	transition: background .2s ease, transform .2s ease;
-}
-
-.gl-order-review-table .open-pvz-btn:hover {
-	background: #10bf4f;
-	transform: translateY(-1px);
-}
-
-.gl-order-review-table .open-pvz-btn script {
-	display: none !important;
-}
-	
-	
-	
-
-@media (max-width: 480px) {
-	.gl-order-review-table .shipping th,
-	.gl-order-review-table .shipping td {
-		display: block;
-		width: 100%;
-		text-align: left;
-	}
-
-	.gl-order-review-table #shipping_method label {
-		font-size: 12px;
-	}
-
-	.gl-order-review-table .cdek-office-info {
-		font-size: 12px;
-		padding: 9px 10px;
-	}
-
-	.gl-order-review-table .open-pvz-btn {
-		max-width: 100%;
-		font-size: 12px;
-	}
-}
-</style>

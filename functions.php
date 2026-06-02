@@ -5305,7 +5305,7 @@ add_action('wp_footer', function () {
 		let lastCartTrigger = null;
 		const qtyTimers = {};
 		const qtyRequests = {};
-		const qtyDelay = 1500;
+		const qtyDelay = 500;
 
 		function ensureMiniCart() {
 			let panel = document.getElementById(MINI_CART_ID);
@@ -7087,3 +7087,23 @@ function gelikon_checkout_update_cart_item_qty() {
 		'count' => WC()->cart->get_cart_contents_count(),
 	]);
 }
+
+
+
+add_filter('woocommerce_checkout_fields', function ($fields) {
+
+    unset($fields['shipping']['shipping_phone']);
+
+    return $fields;
+});
+
+
+
+
+// Отключить предупреждения WooCommerce в админке
+add_filter('woocommerce_helper_suppress_admin_notices', '__return_true');
+
+add_action('admin_init', function () {
+    remove_all_actions('admin_notices');
+    remove_all_actions('all_admin_notices');
+}, 100);
