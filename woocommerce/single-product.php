@@ -1482,7 +1482,7 @@ transition: transform .2s ease, filter .2s ease;
 	'title_reply_before'   => '',
 	'title_reply_after'    => '',
 	'comment_notes_before' => '',
-	'comment_notes_after'  => '',
+	'comment_notes_after'  => function_exists('gelikon_personal_data_consent_markup') ? gelikon_personal_data_consent_markup('gelikon_review_personal_data_consent', 'gelikon_personal_data_consent', 'comment-form-gelikon-consent gl-personal-data-consent gl-personal-data-consent--review') : '',
 	'label_submit'         => 'Отправить отзыв',
 	'class_submit'         => 'gl-product-form__submit',
 	'fields' => [
@@ -1562,6 +1562,11 @@ transition: transform .2s ease, filter .2s ease;
 
 						<input type="hidden" name="comment_post_ID" value="<?php echo esc_attr($product_id); ?>">
 						<?php wp_nonce_field('gelikon_product_question', 'gelikon_question_nonce'); ?>
+						<?php
+						if (function_exists('gelikon_personal_data_consent_markup')) {
+							echo gelikon_personal_data_consent_markup('gelikon_question_personal_data_consent', 'gelikon_personal_data_consent', 'gl-product-form__field gl-personal-data-consent gl-personal-data-consent--question'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						}
+						?>
 
 						<button type="submit" name="gelikon_submit_product_question" class="gl-product-form__submit">
 							Отправить вопрос
@@ -1832,6 +1837,40 @@ document.addEventListener('DOMContentLoaded', function () {
 #review_form textarea{
 	min-height: 140px;
 	resize: vertical;
+}
+
+.gl-personal-data-consent label,
+.gl-product-popup .gl-personal-data-consent label{
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.45;
+	font-weight: 400;
+	color: var(--gl-color-helper);
+}
+
+.gl-personal-data-consent input[type="checkbox"],
+.gl-product-form .gl-personal-data-consent input[type="checkbox"],
+#review_form .gl-personal-data-consent input[type="checkbox"]{
+	flex: 0 0 auto;
+	width: 18px;
+	height: 18px;
+	min-height: 18px;
+	margin: 2px 0 0;
+	padding: 0;
+	accent-color: var(--gl-color-accent);
+}
+
+.gl-personal-data-consent a{
+	color: var(--gl-color-accent-2);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.comment-form-gelikon-consent{
+	grid-column: 1 / -1;
 }
 
 .gl-product-form__submit,
