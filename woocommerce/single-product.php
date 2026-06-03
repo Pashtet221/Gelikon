@@ -199,14 +199,14 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	
 
 		<div class="gl-product-summary__meta-inline">
-			<button type="button" class="gl-product-summary__meta-link">
+			<button type="button" class="gl-product-summary__meta-link" data-gl-popup-open="reviews" aria-controls="gelikon-product-popup">
 				<span class="gl-product-summary__rating">
 					<span class="gl-product-summary__rating-star" aria-hidden="true">★</span>
 					<span class="gl-product-summary__rating-value">4.3</span>
 				</span>
 			</button>
 
-			<button type="button" class="gl-product-summary__meta-link">
+			<button type="button" class="gl-product-summary__meta-link" data-gl-popup-open="reviews" aria-controls="gelikon-product-popup">
 				<span class="gl-product-summary__meta-text gl-product-summary__meta-text--reviews">(254 отзывов)</span>
 			</button>
 		</div>
@@ -1880,6 +1880,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	font-weight: 700;
 }
 
+/* Стили кастомизации форм в popup временно отключены.
 .gl-product-form__field,
 .comment-form-author,
 .comment-form-email,
@@ -1964,6 +1965,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	font-weight: 700;
 	cursor: pointer;
 }
+*/
 
 html.gl-popup-open,
 body.gl-popup-open{
@@ -1994,9 +1996,10 @@ body.gl-popup-open{
 	
 	
 	
-/* =========================
+/* Стили кастомизации формы отзыва в popup временно отключены.
+/ * =========================
    Форма отзыва в popup
-   ========================= */
+   ========================= * /
 
 .gl-product-popup #review_form,
 .gl-product-popup #respond,
@@ -2026,7 +2029,7 @@ body.gl-popup-open{
 	margin: 0;
 }
 
-/* Заголовок блока */
+/ * Заголовок блока * /
 .gl-product-popup .gl-review-form-title,
 .gl-product-popup .comment-form-title{
 	grid-column: 1 / -1;
@@ -2037,7 +2040,7 @@ body.gl-popup-open{
 	color: var(--gl-color-heading);
 }
 
-/* Лейблы */
+/ * Лейблы * /
 .gl-product-popup .comment-form label{
 	display: block;
 	margin: 0 0 8px;
@@ -2054,7 +2057,7 @@ body.gl-popup-open{
 }
 
 
-/* Текст отзыва */
+/ * Текст отзыва * /
 .gl-product-popup .comment-form-comment{
 	grid-column: 1 / -1;
 }
@@ -2079,7 +2082,7 @@ body.gl-popup-open{
 	color: var(--gl-color-helper);
 }
 
-/* Поля имя / email / сайт */
+/ * Поля имя / email / сайт * /
 .gl-product-popup .comment-form-author,
 .gl-product-popup .comment-form-email,
 .gl-product-popup .comment-form-url{
@@ -2112,7 +2115,7 @@ body.gl-popup-open{
 	background: #fff;
 }
 
-/* чекбокс */
+/ * чекбокс * /
 .gl-product-popup .comment-form-cookies-consent{
 	grid-column: 1 / -1;
 	display: flex;
@@ -2141,7 +2144,7 @@ body.gl-popup-open{
 	cursor: pointer;
 }
 
-/* submit */
+/ * submit * /
 .gl-product-popup .form-submit{
 	grid-column: 1 / -1;
 	margin-top: 4px;
@@ -2182,12 +2185,12 @@ body.gl-popup-open{
 	transform: translateY(0);
 }
 
-/* скрытый select рейтинга */
+/ * скрытый select рейтинга * /
 .gl-product-popup .comment-form-rating select{
 	display: none !important;
 }
 
-/* вспомогательные тексты WP */
+/ * вспомогательные тексты WP * /
 .gl-product-popup .logged-in-as,
 .gl-product-popup .comment-notes,
 .gl-product-popup .form-allowed-tags{
@@ -2198,7 +2201,7 @@ body.gl-popup-open{
 	color: var(--gl-color-helper);
 }
 
-/* ошибки */
+/ * ошибки * /
 .gl-product-popup .comment-form .woocommerce-error,
 .gl-product-popup .comment-form .error,
 .gl-product-popup .comment-form .form-error{
@@ -2211,7 +2214,7 @@ body.gl-popup-open{
 	font-size: 13px;
 }
 
-/* адаптив */
+/ * адаптив * /
 @media (max-width: 767px){
 	.gl-product-popup .comment-form{
 		grid-template-columns: 1fr;
@@ -2246,6 +2249,7 @@ body.gl-popup-open{
 	align-items: center;
 	gap: 6px;
 }
+*/
 	
 .added_to_cart.wc-forward {
 display: none;
