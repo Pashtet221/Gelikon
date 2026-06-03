@@ -7195,6 +7195,58 @@ add_filter('woocommerce_checkout_fields', function ($fields) {
 
 
 
+/**
+ * Checkout shipping: when a free shipping rate is available, hide paid alternatives.
+ *
+ * WooCommerce recalculates package rates during checkout AJAX updates. Keeping only
+ * free rates in the package prevents stale paid CDEK/flat-rate options from being
+ * rendered or submitted after the cart reaches the free-delivery threshold.
+ */
+add_filter('woocommerce_package_rates', 'gelikon_checkout_prefer_free_shipping_rates', 100, 2);
+add_filter('woocommerce_shipping_chosen_method', 'gelikon_checkout_choose_free_shipping_rate', 100, 3);
+
+function gelikon_checkout_prefer_free_shipping_rates($rates, $package) {
+	$free_rates = array();
+
+	foreach ($rates as $rate_id => $rate) {
+		if (gelikon_checkout_is_free_shipping_rate($rate)) {
+			$free_rates[$rate_id] = $rate;
+		}
+	}
+
+	if (empty($free_rates)) {
+		return $rates;
+	}
+
+	return $free_rates;
+}
+
+function gelikon_checkout_is_free_shipping_rate($rate) {
+	if (! $rate instanceof WC_Shipping_Rate) {
+		return false;
+	}
+
+	if ($rate->get_method_id() === 'free_shipping') {
+		return true;
+	}
+
+	$shipping_cost = (float) $rate->get_cost();
+	$shipping_taxes = array_sum(array_map('floatval', (array) $rate->get_taxes()));
+
+	return $shipping_cost <= 0 && $shipping_taxes <= 0;
+}
+
+function gelikon_checkout_choose_free_shipping_rate($chosen_method, $available_methods, $package) {
+	foreach ($available_methods as $rate_id => $rate) {
+		if (gelikon_checkout_is_free_shipping_rate($rate)) {
+			return $rate_id;
+		}
+	}
+
+	return $chosen_method;
+}
+
+
 
 // Отключить предупреждения WooCommerce в админке
 add_filter('woocommerce_helper_suppress_admin_notices', '__return_true');
