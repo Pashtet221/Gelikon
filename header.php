@@ -417,6 +417,15 @@ if (function_exists('get_field')) {
 }
 	
 	
+:root {
+	--gl-header-bg: rgba(255, 255, 255, 0.96);
+	--gl-header-border: #e8edf2;
+	--gl-text: #1b2230;
+	--gl-muted: #7e8794;
+	--gl-field-border: #dbe3ea;
+	--gl-green: var(--gl-color-accent);
+	--gl-badge: #39bf74;
+}
 
 .gl-header {
 	position: sticky;
@@ -521,7 +530,7 @@ if (function_exists('get_field')) {
 	align-items: center;
 	min-height: 36px;
 	text-decoration: none;
-	color: var(--gl-color-menu);
+	color: var(--gl-color-helper);
 	font-size: 15px;
 	font-weight: 700;
 	line-height: 1;
@@ -686,7 +695,7 @@ button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	color: var(--gl-color-accent);
+	color: #12D457;
 }
 
 .gl-mobile-contact-trigger__icon {

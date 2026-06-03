@@ -248,7 +248,7 @@ defined('ABSPATH') || exit;
 }
 
 .gl-checkout-cart-item__qty-btn:hover {
-	background: var(--gl-color-accent);
+	background: #12D457;
 	color: #fff;
 }
 
@@ -327,7 +327,7 @@ defined('ABSPATH') || exit;
 	height: 16px;
 	min-width: 16px;
 	margin: 3px 0 0;
-	accent-color: var(--gl-color-accent);
+	accent-color: #12D457;
 }
 
 .gl-order-review-table #shipping_method label {
@@ -378,7 +378,7 @@ defined('ABSPATH') || exit;
 	height: 16px;
 	min-width: 16px;
 	margin-top: 1px;
-	background: var(--gl-color-accent);
+	background: #12D457;
 	border-radius: 50%;
 	box-shadow: 0 0 0 5px rgba(18, 212, 87, .12);
 }
@@ -393,7 +393,7 @@ defined('ABSPATH') || exit;
 	margin: 8px 0 0;
 	padding: 9px 16px;
 	border-radius: 999px;
-	background: var(--gl-color-accent);
+	background: #12D457;
 	color: #fff !important;
 	font-size: 13px;
 	line-height: 1.2;
@@ -407,7 +407,7 @@ defined('ABSPATH') || exit;
 }
 
 .gl-order-review-table .open-pvz-btn:hover {
-	background: var(--gl-color-accent-2);
+	background: #10bf4f;
 	transform: translateY(-1px);
 }
 

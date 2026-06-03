@@ -214,7 +214,7 @@ do_action( 'woocommerce_account_navigation' ); ?>
 		border-left-color: var(--gl-color-accent) !important;
 	}
 	.woocommerce-info .button{
-		background: var(--gl-color-buy-button) !important;
+		background: var(--gl-color-accent) !important;
 	}
 	.woocommerce-info::before{
 		background: var(--gl-color-accent);

@@ -151,7 +151,7 @@ if (
 .gl-checkout-compact select:focus,
 .gl-checkout-compact textarea:focus {
 	outline: none;
-	border-color: var(--gl-color-accent);
+	border-color: #1f7a3d;
 	box-shadow: 0 0 0 3px rgba(31, 122, 61, .12);
 }
 
@@ -234,7 +234,7 @@ if (
 	height: 34px;
 	border-radius: 10px;
 	background: #e5f5ea;
-	color: var(--gl-color-accent);
+	color: #1f7a3d;
 	font-weight: 900;
 	flex: 0 0 34px;
 }
@@ -247,7 +247,7 @@ if (
 	transform: translateY(-50%);
 	font-size: 24px;
 	line-height: 1;
-	color: var(--gl-color-accent);
+	color: #1f7a3d;
 }
 
 .gl-checkout-coupon details[open] summary:after {
@@ -276,7 +276,7 @@ if (
 .gl-checkout-coupon .checkout_coupon .button {
 	min-height: 48px;
 	border-radius: 12px;
-	background: var(--gl-color-buy-button);
+	background: #1f7a3d;
 	color: #fff;
 	font-weight: 700;
 	border: none;
@@ -453,7 +453,7 @@ if (
 }
 
 .woocommerce-checkout #payment ul.payment_methods li:has(input.input-radio:checked) {
-	border-color: var(--gl-color-accent);
+	border-color: #1f7a3d;
 	box-shadow: 0 0 0 3px rgba(31, 122, 61, .10);
 }
 
@@ -544,7 +544,7 @@ if (
 }
 
 .woocommerce-checkout .woocommerce-privacy-policy-text a {
-	color: var(--gl-color-accent);
+	color: #1f7a3d;
 	text-decoration: underline;
 	text-underline-offset: 3px;
 }
@@ -554,7 +554,7 @@ if (
 	width: 100%;
 	min-height: 56px;
 	border-radius: 15px;
-	background: var(--gl-color-buy-button);
+	background: #1f7a3d;
 	color: #fff;
 	font-size: 17px;
 	font-weight: 800;
@@ -564,7 +564,7 @@ if (
 
 .woocommerce-checkout #payment #place_order:hover,
 .woocommerce-checkout #payment .button.alt:hover {
-	background: var(--gl-color-accent-2);
+	background: #176431;
 	color: #fff;
 }
 
@@ -771,7 +771,7 @@ if (
 
 .gl-checkout-compact #order_comments:focus {
 	outline: none;
-	border-color: var(--gl-color-accent);
+	border-color: #1f7a3d;
 	box-shadow: 0 0 0 3px rgba(31, 122, 61, .12);
 }
 

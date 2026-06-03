@@ -400,7 +400,7 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
     z-index: 2;
     padding: 4px 8px;
     border-radius: 999px;
-    background: var(--gl-color-accent);
+    background: var(--gl-color-accent, #22C55E);
     color: #fff;
     font-size: 10px;
     font-weight: 700;
@@ -468,10 +468,10 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
     justify-content: center;
     min-height: 38px;
     padding: 8px 16px;
-    border: 1.5px solid var(--gl-color-buy-button);
+    border: 1.5px solid #22C55E;
     border-radius: 999px;
     background: transparent;
-    color: var(--gl-color-buy-button);
+    color: #22C55E;
     font-size: 14px;
     font-weight: 600;
     line-height: 1;
@@ -488,8 +488,8 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
 }
 
 .gl-footer__product-link:hover .gl-footer__product-button {
-    background: var(--gl-color-buy-button);
-    border-color: var(--gl-color-buy-button);
+    background: #16A34A;
+    border-color: #16A34A;
     color: #fff;
     transform: translateY(-1px);
 }
