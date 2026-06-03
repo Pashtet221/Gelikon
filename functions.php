@@ -6164,6 +6164,9 @@ add_action('wp_footer', function () {
 	?>
 	<script>
 		jQuery(function ($) {
+			var glLastCheckoutCity = '';
+			var glLastCheckoutAddress = '';
+
 			function glCreateBillingField(name) {
 				var $field = $('[name="' + name + '"]');
 
@@ -6181,9 +6184,21 @@ add_action('wp_footer', function () {
 				return $field;
 			}
 
+			function glNormalizeCheckoutValue(value) {
+				return $.trim(value || '').replace(/\s+/g, ' ');
+			}
+
+			function glGetShippingCity() {
+				return glNormalizeCheckoutValue($('[name="shipping_city"]').val());
+			}
+
+			function glGetShippingAddress() {
+				return glNormalizeCheckoutValue($('[name="shipping_address_1"]').val());
+			}
+
 			function glSyncShippingToBilling() {
-				var shippingCity = $('[name="shipping_city"]').val() || '';
-				var shippingAddress = $('[name="shipping_address_1"]').val() || '';
+				var shippingCity = glGetShippingCity();
+				var shippingAddress = glGetShippingAddress();
 
 				glCreateBillingField('billing_country').val('RU');
 				glCreateBillingField('billing_city').val(shippingCity);
@@ -6192,18 +6207,44 @@ add_action('wp_footer', function () {
 				glCreateBillingField('billing_postcode').val('');
 			}
 
-			$(document.body).on(
-				'input change blur keyup',
-				'[name="shipping_city"], [name="shipping_address_1"]',
-				function () {
-					glSyncShippingToBilling();
+			function glTriggerCheckoutUpdate() {
+				glLastCheckoutCity = glGetShippingCity();
+				glLastCheckoutAddress = glGetShippingAddress();
+				$(document.body).trigger('update_checkout');
+			}
 
-					clearTimeout(window.glCdekUpdateTimer);
-					window.glCdekUpdateTimer = setTimeout(function () {
-						$(document.body).trigger('update_checkout');
-					}, 500);
+			function glScheduleCheckoutUpdate(delay) {
+				clearTimeout(window.glCdekUpdateTimer);
+				window.glCdekUpdateTimer = setTimeout(glTriggerCheckoutUpdate, delay || 900);
+			}
+
+			$(document.body).on('input', '[name="shipping_city"], [name="shipping_address_1"]', function () {
+				glSyncShippingToBilling();
+			});
+
+			$(document.body).on('input', '[name="shipping_city"]', function () {
+				var shippingCity = glGetShippingCity();
+
+				if (shippingCity.length >= 2 && shippingCity !== glLastCheckoutCity) {
+					glScheduleCheckoutUpdate(900);
 				}
-			);
+			});
+
+			$(document.body).on('change blur', '[name="shipping_city"]', function () {
+				glSyncShippingToBilling();
+
+				if (glGetShippingCity() !== glLastCheckoutCity) {
+					glScheduleCheckoutUpdate(100);
+				}
+			});
+
+			$(document.body).on('change blur', '[name="shipping_address_1"]', function () {
+				glSyncShippingToBilling();
+
+				if (glGetShippingAddress() !== glLastCheckoutAddress) {
+					glScheduleCheckoutUpdate(250);
+				}
+			});
 
 			$(document.body).on('update_checkout checkout_place_order', function () {
 				glSyncShippingToBilling();
@@ -6214,6 +6255,8 @@ add_action('wp_footer', function () {
 			});
 
 			glSyncShippingToBilling();
+			glLastCheckoutCity = glGetShippingCity();
+			glLastCheckoutAddress = glGetShippingAddress();
 		});
 	</script>
 	<?php
