@@ -7076,6 +7076,11 @@ add_action('wp_footer', function () {
 			data.product_id = data.product_id || productId;
 			data.quantity = data.quantity || $form.find('input.qty').val() || 1;
 
+			// The sticky product bars use a hidden add-to-cart input for non-JS fallback.
+			// When sent to the WooCommerce AJAX endpoint, that field can also trigger
+			// the regular form handler and add the same product a second time.
+			delete data['add-to-cart'];
+
 			$button.data('gelikonProcessing', true).addClass('loading').prop('disabled', true);
 			$(document.body).trigger('adding_to_cart', [$button, data]);
 
