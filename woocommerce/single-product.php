@@ -106,6 +106,8 @@ if (!empty($global_benefits) && is_array($global_benefits)) {
 	$section_3_feature_3 = gelikon_product_get_field('product_section_3_feature_3', 'Поддержка клиентов', $product_id);
 
 	$is_in_stock = $product && $product->is_in_stock();
+	$is_purchase_available = function_exists('gelikon_product_can_be_purchased') ? gelikon_product_can_be_purchased($product) : $is_in_stock;
+	$purchase_note_html = function_exists('gelikon_render_product_purchase_note') ? gelikon_render_product_purchase_note($product_id) : '';
 	$mobile_button_text = $product && $product->is_type('simple') ? 'Купить' : 'В корзину';
 
 
@@ -478,8 +480,12 @@ document.addEventListener('DOMContentLoaded', function () {
 									<?php woocommerce_template_single_price(); ?>
 								</div>
 
-								<div class="gl-product-buybox__button">
-									<?php woocommerce_template_single_add_to_cart(); ?>
+								<div class="gl-product-buybox__button-wrap">
+									<div class="gl-product-buybox__button">
+										<?php woocommerce_template_single_add_to_cart(); ?>
+									</div>
+
+									<?php echo wp_kses_post($purchase_note_html); ?>
 								</div>
 							</div>
 								</div>
@@ -517,6 +523,53 @@ document.addEventListener('DOMContentLoaded', function () {
 			</section>
 			
 <style>
+	.gl-product-stock-status {
+		cursor: initial;
+		color: #0f9f57;
+		font-weight: 400;
+		text-decoration: none;
+	}
+
+	.gl-product-stock-status.is-preorder {
+		color: var(--gl-color-accent);
+	}
+
+	.gl-product-stock-status.is-outofstock,
+	.gl-product-stock-status.is-discontinued {
+		color: var(--gl-color-helper);
+	}
+
+	.gl-product-buybox__button-wrap {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		min-width: 0;
+	}
+
+	.gl-product-purchase-note {
+		max-width: 260px;
+		color: var(--gl-color-helper);
+		font-size: 13px;
+		font-weight: 400;
+		line-height: 1.35;
+	}
+
+	.gl-product-purchase-note p {
+		margin: 0;
+	}
+
+	@media (max-width: 767px) {
+		.gl-product-buybox__button-wrap {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.gl-product-purchase-note {
+			max-width: none;
+		}
+	}
+
 	.gl-trust-item__icon{
 	display: flex;
     align-items: center;
@@ -612,7 +665,7 @@ if (!empty($products_to_show)) :
 		
 		
 <!-- Мобильный sticky bar -->
-<?php if ($product && $is_in_stock) : ?>
+<?php if ($product && $is_purchase_available) : ?>
 	<div class="gl-product-mobile-bar">
 		<div class="gl-product-mobile-bar__inner">
 			<div class="gl-product-mobile-bar__price">
@@ -620,12 +673,16 @@ if (!empty($products_to_show)) :
 			</div>
 
 			<div class="gl-product-mobile-bar__button">
-				<form class="cart" method="post" enctype="multipart/form-data">
-					<input type="hidden" name="add-to-cart" value="<?php echo esc_attr($product_id); ?>">
-					<button type="submit" class="button alt single_add_to_cart_button">
-						<?php echo esc_html($mobile_button_text); ?>
-					</button>
-				</form>
+				<div class="gl-product-mobile-bar__action">
+					<form class="cart" method="post" enctype="multipart/form-data">
+						<input type="hidden" name="add-to-cart" value="<?php echo esc_attr($product_id); ?>">
+						<button type="submit" class="button alt single_add_to_cart_button">
+							<?php echo esc_html($mobile_button_text); ?>
+						</button>
+					</form>
+
+					<?php echo wp_kses_post($purchase_note_html); ?>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -633,7 +690,7 @@ if (!empty($products_to_show)) :
 
 
 <!-- ПК sticky bar -->
-<?php if ($product && $is_in_stock) : ?>
+<?php if ($product && $is_purchase_available) : ?>
 	<div class="gl-product-desktop-bar" id="glProductDesktopBar" aria-hidden="true">
 		<div class="gl-product-desktop-bar__inner gl-container">
 			<div class="gl-product-desktop-bar__left">
@@ -645,12 +702,16 @@ if (!empty($products_to_show)) :
 					<?php echo wp_kses_post($product->get_price_html()); ?>
 				</div>
 				
-				<form class="cart" method="post" enctype="multipart/form-data">
-					<input type="hidden" name="add-to-cart" value="<?php echo esc_attr($product_id); ?>">
-					<button type="submit" class="button alt single_add_to_cart_button">
-						<?php echo esc_html($mobile_button_text); ?>
-					</button>
-				</form>
+				<div class="gl-product-desktop-bar__action">
+					<form class="cart" method="post" enctype="multipart/form-data">
+						<input type="hidden" name="add-to-cart" value="<?php echo esc_attr($product_id); ?>">
+						<button type="submit" class="button alt single_add_to_cart_button">
+							<?php echo esc_html($mobile_button_text); ?>
+						</button>
+					</form>
+
+					<?php echo wp_kses_post($purchase_note_html); ?>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -826,6 +887,21 @@ if (!empty($products_to_show)) :
 	display: flex;
     align-items: center;
     gap: 25px;
+}
+
+.gl-product-mobile-bar__action,
+.gl-product-desktop-bar__action {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.gl-product-mobile-bar__action .gl-product-purchase-note {
+	display: none;
+}
+
+.gl-product-desktop-bar__action .gl-product-purchase-note {
+	max-width: 240px;
 }
 
 .gl-product-desktop-bar__right form.cart {

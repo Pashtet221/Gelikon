@@ -4625,6 +4625,212 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Product sale status and purchase note helpers.
+ */
+function gelikon_product_meta_enabled($product_id, $meta_key) {
+	$value = get_post_meta((int) $product_id, $meta_key, true);
+	return in_array($value, ['1', 1, 'yes', 'on', true], true);
+}
+
+function gelikon_is_product_preorder($product_id = 0) {
+	$product_id = $product_id ? (int) $product_id : get_the_ID();
+	return $product_id ? gelikon_product_meta_enabled($product_id, '_gelikon_preorder_enabled') : false;
+}
+
+function gelikon_is_product_discontinued($product_id = 0) {
+	$product_id = $product_id ? (int) $product_id : get_the_ID();
+	return $product_id ? gelikon_product_meta_enabled($product_id, '_gelikon_discontinued') : false;
+}
+
+function gelikon_get_product_purchase_note($product_id = 0) {
+	$product_id = $product_id ? (int) $product_id : get_the_ID();
+
+	if (!$product_id) {
+		return '';
+	}
+
+	return trim((string) get_post_meta($product_id, '_gelikon_purchase_note', true));
+}
+
+function gelikon_product_can_be_purchased($product = null) {
+	if (!$product && function_exists('wc_get_product')) {
+		$product = wc_get_product(get_the_ID());
+	}
+
+	if (!$product || !is_a($product, 'WC_Product')) {
+		return false;
+	}
+
+	$product_id = $product->get_id();
+
+	if (gelikon_is_product_discontinued($product_id)) {
+		return false;
+	}
+
+	return $product->is_in_stock() || gelikon_is_product_preorder($product_id);
+}
+
+function gelikon_render_product_purchase_note($product_id = 0, $class = '') {
+	$note = gelikon_get_product_purchase_note($product_id);
+
+	if ($note === '') {
+		return '';
+	}
+
+	$class = trim('gl-product-purchase-note ' . $class);
+
+	return '<div class="' . esc_attr($class) . '">' . wp_kses_post(wpautop($note)) . '</div>';
+}
+
+/**
+ * Gelikon product sale status fields in admin.
+ */
+add_action('add_meta_boxes_product', function () {
+	add_meta_box(
+		'gelikon_product_sale_status',
+		'Статус покупки Gelikon',
+		'gelikon_product_sale_status_metabox',
+		'product',
+		'side',
+		'default'
+	);
+});
+
+function gelikon_product_sale_status_metabox($post) {
+	wp_nonce_field('gelikon_save_product_sale_status', 'gelikon_product_sale_status_nonce');
+
+	$preorder_enabled = gelikon_is_product_preorder($post->ID);
+	$discontinued     = gelikon_is_product_discontinued($post->ID);
+	$purchase_note    = gelikon_get_product_purchase_note($post->ID);
+	?>
+	<p>
+		<label>
+			<input type="checkbox" name="gelikon_preorder_enabled" value="1" <?php checked($preorder_enabled); ?>>
+			Включить статус предзаказа
+		</label>
+	</p>
+	<p style="color:#666;margin-top:-6px;">Предзаказ показывается на сайте и разрешает покупку товара.</p>
+
+	<p>
+		<label>
+			<input type="checkbox" name="gelikon_discontinued" value="1" <?php checked($discontinued); ?>>
+			Снят с продажи
+		</label>
+	</p>
+	<p style="color:#666;margin-top:-6px;">Товар остаётся на сайте, но покупка блокируется.</p>
+
+	<p>
+		<label for="gelikon_purchase_note"><strong>Текст рядом с кнопкой покупки</strong></label>
+	</p>
+	<textarea
+		id="gelikon_purchase_note"
+		name="gelikon_purchase_note"
+		rows="4"
+		style="width:100%;"
+		placeholder="Например: Доступно для предзаказа. Менеджер уточнит сроки доставки."
+	><?php echo esc_textarea($purchase_note); ?></textarea>
+	<?php
+}
+
+add_action('save_post_product', function ($post_id) {
+	if (
+		(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
+		|| wp_is_post_revision($post_id)
+		|| !current_user_can('edit_product', $post_id)
+	) {
+		return;
+	}
+
+	if (
+		empty($_POST['gelikon_product_sale_status_nonce'])
+		|| !wp_verify_nonce(
+			sanitize_text_field(wp_unslash($_POST['gelikon_product_sale_status_nonce'])),
+			'gelikon_save_product_sale_status'
+		)
+	) {
+		return;
+	}
+
+	update_post_meta($post_id, '_gelikon_preorder_enabled', isset($_POST['gelikon_preorder_enabled']) ? '1' : '0');
+	update_post_meta($post_id, '_gelikon_discontinued', isset($_POST['gelikon_discontinued']) ? '1' : '0');
+
+	$purchase_note = isset($_POST['gelikon_purchase_note']) ? wp_kses_post(wp_unslash($_POST['gelikon_purchase_note'])) : '';
+	update_post_meta($post_id, '_gelikon_purchase_note', trim($purchase_note));
+}, 30);
+
+/**
+ * Keep unavailable products visible in catalog, but block buying where needed.
+ */
+add_filter('option_woocommerce_hide_out_of_stock_items', function () {
+	return 'no';
+}, 20);
+
+add_filter('woocommerce_product_is_in_stock', function ($is_in_stock, $product) {
+	if ($product && is_a($product, 'WC_Product')) {
+		$product_id = $product->get_id();
+
+		if (gelikon_is_product_discontinued($product_id)) {
+			return false;
+		}
+
+		if (gelikon_is_product_preorder($product_id)) {
+			return true;
+		}
+	}
+
+	return $is_in_stock;
+}, 20, 2);
+
+add_filter('woocommerce_product_get_stock_status', function ($stock_status, $product) {
+	if ($product && is_a($product, 'WC_Product')) {
+		$product_id = $product->get_id();
+
+		if (gelikon_is_product_discontinued($product_id)) {
+			return 'outofstock';
+		}
+
+		if (gelikon_is_product_preorder($product_id)) {
+			return 'onbackorder';
+		}
+	}
+
+	return $stock_status;
+}, 20, 2);
+
+add_filter('woocommerce_product_get_backorders', function ($backorders, $product) {
+	if ($product && is_a($product, 'WC_Product') && gelikon_is_product_preorder($product->get_id())) {
+		return 'yes';
+	}
+
+	return $backorders;
+}, 20, 2);
+
+add_filter('woocommerce_product_backorders_allowed', function ($allowed, $product_id, $product) {
+	if ($product && is_a($product, 'WC_Product') && gelikon_is_product_preorder($product->get_id())) {
+		return true;
+	}
+
+	return $allowed;
+}, 20, 3);
+
+add_filter('woocommerce_product_is_purchasable', function ($is_purchasable, $product) {
+	if ($product && is_a($product, 'WC_Product') && gelikon_is_product_discontinued($product->get_id())) {
+		return false;
+	}
+
+	return $is_purchasable;
+}, 20, 2);
+
+add_filter('woocommerce_add_to_cart_validation', function ($passed, $product_id) {
+	if (gelikon_is_product_discontinued($product_id)) {
+		wc_add_notice('Товар снят с продажи и недоступен для покупки.', 'error');
+		return false;
+	}
+
+	return $passed;
+}, 20, 2);
+
+/**
  * Рендер статуса наличия товара
  */
 function gelikon_get_stock_status_html($product_id = 0) {
@@ -4646,19 +4852,15 @@ function gelikon_get_stock_status_html($product_id = 0) {
 		return '';
 	}
 
-	$text  = '';
-	$class = '';
-
-	$backorders = $product->get_backorders();
-
-	if ($product->is_in_stock()) {
-		if ($backorders && $backorders !== 'no') {
-			$text  = 'Предзаказ';
-			$class = 'is-preorder';
-		} else {
-			$text  = 'В наличии';
-			$class = 'is-instock';
-		}
+	if (gelikon_is_product_discontinued($product_id)) {
+		$text  = 'Снят с продажи';
+		$class = 'is-discontinued';
+	} elseif (gelikon_is_product_preorder($product_id) || $product->get_stock_status() === 'onbackorder') {
+		$text  = 'Предзаказ';
+		$class = 'is-preorder';
+	} elseif ($product->is_in_stock()) {
+		$text  = 'В наличии';
+		$class = 'is-instock';
 	} else {
 		$text  = 'Нет в наличии';
 		$class = 'is-outofstock';
@@ -4667,7 +4869,7 @@ function gelikon_get_stock_status_html($product_id = 0) {
 	ob_start();
 	?>
 
-	<div class="gl-write-btn" style="cursor: initial; color: #0f9f57; font-weight: 400; text-decoration: none;">
+	<div class="gl-write-btn gl-product-stock-status <?php echo esc_attr($class); ?>">
 		<span class="gl-write-btn__text"><?php echo esc_html($text); ?></span>
 	</div>
 	<?php
@@ -4689,9 +4891,6 @@ add_shortcode('gelikon_stock_status', function($atts = []) {
 
 	return gelikon_get_stock_status_html($product_id);
 });
-
-
-
 
 
 
