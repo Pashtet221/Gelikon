@@ -5020,10 +5020,14 @@ function gelikon_remove_cart_item_ajax() {
 	woocommerce_mini_cart();
 	$mini_cart = ob_get_clean();
 
+	$count = WC()->cart->get_cart_contents_count();
+
 	wp_send_json_success([
-		'count'     => WC()->cart->get_cart_contents_count(),
+		'count'     => $count,
 		'fragments' => [
 			'div.widget_shopping_cart_content' => '<div class="widget_shopping_cart_content">' . $mini_cart . '</div>',
+			'.gl-cart-count'                  => '<span class="gl-cart-count">' . esc_html($count) . '</span>',
+			'span.gl-cart-count'              => '<span class="gl-cart-count">' . esc_html($count) . '</span>',
 		],
 	]);
 }
@@ -5064,10 +5068,14 @@ function gelikon_update_cart_item_qty_ajax() {
 	woocommerce_mini_cart();
 	$mini_cart = ob_get_clean();
 
+	$count = WC()->cart->get_cart_contents_count();
+
 	wp_send_json_success([
-		'count'     => WC()->cart->get_cart_contents_count(),
+		'count'     => $count,
 		'fragments' => [
 			'div.widget_shopping_cart_content' => '<div class="widget_shopping_cart_content">' . $mini_cart . '</div>',
+			'.gl-cart-count'                  => '<span class="gl-cart-count">' . esc_html($count) . '</span>',
+			'span.gl-cart-count'              => '<span class="gl-cart-count">' . esc_html($count) . '</span>',
 		],
 	]);
 }
@@ -5397,11 +5405,12 @@ add_action('wp_footer', function () {
 		const checkoutUrl = <?php echo wp_json_encode($checkout_url); ?>;
 		const ajaxUrl = <?php echo wp_json_encode($ajax_url); ?>;
 
-		let hideTimer = null;
 		let lastCartTrigger = null;
+		let refreshRequest = null;
+		let refreshSequence = 0;
 		const qtyTimers = {};
 		const qtyRequests = {};
-		const qtyDelay = 500;
+		const qtyDelay = 250;
 
 		function ensureMiniCart() {
 			let panel = document.getElementById(MINI_CART_ID);
@@ -5436,8 +5445,6 @@ add_action('wp_footer', function () {
 
 			document.body.appendChild(panel);
 
-			panel.addEventListener('mouseenter', clearHideTimer);
-			panel.addEventListener('mouseleave', scheduleHide);
 			panel.querySelector('.gl-full-mini-cart__close').addEventListener('click', hideMiniCart);
 
 			return panel;
@@ -5478,39 +5485,17 @@ add_action('wp_footer', function () {
 			});
 		}
 
-		function clearHideTimer() {
-			if (hideTimer) {
-				window.clearTimeout(hideTimer);
-				hideTimer = null;
-			}
-		}
-
-		function scheduleHide() {
-			clearHideTimer();
-
-			hideTimer = window.setTimeout(function(){
-				const panel = ensureMiniCart();
-
-				if (!panel.matches(':hover')) {
-					hideMiniCart();
-				}
-			}, 4500);
-		}
-
 		function showMiniCart() {
 			const panel = ensureMiniCart();
 
 			positionMiniCart(panel);
 			panel.classList.add('is-visible');
 
-			clearHideTimer();
-			scheduleHide();
 		}
 
 		function hideMiniCart() {
 			const panel = ensureMiniCart();
 			panel.classList.remove('is-visible');
-			clearHideTimer();
 		}
 
 		function positionMiniCart(panel) {
@@ -5692,15 +5677,28 @@ add_action('wp_footer', function () {
 			panel.classList.remove('is-loading');
 		}
 
-		function refreshMiniCartAjax(callback) {
+		function refreshMiniCartAjax(callback, options) {
 			if (!window.wc_cart_fragments_params || !window.jQuery) return;
 
-			setMiniCartLoading();
+			const settings = options || {};
+			const sequence = ++refreshSequence;
 
-			window.jQuery.ajax({
+			if (settings.showLoading !== false) {
+				setMiniCartLoading();
+			}
+
+			if (refreshRequest) {
+				refreshRequest.abort();
+			}
+
+			refreshRequest = window.jQuery.ajax({
 				url: window.wc_cart_fragments_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
 				type: 'POST',
 				success: function(data) {
+					if (sequence !== refreshSequence) {
+						return;
+					}
+
 					if (data && data.fragments) {
 						renderMiniCartFromFragments(data.fragments);
 						updateCartCountFromFragments(data.fragments);
@@ -5710,8 +5708,11 @@ add_action('wp_footer', function () {
 						}
 					}
 				},
-				complete: function() {
-					ensureMiniCart().classList.remove('is-loading');
+				complete: function(_xhr, status) {
+					if (status !== 'abort') {
+						ensureMiniCart().classList.remove('is-loading');
+						refreshRequest = null;
+					}
 				}
 			});
 		}
@@ -5757,7 +5758,6 @@ add_action('wp_footer', function () {
 					}
 
 					showMiniCart();
-					clearHideTimer();
 				},
 				error: function() {
 					refreshMiniCartAjax();
@@ -5854,7 +5854,6 @@ add_action('wp_footer', function () {
 						}
 
 						showMiniCart();
-						clearHideTimer();
 					},
 					error: function(xhr, status) {
 						if (status !== 'abort') {
@@ -5914,15 +5913,6 @@ add_action('wp_footer', function () {
 
 			showMiniCart();
 			refreshMiniCartAjax();
-			clearHideTimer();
-		}, true);
-
-		document.addEventListener('mouseleave', function(event){
-			const cartLink = event.target.closest('.gl-cart-link');
-
-			if (!cartLink) return;
-
-			scheduleHide();
 		}, true);
 
 		window.addEventListener('resize', function(){
@@ -5957,6 +5947,7 @@ add_action('wp_footer', function () {
 				}
 
 				showMiniCart();
+				refreshMiniCartAjax(null, { showLoading: false });
 			});
 		}
 
@@ -5973,11 +5964,6 @@ add_action('wp_footer', function () {
 
 			showMiniCart();
 			setMiniCartLoading();
-
-			window.setTimeout(function(){
-				setButtonInCartState(submitButton);
-				refreshMiniCartAjax();
-			}, 300);
 		});
 
 		removePostponedNotice();
@@ -7065,33 +7051,38 @@ add_action('wp_footer', function () {
 	?>
 	<script>
 	jQuery(function ($) {
-
 		$(document).on('submit', 'form.cart', function (e) {
 			e.preventDefault();
 
 			const $form = $(this);
-			const $button = $form.find('.single_add_to_cart_button');
+			const $button = $form.find('.single_add_to_cart_button').first();
 
-			if ($button.hasClass('disabled')) {
+			if (!$button.length || $button.hasClass('disabled') || $button.hasClass('loading') || $button.data('gelikonProcessing')) {
 				return;
 			}
 
-			let productId = $form.find('[name="add-to-cart"]').val() || $button.val();
-			let quantity  = $form.find('input.qty').val() || 1;
+			const productId = $form.find('[name="add-to-cart"]').val() || $form.find('[name="product_id"]').val() || $button.val();
 
 			if (!productId) {
 				return;
 			}
 
-			$button.addClass('loading').prop('disabled', true);
+			const data = {};
+
+			$.each($form.serializeArray(), function (_index, field) {
+				data[field.name] = field.value;
+			});
+
+			data.product_id = data.product_id || productId;
+			data.quantity = data.quantity || $form.find('input.qty').val() || 1;
+
+			$button.data('gelikonProcessing', true).addClass('loading').prop('disabled', true);
+			$(document.body).trigger('adding_to_cart', [$button, data]);
 
 			$.ajax({
 				type: 'POST',
 				url: wc_add_to_cart_params.wc_ajax_url.replace('%%endpoint%%', 'add_to_cart'),
-				data: {
-					product_id: productId,
-					quantity: quantity
-				},
+				data: data,
 				success: function (response) {
 					if (!response) {
 						return;
@@ -7111,7 +7102,7 @@ add_action('wp_footer', function () {
 					$button.removeClass('loading').addClass('added');
 				},
 				complete: function () {
-					$button.prop('disabled', false).removeClass('loading');
+					$button.data('gelikonProcessing', false).prop('disabled', false).removeClass('loading');
 				}
 			});
 		});
