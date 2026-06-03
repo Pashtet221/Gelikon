@@ -549,6 +549,35 @@ if (
 	text-underline-offset: 3px;
 }
 
+.woocommerce-checkout .gl-personal-data-consent--checkout {
+	margin: 0 0 16px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #667080;
+}
+
+.woocommerce-checkout .gl-personal-data-consent--checkout label {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0;
+	font-weight: 400;
+}
+
+.woocommerce-checkout .gl-personal-data-consent--checkout input[type="checkbox"] {
+	flex: 0 0 auto;
+	width: 18px;
+	height: 18px;
+	margin: 2px 0 0;
+	accent-color: #1f7a3d;
+}
+
+.woocommerce-checkout .gl-personal-data-consent--checkout a {
+	color: #1f7a3d;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
 .woocommerce-checkout #payment #place_order,
 .woocommerce-checkout #payment .button.alt {
 	width: 100%;

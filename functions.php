@@ -15,6 +15,94 @@ require_once GELIKON_DIR . '/inc/woocommerce.php';
 
 
 
+/**
+ * Возвращает URL страницы политики конфиденциальности.
+ */
+function gelikon_get_privacy_policy_url() {
+	$privacy_url = function_exists('get_privacy_policy_url') ? get_privacy_policy_url() : '';
+
+	if (!$privacy_url) {
+		$page = get_page_by_path('privacy-policy');
+		$privacy_url = $page ? get_permalink($page->ID) : home_url('/privacy-policy/');
+	}
+
+	return $privacy_url;
+}
+
+/**
+ * Проверяет согласие на обработку персональных данных.
+ */
+function gelikon_is_personal_data_consent_given($field_name = 'gelikon_personal_data_consent') {
+	return !empty($_POST[$field_name]); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+}
+
+/**
+ * Единый чекбокс согласия на обработку персональных данных для форм.
+ */
+function gelikon_personal_data_consent_markup($field_id = '', $field_name = 'gelikon_personal_data_consent', $class_name = 'gl-personal-data-consent') {
+	if (!$field_id) {
+		$field_id = $field_name . '_' . wp_rand(1000, 9999);
+	}
+
+	$privacy_url = gelikon_get_privacy_policy_url();
+
+	ob_start();
+	?>
+	<p class="<?php echo esc_attr($class_name); ?>">
+		<label for="<?php echo esc_attr($field_id); ?>">
+			<input
+				type="checkbox"
+				id="<?php echo esc_attr($field_id); ?>"
+				name="<?php echo esc_attr($field_name); ?>"
+				value="1"
+				required
+			>
+			<span>
+				<?php esc_html_e('Я даю согласие на обработку персональных данных и принимаю условия', 'gelikon'); ?>
+				<a href="<?php echo esc_url($privacy_url); ?>" target="_blank" rel="noopener noreferrer">
+					<?php esc_html_e('политики конфиденциальности', 'gelikon'); ?>
+				</a>.
+			</span>
+		</label>
+	</p>
+	<?php
+	return ob_get_clean();
+}
+
+/**
+ * Вывод согласия перед кнопкой оформления заказа.
+ */
+add_action('woocommerce_review_order_before_submit', function () {
+	echo gelikon_personal_data_consent_markup('gelikon_checkout_personal_data_consent', 'gelikon_personal_data_consent', 'gl-personal-data-consent gl-personal-data-consent--checkout'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}, 8);
+
+/**
+ * Валидация согласия в оформлении заказа.
+ */
+add_action('woocommerce_after_checkout_validation', function ($data, $errors) {
+	if (!gelikon_is_personal_data_consent_given()) {
+		$errors->add('personal_data_consent', __('Подтвердите согласие на обработку персональных данных.', 'gelikon'));
+	}
+}, 10, 2);
+
+/**
+ * Валидация согласия для формы отзыва о товаре.
+ */
+add_filter('preprocess_comment', function ($commentdata) {
+	$post_id = isset($commentdata['comment_post_ID']) ? absint($commentdata['comment_post_ID']) : 0;
+
+	if ($post_id && 'product' === get_post_type($post_id) && empty($_POST['gelikon_submit_product_question']) && !gelikon_is_personal_data_consent_given()) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		wp_die(
+			esc_html__('Подтвердите согласие на обработку персональных данных.', 'gelikon'),
+			esc_html__('Необходимо согласие', 'gelikon'),
+			['response' => 400, 'back_link' => true]
+		);
+	}
+
+	return $commentdata;
+});
+
+
 add_action('wp_enqueue_scripts', 'gelikon_enqueue_manrope_font', 5);
 function gelikon_enqueue_manrope_font() {
 	wp_enqueue_style(
@@ -1160,6 +1248,14 @@ add_action('init', function () {
 
 	if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['gelikon_question_nonce'])), 'gelikon_product_question')) {
 		return;
+	}
+
+	if (!gelikon_is_personal_data_consent_given()) {
+		wp_die(
+			esc_html__('Подтвердите согласие на обработку персональных данных.', 'gelikon'),
+			esc_html__('Необходимо согласие', 'gelikon'),
+			['response' => 400, 'back_link' => true]
+		);
 	}
 
 	$product_id = isset($_POST['comment_post_ID']) ? absint($_POST['comment_post_ID']) : 0;
