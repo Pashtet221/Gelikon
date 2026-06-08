@@ -6649,6 +6649,10 @@ function gelikon_clean_plain_product_text($content) {
 	$content = preg_replace('/<font\b[^>]*>(.*?)<\/font>/is', '$1', $content);
 	$content = preg_replace('/<span\b[^>]*>(.*?)<\/span>/is', '$1', $content);
 
+	// WP All Import can wrap plain product descriptions in heading tags.
+	// Keep the imported text, but drop H4/H5/H6 wrappers from descriptions.
+	$content = preg_replace('/<h[4-6]\b[^>]*>(.*?)<\/h[4-6]>/is', '$1', $content);
+
 	$content = preg_replace('/\s(style|class|id|face|font-family|lang|width|height)="[^"]*"/i', '', $content);
 	$content = preg_replace("/\s(style|class|id|face|font-family|lang|width|height)='[^']*'/i", '', $content);
 
@@ -6664,7 +6668,6 @@ function gelikon_clean_plain_product_text($content) {
 		'li'     => [],
 		'h2'     => [],
 		'h3'     => [],
-		'h4'     => [],
 		'a'      => [
 			'href'   => [],
 			'title'  => [],
@@ -6677,6 +6680,25 @@ function gelikon_clean_plain_product_text($content) {
 
 	return $content;
 }
+
+/**
+ * Clean imported/saved product descriptions even when they bypass the custom textarea.
+ */
+add_filter('wp_insert_post_data', function ($data, $postarr) {
+	if (($data['post_type'] ?? '') !== 'product') {
+		return $data;
+	}
+
+	if (!empty($data['post_content'])) {
+		$data['post_content'] = gelikon_clean_plain_product_text($data['post_content']);
+	}
+
+	if (!empty($data['post_excerpt'])) {
+		$data['post_excerpt'] = gelikon_clean_plain_product_text($data['post_excerpt']);
+	}
+
+	return $data;
+}, 20, 2);
 
 
 
