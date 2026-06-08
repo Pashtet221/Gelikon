@@ -76,7 +76,28 @@ defined('ABSPATH') || exit;
 
 		<?php if (WC()->cart->needs_shipping() && WC()->cart->show_shipping()) : ?>
 			<?php do_action('woocommerce_review_order_before_shipping'); ?>
-			<?php wc_cart_totals_shipping_html(); ?>
+			<?php
+			ob_start();
+			wc_cart_totals_shipping_html();
+			$gl_shipping_html  = ob_get_clean();
+			$gl_shipping_title = __('Доставка', 'woocommerce');
+			$gl_shipping_body  = $gl_shipping_html;
+
+			if (preg_match('/<th[^>]*>(.*?)<\/th>\s*<td[^>]*>(.*?)<\/td>/is', $gl_shipping_html, $gl_shipping_matches)) {
+				$gl_shipping_title = wp_strip_all_tags($gl_shipping_matches[1]);
+				$gl_shipping_body  = $gl_shipping_matches[2];
+			}
+			?>
+			<tr class="shipping gl-shipping-block-row">
+				<td colspan="2">
+					<div class="gl-shipping-block">
+						<div class="gl-shipping-block__title"><?php echo esc_html($gl_shipping_title); ?></div>
+						<div class="gl-shipping-block__body">
+							<?php echo $gl_shipping_body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</div>
+					</div>
+				</td>
+			</tr>
 			<?php do_action('woocommerce_review_order_after_shipping'); ?>
 		<?php endif; ?>
 
@@ -287,24 +308,39 @@ defined('ABSPATH') || exit;
 }
 
 /* Доставка */
-.gl-order-review-table tfoot .shipping th {
+.gl-order-review-table tfoot .gl-shipping-block-row > td {
+	width: 100% !important;
+	padding: 16px 14px !important;
+	text-align: left !important;
+}
+
+.gl-shipping-block {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 12px;
+	width: 100%;
+}
+
+.gl-shipping-block__title {
 	font-size: 16px;
 	line-height: 1.3;
 	font-weight: 800;
 	color: #5f6975;
+}
+
+.gl-shipping-block__body {
+	min-width: 0;
+	width: 100%;
+	font-size: 13px;
+	line-height: 1.35;
+	font-weight: 500;
+	color: #252b33;
+}
+
+.gl-shipping-block__body > span,
+.gl-shipping-block__body > strong {
+	display: block;
 	text-align: left;
-	vertical-align: top;
-}
-
-.gl-order-review-table tfoot .shipping td {
-	text-align: right !important;
-	vertical-align: top;
-}
-
-.gl-order-review-table tfoot .shipping td > span,
-.gl-order-review-table tfoot .shipping td > strong {
-	display: inline-block;
-	text-align: right;
 }
 
 .gl-order-review-table #shipping_method {
@@ -343,10 +379,7 @@ defined('ABSPATH') || exit;
 }
 
 .gl-order-review-table #shipping_method label {
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: 12px;
+	display: block;
 	min-width: 0;
 	width: 100%;
 	margin: 0;
@@ -362,13 +395,13 @@ defined('ABSPATH') || exit;
 
 .gl-order-review-table #shipping_method label .amount {
 	display: inline-block;
-	margin-left: auto;
+	margin-left: 4px;
 	font-size: 13px;
 	line-height: 1.2;
 	font-weight: 800;
 	color: #171b20;
 	white-space: nowrap;
-	text-align: right;
+	text-align: left;
 }
 
 .gl-order-review-table .cdek-office-info {
@@ -421,7 +454,7 @@ defined('ABSPATH') || exit;
 	font-weight: 800;
 	text-align: center;
 	text-decoration: none !important;
-	white-space: nowrap;
+	white-space: normal;
 	cursor: pointer;
 	box-shadow: 0 5px 12px rgba(18, 212, 87, .22);
 	transition: background .2s ease, transform .2s ease;
