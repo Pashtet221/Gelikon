@@ -297,8 +297,14 @@ defined('ABSPATH') || exit;
 }
 
 .gl-order-review-table tfoot .shipping td {
-	text-align: left !important;
+	text-align: right !important;
 	vertical-align: top;
+}
+
+.gl-order-review-table tfoot .shipping td > span,
+.gl-order-review-table tfoot .shipping td > strong {
+	display: inline-block;
+	text-align: right;
 }
 
 .gl-order-review-table #shipping_method {
@@ -322,6 +328,12 @@ defined('ABSPATH') || exit;
 	text-align: left;
 }
 
+.gl-order-review-table #shipping_method li::after {
+	content: "";
+	display: block;
+	clear: both;
+}
+
 .gl-order-review-table #shipping_method input[type="radio"] {
 	width: 16px;
 	height: 16px;
@@ -331,8 +343,12 @@ defined('ABSPATH') || exit;
 }
 
 .gl-order-review-table #shipping_method label {
-	display: block;
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
 	min-width: 0;
+	width: 100%;
 	margin: 0;
 	font-size: 13px;
 	line-height: 1.35;
@@ -341,17 +357,18 @@ defined('ABSPATH') || exit;
 	text-align: left;
 	white-space: normal;
 	word-break: normal;
-	overflow-wrap: normal;
+	overflow-wrap: anywhere;
 }
 
 .gl-order-review-table #shipping_method label .amount {
 	display: inline-block;
-	margin-left: 4px;
+	margin-left: auto;
 	font-size: 13px;
 	line-height: 1.2;
 	font-weight: 800;
 	color: #171b20;
 	white-space: nowrap;
+	text-align: right;
 }
 
 .gl-order-review-table .cdek-office-info {
@@ -360,6 +377,8 @@ defined('ABSPATH') || exit;
 	align-items: flex-start;
 	gap: 9px;
 	width: 100%;
+	max-width: 100%;
+	min-width: 0;
 	margin: 8px 0 0;
 	padding: 11px 13px;
 	border-radius: 15px;
@@ -370,6 +389,8 @@ defined('ABSPATH') || exit;
 	font-weight: 600;
 	color: #252b33;
 	text-align: left;
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 
 .gl-order-review-table .cdek-office-info::before {
@@ -400,7 +421,7 @@ defined('ABSPATH') || exit;
 	font-weight: 800;
 	text-align: center;
 	text-decoration: none !important;
-	white-space: normal;
+	white-space: nowrap;
 	cursor: pointer;
 	box-shadow: 0 5px 12px rgba(18, 212, 87, .22);
 	transition: background .2s ease, transform .2s ease;
@@ -490,6 +511,21 @@ defined('ABSPATH') || exit;
 	white-space: nowrap;
 }
 
+
+/* CDEK widget polish */
+.cdek-map .ymaps-2-1-79-copyrights-pane,
+.cdek-map [class*="copyright"],
+.cdek-map [class*="logo"] {
+	pointer-events: none;
+}
+
+.cdek-map [class*="geolocation"],
+.cdek-map [class*="location"],
+.cdek-map button[title*="местоп" i],
+.cdek-map button[aria-label*="местоп" i] {
+	margin-top: 42px !important;
+}
+
 /* Мобильная версия */
 @media (max-width: 480px) {
 	.gl-checkout-sidebar__desc {
@@ -573,6 +609,27 @@ defined('ABSPATH') || exit;
 
 <script>
 jQuery(function($) {
+	function glCloseCdekWidget() {
+		$('.cdek-modal, .cdek-widget-modal, .cdek-widget__popup, .cdek-popup, .modal-cdek, .cdekmap-modal, #cdek-map, #cdek-map-modal').each(function() {
+			const $modal = $(this);
+			$modal.find('.cdek-close, .cdek-modal__close, .cdek-widget__close, .close, [data-dismiss="modal"], [aria-label="Close"], [aria-label="Закрыть"]').first().trigger('click');
+			$modal.removeClass('show is-open active').hide();
+		});
+		$('body').removeClass('modal-open cdek-modal-open');
+	}
+
+	$(document).on('click', '.cdek-map [class*="choose"], .cdek-map [class*="select"], .cdek-map button, .cdek-map a', function() {
+		setTimeout(function() {
+			if ($('.cdek-office-info').text().trim().length) {
+				glCloseCdekWidget();
+			}
+		}, 500);
+	});
+
+	$(document.body).on('updated_checkout', function() {
+		$('.open-pvz-btn').attr('title', 'Выбрать пункт выдачи СДЭК');
+	});
+
 	const checkoutCart = window.gelikonCheckoutCart || {
 		qtyTimers: {},
 		qtyRequests: {},

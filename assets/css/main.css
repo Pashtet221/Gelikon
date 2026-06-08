@@ -129,7 +129,9 @@ img { max-width: 100%; height: auto; display: block; }
 .gl-header__icon:hover, .gl-header-search-trigger:hover { border-color: var(--gl-color-helper); }
 .gl-mobile-contact-trigger { display: inline-flex; align-items: center; justify-content: center; color: #12D457; }
 .gl-mobile-contact-trigger__icon { display: block; width: 22px; height: 22px; flex: 0 0 22px; }
-.gl-cart-link { position: relative; order: 4; }
+.gl-account-link { order: 4; }
+.gl-cart-link { position: relative; order: 5; }
+.gl-header-account-mobile { display: none; }
 .gl-cart-count {
   position: absolute; top: -5px; right: -2px; min-width: 20px; height: 20px; padding: 0 6px;
   border-radius: 999px; background: var(--gl-color-accent); color: #fff; font-size: 11px;
@@ -302,6 +304,7 @@ a.gl-product-card__button--disabled {
   .gl-header__actions .gl-write-btn { display: none; }
   .gl-header__actions { gap: 8px; margin-left: auto; }
   .gl-header__search-icon--desktop { display: none; }
+  .gl-account-link { display: none; }
   .gl-cart-link { order: 2; }
   .gl-header__icon, .gl-header-search-trigger { width: 42px; height: 42px; }
   .gl-cart-count { min-width: 18px; height: 18px; font-size: 10px; line-height: 18px; top: -4px; right: -2px; }
@@ -309,7 +312,9 @@ a.gl-product-card__button--disabled {
   .gl-header__bottom.is-open { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .gl-header__bottom .gl-header__search-mobile { display: none; order: 1; }
   .gl-header__bottom .gl-header__catalog--mobile { display: block; order: 2; }
-  .gl-header__bottom .gl-nav--mobile { display: block; order: 3; padding: 0 16px 16px; }
+  .gl-header-account-mobile { display: flex; align-items: center; gap: 10px; order: 3; margin: 0 16px; padding: 12px 14px; border: 1px solid var(--gl-color-line); border-radius: 16px; background: var(--gl-color-surface); color: var(--gl-color-text); font-size: 15px; font-weight: 800; text-decoration: none; }
+  .gl-header-account-mobile__icon { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: rgba(18, 212, 87, .1); color: #12D457; }
+  .gl-header__bottom .gl-nav--mobile { display: block; order: 4; padding: 0 16px 16px; }
   .gl-header__bottom .gl-menu { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; overflow: visible; }
   .gl-header__bottom .gl-menu > li, .gl-header__bottom .gl-menu > li > a { width: 100%; }
 }

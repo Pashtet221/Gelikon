@@ -6412,6 +6412,54 @@ add_action('wp_footer', function () {
 				$(document.body).trigger('update_checkout');
 			}
 
+			function glSetDetectedCheckoutCity(city) {
+				city = glNormalizeCheckoutValue(city);
+
+				if (!city || glGetShippingCity()) {
+					return;
+				}
+
+				$('[name="shipping_city"]').val(city).trigger('change');
+				glSyncShippingToBilling();
+				glScheduleCheckoutUpdate(100);
+			}
+
+			function glDetectCheckoutCity() {
+				if (glGetShippingCity() || !navigator.geolocation) {
+					return;
+				}
+
+				navigator.geolocation.getCurrentPosition(function(position) {
+					var coords = [position.coords.latitude, position.coords.longitude];
+
+					if (window.ymaps && typeof window.ymaps.geocode === 'function') {
+						window.ymaps.geocode(coords).then(function(response) {
+							var first = response.geoObjects && response.geoObjects.get(0);
+
+							if (!first) {
+								return;
+							}
+
+							var props = first.properties || null;
+							var meta = props && props.get ? props.get('metaDataProperty') : null;
+							var address = meta && meta.GeocoderMetaData && meta.GeocoderMetaData.Address ? meta.GeocoderMetaData.Address.Components : [];
+							var city = '';
+
+							(address || []).some(function(component) {
+								if (component.kind === 'locality' || component.kind === 'province') {
+									city = component.name;
+									return true;
+								}
+
+								return false;
+							});
+
+							glSetDetectedCheckoutCity(city);
+						});
+					}
+				}, function() {}, { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 });
+			}
+
 			function glScheduleCheckoutUpdate(delay) {
 				clearTimeout(window.glCdekUpdateTimer);
 				window.glCdekUpdateTimer = setTimeout(glTriggerCheckoutUpdate, delay || 900);
@@ -6456,6 +6504,7 @@ add_action('wp_footer', function () {
 			glSyncShippingToBilling();
 			glLastCheckoutCity = glGetShippingCity();
 			glLastCheckoutAddress = glGetShippingAddress();
+			glDetectCheckoutCity();
 		});
 	</script>
 	<?php
@@ -7446,54 +7495,107 @@ add_filter('woocommerce_checkout_fields', function ($fields) {
 
 
 /**
- * Checkout shipping: when a free shipping rate is available, hide paid alternatives.
+ * Checkout shipping: keep CDEK delivery choices visible after the free-delivery threshold.
  *
- * WooCommerce recalculates package rates during checkout AJAX updates. Keeping only
- * free rates in the package prevents stale paid CDEK/flat-rate options from being
- * rendered or submitted after the cart reaches the free-delivery threshold.
+ * Orders from 3000 ₽ should still let the customer choose CDEK courier or pickup point;
+ * only the calculated delivery price is changed to 0 ₽.
  */
-add_filter('woocommerce_package_rates', 'gelikon_checkout_prefer_free_shipping_rates', 100, 2);
-add_filter('woocommerce_shipping_chosen_method', 'gelikon_checkout_choose_free_shipping_rate', 100, 3);
+add_filter('woocommerce_package_rates', 'gelikon_checkout_zero_cdek_rates_above_threshold', 100, 2);
+add_filter('woocommerce_shipping_chosen_method', 'gelikon_checkout_choose_first_cdek_rate', 100, 3);
+add_filter('woocommerce_cart_shipping_method_full_label', 'gelikon_checkout_shipping_method_label', 100, 2);
 
-function gelikon_checkout_prefer_free_shipping_rates($rates, $package) {
-	$free_rates = array();
-
-	foreach ($rates as $rate_id => $rate) {
-		if (gelikon_checkout_is_free_shipping_rate($rate)) {
-			$free_rates[$rate_id] = $rate;
-		}
-	}
-
-	if (empty($free_rates)) {
-		return $rates;
-	}
-
-	return $free_rates;
+function gelikon_checkout_free_shipping_threshold() {
+	return 3000;
 }
 
-function gelikon_checkout_is_free_shipping_rate($rate) {
+function gelikon_checkout_cart_reaches_free_shipping_threshold() {
+	if (! function_exists('WC') || ! WC()->cart) {
+		return false;
+	}
+
+	return (float) WC()->cart->get_displayed_subtotal() >= gelikon_checkout_free_shipping_threshold();
+}
+
+function gelikon_checkout_is_cdek_shipping_rate($rate) {
 	if (! $rate instanceof WC_Shipping_Rate) {
 		return false;
 	}
 
-	if ($rate->get_method_id() === 'free_shipping') {
-		return true;
-	}
+	$haystack = $rate->get_id() . ' ' . $rate->get_method_id() . ' ' . $rate->get_label();
+	$haystack = function_exists('mb_strtolower') ? mb_strtolower($haystack, 'UTF-8') : strtolower($haystack);
 
-	$shipping_cost = (float) $rate->get_cost();
-	$shipping_taxes = array_sum(array_map('floatval', (array) $rate->get_taxes()));
-
-	return $shipping_cost <= 0 && $shipping_taxes <= 0;
+	return strpos($haystack, 'cdek') !== false || strpos($haystack, 'сдэк') !== false;
 }
 
-function gelikon_checkout_choose_free_shipping_rate($chosen_method, $available_methods, $package) {
+function gelikon_checkout_zero_shipping_rate($rate) {
+	if (! $rate instanceof WC_Shipping_Rate) {
+		return;
+	}
+
+	$rate->set_cost(0);
+	$rate->set_taxes(array_map(static function () {
+		return 0;
+	}, (array) $rate->get_taxes()));
+}
+
+function gelikon_checkout_zero_cdek_rates_above_threshold($rates, $package) {
+	if (! gelikon_checkout_cart_reaches_free_shipping_threshold()) {
+		return $rates;
+	}
+
+	$has_cdek_rates = false;
+
+	foreach ($rates as $rate) {
+		if (gelikon_checkout_is_cdek_shipping_rate($rate)) {
+			$has_cdek_rates = true;
+			break;
+		}
+	}
+
+	foreach ($rates as $rate_id => $rate) {
+		if ($rate instanceof WC_Shipping_Rate && $rate->get_method_id() === 'free_shipping' && $has_cdek_rates) {
+			unset($rates[$rate_id]);
+			continue;
+		}
+
+		if (! $has_cdek_rates || gelikon_checkout_is_cdek_shipping_rate($rate)) {
+			gelikon_checkout_zero_shipping_rate($rate);
+		}
+	}
+
+	return $rates;
+}
+
+function gelikon_checkout_choose_first_cdek_rate($chosen_method, $available_methods, $package) {
+	if (! gelikon_checkout_cart_reaches_free_shipping_threshold()) {
+		return $chosen_method;
+	}
+
+	if (isset($available_methods[$chosen_method]) && gelikon_checkout_is_cdek_shipping_rate($available_methods[$chosen_method])) {
+		return $chosen_method;
+	}
+
 	foreach ($available_methods as $rate_id => $rate) {
-		if (gelikon_checkout_is_free_shipping_rate($rate)) {
+		if (gelikon_checkout_is_cdek_shipping_rate($rate)) {
 			return $rate_id;
 		}
 	}
 
 	return $chosen_method;
+}
+
+function gelikon_checkout_shipping_method_label($label, $method) {
+	if (! $method instanceof WC_Shipping_Rate) {
+		return $label;
+	}
+
+	$cost = (float) $method->get_cost() + array_sum(array_map('floatval', (array) $method->get_taxes()));
+
+	if ($cost <= 0 && strpos($label, 'amount') === false) {
+		$label = wp_kses_post($method->get_label()) . ': ' . wc_price(0);
+	}
+
+	return $label;
 }
 
 
