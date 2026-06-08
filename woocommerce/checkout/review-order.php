@@ -287,7 +287,20 @@ defined('ABSPATH') || exit;
 }
 
 /* Доставка */
+.gl-order-review-table tfoot .shipping {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	width: 100%;
+}
+
+.gl-order-review-table tfoot .shipping th,
+.gl-order-review-table tfoot .shipping td {
+	display: block;
+	width: 100% !important;
+}
+
 .gl-order-review-table tfoot .shipping th {
+	padding-bottom: 8px !important;
 	font-size: 16px;
 	line-height: 1.3;
 	font-weight: 800;
@@ -297,14 +310,15 @@ defined('ABSPATH') || exit;
 }
 
 .gl-order-review-table tfoot .shipping td {
-	text-align: right !important;
+	padding-top: 0 !important;
+	text-align: left !important;
 	vertical-align: top;
 }
 
 .gl-order-review-table tfoot .shipping td > span,
 .gl-order-review-table tfoot .shipping td > strong {
-	display: inline-block;
-	text-align: right;
+	display: block;
+	text-align: left;
 }
 
 .gl-order-review-table #shipping_method {
@@ -343,10 +357,7 @@ defined('ABSPATH') || exit;
 }
 
 .gl-order-review-table #shipping_method label {
-	display: flex;
-	align-items: flex-start;
-	justify-content: space-between;
-	gap: 12px;
+	display: block;
 	min-width: 0;
 	width: 100%;
 	margin: 0;
@@ -362,17 +373,17 @@ defined('ABSPATH') || exit;
 
 .gl-order-review-table #shipping_method label .amount {
 	display: inline-block;
-	margin-left: auto;
+	margin-left: 4px;
 	font-size: 13px;
 	line-height: 1.2;
 	font-weight: 800;
 	color: #171b20;
 	white-space: nowrap;
-	text-align: right;
+	text-align: left;
 }
 
 .gl-order-review-table .cdek-office-info {
-	grid-column: 2 / -1;
+	grid-column: 1 / -1;
 	display: flex;
 	align-items: flex-start;
 	gap: 9px;
@@ -405,7 +416,7 @@ defined('ABSPATH') || exit;
 }
 
 .gl-order-review-table .open-pvz-btn {
-	grid-column: 2 / -1;
+	grid-column: 1 / -1;
 	display: inline-flex !important;
 	align-items: center;
 	justify-content: center;
