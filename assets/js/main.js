@@ -9,4 +9,36 @@ document.addEventListener('DOMContentLoaded', function () {
       nav.classList.toggle('is-open');
     });
   }
+
+
+  const accountAuthTabs = document.querySelector('[data-gl-auth-tabs]');
+
+  if (accountAuthTabs) {
+    const tabs = accountAuthTabs.querySelectorAll('[data-gl-auth-tab]');
+    const panels = accountAuthTabs.querySelectorAll('.gl-myaccount-auth__panel');
+
+    const activateAuthTab = function (target) {
+      tabs.forEach(function (tab) {
+        const isActive = tab.dataset.glAuthTab === target;
+        tab.classList.toggle('is-active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      panels.forEach(function (panel) {
+        const isActive = panel.id === 'gl-account-' + target + '-panel';
+        panel.classList.toggle('is-active', isActive);
+        panel.hidden = !isActive;
+      });
+    };
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        activateAuthTab(tab.dataset.glAuthTab);
+      });
+    });
+
+    if (window.location.hash === '#register') {
+      activateAuthTab('register');
+    }
+  }
 });
