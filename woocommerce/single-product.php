@@ -202,12 +202,12 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 			<button type="button" class="gl-product-summary__meta-link" data-gl-popup-open="reviews" aria-controls="gelikon-product-popup">
 				<span class="gl-product-summary__rating">
 					<span class="gl-product-summary__rating-star" aria-hidden="true">★</span>
-					<span class="gl-product-summary__rating-value">4.3</span>
+					<span class="gl-product-summary__rating-value"><?php echo esc_html($meta_rating !== '' ? number_format((float) $meta_rating, 1, '.', '') : '0.0'); ?></span>
 				</span>
 			</button>
 
 			<button type="button" class="gl-product-summary__meta-link" data-gl-popup-open="reviews" aria-controls="gelikon-product-popup">
-				<span class="gl-product-summary__meta-text gl-product-summary__meta-text--reviews">(254 отзывов)</span>
+				<span class="gl-product-summary__meta-text gl-product-summary__meta-text--reviews">(<?php echo esc_html(sprintf(_n('%d отзыв', '%d отзывов', (int) $meta_reviews, 'gelikon'), (int) $meta_reviews)); ?>)</span>
 			</button>
 		</div>
 

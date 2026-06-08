@@ -356,17 +356,12 @@ $products_query = new WP_Query($query_args);
 						<?php endif; ?>
 
 						<?php foreach ($available_filters as $filter_group) : ?>
-							<div class="gl-catalog-filter is-collapsed" data-filter-block>
-								<button type="button" class="gl-catalog-filter__toggle" data-filter-toggle>
+							<div class="gl-catalog-filter gl-catalog-filter--choices" data-filter-block>
+								<div class="gl-catalog-filter__heading">
 									<span><?php echo esc_html($filter_group['label']); ?></span>
-									<span class="gl-catalog-filter__arrow" aria-hidden="true">
-										<svg viewBox="0 0 12 12" width="12" height="12">
-											<path d="M2.5 7.5L6 4L9.5 7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-										</svg>
-									</span>
-								</button>
+								</div>
 
-								<div class="gl-catalog-filter__body" data-filter-body hidden>
+								<div class="gl-catalog-filter__body" data-filter-body>
 									<div class="gl-catalog-filter__list">
 										<?php foreach ($filter_group['terms'] as $term) :
 											$is_active = !empty($selected_filters[$filter_group['taxonomy']]) && in_array($term->slug, $selected_filters[$filter_group['taxonomy']], true);
@@ -379,9 +374,9 @@ $products_query = new WP_Query($query_args);
 													value="<?php echo esc_attr($term->slug); ?>"
 													<?php checked($is_active); ?>
 												>
-												<span class="gl-catalog-filter__check"></span>
 												<span class="gl-catalog-filter__name"><?php echo esc_html($term->name); ?></span>
 												<span class="gl-catalog-filter__count"><?php echo (int) $term->count; ?></span>
+												<span class="gl-catalog-filter__check" aria-hidden="true"></span>
 											</label>
 										<?php endforeach; ?>
 									</div>

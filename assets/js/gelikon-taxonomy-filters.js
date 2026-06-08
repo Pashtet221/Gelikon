@@ -72,18 +72,13 @@ document.addEventListener('DOMContentLoaded', function () {
 		});
 	}
 
-	function collapseAllFiltersExceptPrice() {
-		document.querySelectorAll('[data-filter-block]').forEach(function (block, index) {
+	function expandAllFilters() {
+		document.querySelectorAll('[data-filter-block]').forEach(function (block) {
 			const body = block.querySelector('[data-filter-body]');
 			if (!body) return;
 
-			if (index === 0) {
-				block.classList.remove('is-collapsed');
-				body.hidden = false;
-			} else {
-				block.classList.add('is-collapsed');
-				body.hidden = true;
-			}
+			block.classList.remove('is-collapsed');
+			body.hidden = false;
 		});
 	}
 
@@ -330,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 			refreshActiveItems();
 			updatePriceUI();
-			collapseAllFiltersExceptPrice();
+			expandAllFilters();
 			requestProducts(1);
 		});
 	}
@@ -347,5 +342,5 @@ document.addEventListener('DOMContentLoaded', function () {
 	bindPagination();
 	refreshActiveItems();
 	updatePriceUI();
-	collapseAllFiltersExceptPrice();
+	expandAllFilters();
 });
