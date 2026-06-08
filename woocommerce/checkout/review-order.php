@@ -6,6 +6,78 @@
  */
 
 defined('ABSPATH') || exit;
+
+
+if (! function_exists('gelikon_checkout_shipping_block_html')) {
+	/**
+	 * Render checkout shipping as a full-width block instead of a narrow table row.
+	 */
+	function gelikon_checkout_shipping_block_html() {
+		$packages       = WC()->shipping()->get_packages();
+		$chosen_methods = WC()->session->get('chosen_shipping_methods');
+
+		foreach ($packages as $index => $package) {
+			$available_methods      = isset($package['rates']) ? $package['rates'] : array();
+			$chosen_method          = isset($chosen_methods[$index]) ? $chosen_methods[$index] : '';
+			$package_name           = apply_filters('woocommerce_shipping_package_name', sprintf(_x('Shipping %d', 'shipping packages', 'woocommerce'), ($index + 1)), $index, $package);
+			$has_calculated_shipping = WC()->customer->has_calculated_shipping();
+			$formatted_destination  = WC()->countries->get_formatted_address($package['destination'], ', ');
+			?>
+			<tr class="woocommerce-shipping-totals shipping gl-checkout-shipping-row">
+				<td colspan="2">
+					<section class="gl-checkout-shipping-block" aria-labelledby="gl-checkout-shipping-title-<?php echo esc_attr($index); ?>">
+						<div class="gl-checkout-shipping-block__title" id="gl-checkout-shipping-title-<?php echo esc_attr($index); ?>">
+							<?php esc_html_e('Доставка', 'woocommerce'); ?>
+						</div>
+
+						<div class="gl-checkout-shipping-block__body">
+							<?php if ($available_methods) : ?>
+								<ul id="shipping_method" class="woocommerce-shipping-methods gl-checkout-shipping-methods">
+									<?php foreach ($available_methods as $method) : ?>
+										<li>
+											<?php
+											$input_id = 'shipping_method_' . $index . '_' . sanitize_title($method->id);
+
+											if (1 < count($available_methods)) {
+												printf(
+													'<input type="radio" name="shipping_method[%1$d]" data-index="%1$d" id="%2$s" value="%3$s" class="shipping_method" %4$s />',
+													absint($index),
+													esc_attr($input_id),
+													esc_attr($method->id),
+													checked($method->id, $chosen_method, false)
+												);
+											} else {
+												printf(
+													'<input type="hidden" name="shipping_method[%1$d]" data-index="%1$d" id="%2$s" value="%3$s" class="shipping_method" />',
+													absint($index),
+													esc_attr($input_id),
+													esc_attr($method->id)
+												);
+											}
+
+											printf('<label for="%1$s">%2$s</label>', esc_attr($input_id), wp_kses_post(wc_cart_totals_shipping_method_label($method)));
+											do_action('woocommerce_after_shipping_rate', $method, $index);
+											?>
+										</li>
+									<?php endforeach; ?>
+								</ul>
+
+								<?php if (1 < count($packages)) : ?>
+									<p class="gl-checkout-shipping-block__package"><?php echo esc_html($package_name); ?></p>
+								<?php endif; ?>
+							<?php elseif (! $has_calculated_shipping || ! $formatted_destination) : ?>
+								<p class="gl-checkout-shipping-block__message"><?php esc_html_e('Введите адрес, чтобы увидеть доступные способы доставки.', 'woocommerce'); ?></p>
+							<?php else : ?>
+								<p class="gl-checkout-shipping-block__message woocommerce-info"><?php esc_html_e('Нет доступных способов доставки для выбранного адреса.', 'woocommerce'); ?></p>
+							<?php endif; ?>
+						</div>
+					</section>
+				</td>
+			</tr>
+			<?php
+		}
+	}
+}
 ?>
 
 <table class="shop_table woocommerce-checkout-review-order-table gl-order-review-table">
@@ -76,7 +148,7 @@ defined('ABSPATH') || exit;
 
 		<?php if (WC()->cart->needs_shipping() && WC()->cart->show_shipping()) : ?>
 			<?php do_action('woocommerce_review_order_before_shipping'); ?>
-			<?php wc_cart_totals_shipping_html(); ?>
+			<?php gelikon_checkout_shipping_block_html(); ?>
 			<?php do_action('woocommerce_review_order_after_shipping'); ?>
 		<?php endif; ?>
 
@@ -287,68 +359,61 @@ defined('ABSPATH') || exit;
 }
 
 /* Доставка */
-.gl-order-review-table tfoot .shipping {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr);
-	width: 100%;
-}
-
-.gl-order-review-table tfoot .shipping th,
-.gl-order-review-table tfoot .shipping td {
-	display: block;
+.gl-order-review-table tfoot .gl-checkout-shipping-row > td {
 	width: 100% !important;
+	padding: 18px 28px !important;
+	text-align: left !important;
 }
 
-.gl-order-review-table tfoot .shipping th {
-	padding-bottom: 8px !important;
+.gl-checkout-shipping-block {
+	display: block;
+	width: 100%;
+	min-width: 0;
+}
+
+.gl-checkout-shipping-block__title {
+	margin: 0 0 14px;
 	font-size: 16px;
 	line-height: 1.3;
 	font-weight: 800;
 	color: #5f6975;
 	text-align: left;
-	vertical-align: top;
 }
 
-.gl-order-review-table tfoot .shipping td {
-	padding-top: 0 !important;
-	text-align: left !important;
-	vertical-align: top;
+.gl-checkout-shipping-block__body {
+	width: 100%;
+	min-width: 0;
 }
 
-.gl-order-review-table tfoot .shipping td > span,
-.gl-order-review-table tfoot .shipping td > strong {
-	display: block;
-	text-align: left;
-}
-
-.gl-order-review-table #shipping_method {
+.gl-order-review-table .gl-checkout-shipping-methods {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 14px;
 	width: 100%;
 	margin: 0;
 	padding: 0;
 	list-style: none;
 }
 
-.gl-order-review-table #shipping_method li {
+.gl-order-review-table .gl-checkout-shipping-methods li {
 	display: grid;
-	grid-template-columns: 20px minmax(0, 1fr);
+	grid-template-columns: 22px minmax(0, 1fr);
 	gap: 10px;
 	align-items: flex-start;
 	width: 100%;
+	min-width: 0;
 	margin: 0 !important;
 	padding: 0;
 	text-align: left;
 }
 
-.gl-order-review-table #shipping_method li::after {
+.gl-order-review-table .gl-checkout-shipping-methods li::after {
 	content: "";
 	display: block;
 	clear: both;
 }
 
-.gl-order-review-table #shipping_method input[type="radio"] {
+.gl-order-review-table .gl-checkout-shipping-methods input[type="radio"] {
 	width: 16px;
 	height: 16px;
 	min-width: 16px;
@@ -356,12 +421,16 @@ defined('ABSPATH') || exit;
 	accent-color: #12D457;
 }
 
-.gl-order-review-table #shipping_method label {
+.gl-order-review-table .gl-checkout-shipping-methods input[type="hidden"] + label {
+	grid-column: 1 / -1;
+}
+
+.gl-order-review-table .gl-checkout-shipping-methods label {
 	display: block;
 	min-width: 0;
 	width: 100%;
 	margin: 0;
-	font-size: 13px;
+	font-size: 14px;
 	line-height: 1.35;
 	font-weight: 500;
 	color: #252b33;
@@ -371,10 +440,10 @@ defined('ABSPATH') || exit;
 	overflow-wrap: anywhere;
 }
 
-.gl-order-review-table #shipping_method label .amount {
+.gl-order-review-table .gl-checkout-shipping-methods label .amount {
 	display: inline-block;
 	margin-left: 4px;
-	font-size: 13px;
+	font-size: 14px;
 	line-height: 1.2;
 	font-weight: 800;
 	color: #171b20;
@@ -382,20 +451,35 @@ defined('ABSPATH') || exit;
 	text-align: left;
 }
 
+.gl-checkout-shipping-block__message,
+.gl-checkout-shipping-block__package {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.4;
+	font-weight: 600;
+	color: #252b33;
+	text-align: left;
+}
+
+.gl-checkout-shipping-block__package {
+	margin-top: 10px;
+	color: #6b7480;
+}
+
 .gl-order-review-table .cdek-office-info {
 	grid-column: 1 / -1;
 	display: flex;
 	align-items: flex-start;
-	gap: 9px;
+	gap: 10px;
 	width: 100%;
 	max-width: 100%;
 	min-width: 0;
-	margin: 8px 0 0;
-	padding: 11px 13px;
+	margin: 10px 0 0;
+	padding: 12px 14px;
 	border-radius: 15px;
 	background: #f4f8f5;
 	border: 1px solid rgba(18, 212, 87, .22);
-	font-size: 12px;
+	font-size: 13px;
 	line-height: 1.35;
 	font-weight: 600;
 	color: #252b33;
@@ -420,10 +504,11 @@ defined('ABSPATH') || exit;
 	display: inline-flex !important;
 	align-items: center;
 	justify-content: center;
-	width: 100%;
+	width: auto;
+	max-width: 100%;
 	min-height: 40px;
-	margin: 8px 0 0;
-	padding: 9px 16px;
+	margin: 10px 0 0;
+	padding: 9px 18px;
 	border-radius: 999px;
 	background: #12D457;
 	color: #fff !important;
@@ -432,7 +517,7 @@ defined('ABSPATH') || exit;
 	font-weight: 800;
 	text-align: center;
 	text-decoration: none !important;
-	white-space: nowrap;
+	white-space: normal;
 	cursor: pointer;
 	box-shadow: 0 5px 12px rgba(18, 212, 87, .22);
 	transition: background .2s ease, transform .2s ease;
