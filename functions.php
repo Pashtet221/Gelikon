@@ -15,6 +15,94 @@ require_once GELIKON_DIR . '/inc/woocommerce.php';
 
 
 
+/**
+ * Возвращает URL страницы политики конфиденциальности.
+ */
+function gelikon_get_privacy_policy_url() {
+	$privacy_url = function_exists('get_privacy_policy_url') ? get_privacy_policy_url() : '';
+
+	if (!$privacy_url) {
+		$page = get_page_by_path('privacy-policy');
+		$privacy_url = $page ? get_permalink($page->ID) : home_url('/privacy-policy/');
+	}
+
+	return $privacy_url;
+}
+
+/**
+ * Проверяет согласие на обработку персональных данных.
+ */
+function gelikon_is_personal_data_consent_given($field_name = 'gelikon_personal_data_consent') {
+	return !empty($_POST[$field_name]); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+}
+
+/**
+ * Единый чекбокс согласия на обработку персональных данных для форм.
+ */
+function gelikon_personal_data_consent_markup($field_id = '', $field_name = 'gelikon_personal_data_consent', $class_name = 'gl-personal-data-consent') {
+	if (!$field_id) {
+		$field_id = $field_name . '_' . wp_rand(1000, 9999);
+	}
+
+	$privacy_url = gelikon_get_privacy_policy_url();
+
+	ob_start();
+	?>
+	<p class="<?php echo esc_attr($class_name); ?>">
+		<label for="<?php echo esc_attr($field_id); ?>">
+			<input
+				type="checkbox"
+				id="<?php echo esc_attr($field_id); ?>"
+				name="<?php echo esc_attr($field_name); ?>"
+				value="1"
+				required
+			>
+			<span>
+				<?php esc_html_e('Я даю согласие на обработку персональных данных и принимаю условия', 'gelikon'); ?>
+				<a href="<?php echo esc_url($privacy_url); ?>" target="_blank" rel="noopener noreferrer">
+					<?php esc_html_e('политики конфиденциальности', 'gelikon'); ?>
+				</a>.
+			</span>
+		</label>
+	</p>
+	<?php
+	return ob_get_clean();
+}
+
+/**
+ * Вывод согласия перед кнопкой оформления заказа.
+ */
+add_action('woocommerce_review_order_before_submit', function () {
+	echo gelikon_personal_data_consent_markup('gelikon_checkout_personal_data_consent', 'gelikon_personal_data_consent', 'gl-personal-data-consent gl-personal-data-consent--checkout'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}, 8);
+
+/**
+ * Валидация согласия в оформлении заказа.
+ */
+add_action('woocommerce_after_checkout_validation', function ($data, $errors) {
+	if (!gelikon_is_personal_data_consent_given()) {
+		$errors->add('personal_data_consent', __('Подтвердите согласие на обработку персональных данных.', 'gelikon'));
+	}
+}, 10, 2);
+
+/**
+ * Валидация согласия для формы отзыва о товаре.
+ */
+add_filter('preprocess_comment', function ($commentdata) {
+	$post_id = isset($commentdata['comment_post_ID']) ? absint($commentdata['comment_post_ID']) : 0;
+
+	if ($post_id && 'product' === get_post_type($post_id) && empty($_POST['gelikon_submit_product_question']) && !gelikon_is_personal_data_consent_given()) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		wp_die(
+			esc_html__('Подтвердите согласие на обработку персональных данных.', 'gelikon'),
+			esc_html__('Необходимо согласие', 'gelikon'),
+			['response' => 400, 'back_link' => true]
+		);
+	}
+
+	return $commentdata;
+});
+
+
 add_action('wp_enqueue_scripts', 'gelikon_enqueue_manrope_font', 5);
 function gelikon_enqueue_manrope_font() {
 	wp_enqueue_style(
@@ -1053,6 +1141,18 @@ function gelikon_filter_products_ajax() {
 	]);
 }
 
+
+add_action('wp_head', function () {
+	if (!is_tax('product_cat') && !is_shop() && !is_post_type_archive('product')) {
+		return;
+	}
+	?>
+	<style id="gelikon-catalog-critical-styles">
+		.gl-catalog-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:start}.gl-catalog-sidebar{min-width:0}.gl-catalog-sidebar__inner{position:sticky;top:96px;padding:22px;border-radius:24px;background:#fff;border:1px solid #e5ebe7}.gl-catalog-mobile-bar,.gl-catalog-overlay{display:none}.gl-catalog-products{min-width:0}.gl-catalog-products__grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:0;padding:0;list-style:none}.gl-catalog-products__grid li.product{width:auto!important;float:none!important;margin:0!important}@media (max-width:1199px){.gl-catalog-layout{grid-template-columns:260px minmax(0,1fr);gap:22px}.gl-catalog-products__grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:991px){.gl-catalog-mobile-bar{display:block}.gl-catalog-layout{grid-template-columns:1fr}.gl-catalog-sidebar{position:fixed;top:0;left:0;width:min(380px,90vw);height:100vh;z-index:1000;transform:translateX(-100%);padding:0}.gl-catalog-sidebar.is-open{transform:translateX(0)}.gl-catalog-sidebar__inner{position:relative;top:0;height:100%;overflow-y:auto;border-radius:0 24px 24px 0;padding:18px}.gl-catalog-overlay.is-visible{display:block;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:999}}@media (max-width:767px){.gl-catalog-products__grid{grid-template-columns:1fr;gap:16px}}
+	</style>
+	<?php
+}, 5);
+
 add_action('wp_enqueue_scripts', function () {
 	if (!is_tax('product_cat') && !is_shop() && !is_post_type_archive('product')) {
 		return;
@@ -1160,6 +1260,14 @@ add_action('init', function () {
 
 	if (!wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['gelikon_question_nonce'])), 'gelikon_product_question')) {
 		return;
+	}
+
+	if (!gelikon_is_personal_data_consent_given()) {
+		wp_die(
+			esc_html__('Подтвердите согласие на обработку персональных данных.', 'gelikon'),
+			esc_html__('Необходимо согласие', 'gelikon'),
+			['response' => 400, 'back_link' => true]
+		);
 	}
 
 	$product_id = isset($_POST['comment_post_ID']) ? absint($_POST['comment_post_ID']) : 0;
@@ -4517,6 +4625,212 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Product sale status and purchase note helpers.
+ */
+function gelikon_product_meta_enabled($product_id, $meta_key) {
+	$value = get_post_meta((int) $product_id, $meta_key, true);
+	return in_array($value, ['1', 1, 'yes', 'on', true], true);
+}
+
+function gelikon_is_product_preorder($product_id = 0) {
+	$product_id = $product_id ? (int) $product_id : get_the_ID();
+	return $product_id ? gelikon_product_meta_enabled($product_id, '_gelikon_preorder_enabled') : false;
+}
+
+function gelikon_is_product_discontinued($product_id = 0) {
+	$product_id = $product_id ? (int) $product_id : get_the_ID();
+	return $product_id ? gelikon_product_meta_enabled($product_id, '_gelikon_discontinued') : false;
+}
+
+function gelikon_get_product_purchase_note($product_id = 0) {
+	$product_id = $product_id ? (int) $product_id : get_the_ID();
+
+	if (!$product_id) {
+		return '';
+	}
+
+	return trim((string) get_post_meta($product_id, '_gelikon_purchase_note', true));
+}
+
+function gelikon_product_can_be_purchased($product = null) {
+	if (!$product && function_exists('wc_get_product')) {
+		$product = wc_get_product(get_the_ID());
+	}
+
+	if (!$product || !is_a($product, 'WC_Product')) {
+		return false;
+	}
+
+	$product_id = $product->get_id();
+
+	if (gelikon_is_product_discontinued($product_id)) {
+		return false;
+	}
+
+	return $product->is_in_stock() || gelikon_is_product_preorder($product_id);
+}
+
+function gelikon_render_product_purchase_note($product_id = 0, $class = '') {
+	$note = gelikon_get_product_purchase_note($product_id);
+
+	if ($note === '') {
+		return '';
+	}
+
+	$class = trim('gl-product-purchase-note ' . $class);
+
+	return '<div class="' . esc_attr($class) . '">' . wp_kses_post(wpautop($note)) . '</div>';
+}
+
+/**
+ * Gelikon product sale status fields in admin.
+ */
+add_action('add_meta_boxes_product', function () {
+	add_meta_box(
+		'gelikon_product_sale_status',
+		'Статус покупки Gelikon',
+		'gelikon_product_sale_status_metabox',
+		'product',
+		'side',
+		'default'
+	);
+});
+
+function gelikon_product_sale_status_metabox($post) {
+	wp_nonce_field('gelikon_save_product_sale_status', 'gelikon_product_sale_status_nonce');
+
+	$preorder_enabled = gelikon_is_product_preorder($post->ID);
+	$discontinued     = gelikon_is_product_discontinued($post->ID);
+	$purchase_note    = gelikon_get_product_purchase_note($post->ID);
+	?>
+	<p>
+		<label>
+			<input type="checkbox" name="gelikon_preorder_enabled" value="1" <?php checked($preorder_enabled); ?>>
+			Включить статус предзаказа
+		</label>
+	</p>
+	<p style="color:#666;margin-top:-6px;">Предзаказ показывается на сайте и разрешает покупку товара.</p>
+
+	<p>
+		<label>
+			<input type="checkbox" name="gelikon_discontinued" value="1" <?php checked($discontinued); ?>>
+			Снят с продажи
+		</label>
+	</p>
+	<p style="color:#666;margin-top:-6px;">Товар остаётся на сайте, но покупка блокируется.</p>
+
+	<p>
+		<label for="gelikon_purchase_note"><strong>Текст рядом с кнопкой покупки</strong></label>
+	</p>
+	<textarea
+		id="gelikon_purchase_note"
+		name="gelikon_purchase_note"
+		rows="4"
+		style="width:100%;"
+		placeholder="Например: Доступно для предзаказа. Менеджер уточнит сроки доставки."
+	><?php echo esc_textarea($purchase_note); ?></textarea>
+	<?php
+}
+
+add_action('save_post_product', function ($post_id) {
+	if (
+		(defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)
+		|| wp_is_post_revision($post_id)
+		|| !current_user_can('edit_product', $post_id)
+	) {
+		return;
+	}
+
+	if (
+		empty($_POST['gelikon_product_sale_status_nonce'])
+		|| !wp_verify_nonce(
+			sanitize_text_field(wp_unslash($_POST['gelikon_product_sale_status_nonce'])),
+			'gelikon_save_product_sale_status'
+		)
+	) {
+		return;
+	}
+
+	update_post_meta($post_id, '_gelikon_preorder_enabled', isset($_POST['gelikon_preorder_enabled']) ? '1' : '0');
+	update_post_meta($post_id, '_gelikon_discontinued', isset($_POST['gelikon_discontinued']) ? '1' : '0');
+
+	$purchase_note = isset($_POST['gelikon_purchase_note']) ? wp_kses_post(wp_unslash($_POST['gelikon_purchase_note'])) : '';
+	update_post_meta($post_id, '_gelikon_purchase_note', trim($purchase_note));
+}, 30);
+
+/**
+ * Keep unavailable products visible in catalog, but block buying where needed.
+ */
+add_filter('option_woocommerce_hide_out_of_stock_items', function () {
+	return 'no';
+}, 20);
+
+add_filter('woocommerce_product_is_in_stock', function ($is_in_stock, $product) {
+	if ($product && is_a($product, 'WC_Product')) {
+		$product_id = $product->get_id();
+
+		if (gelikon_is_product_discontinued($product_id)) {
+			return false;
+		}
+
+		if (gelikon_is_product_preorder($product_id)) {
+			return true;
+		}
+	}
+
+	return $is_in_stock;
+}, 20, 2);
+
+add_filter('woocommerce_product_get_stock_status', function ($stock_status, $product) {
+	if ($product && is_a($product, 'WC_Product')) {
+		$product_id = $product->get_id();
+
+		if (gelikon_is_product_discontinued($product_id)) {
+			return 'outofstock';
+		}
+
+		if (gelikon_is_product_preorder($product_id)) {
+			return 'onbackorder';
+		}
+	}
+
+	return $stock_status;
+}, 20, 2);
+
+add_filter('woocommerce_product_get_backorders', function ($backorders, $product) {
+	if ($product && is_a($product, 'WC_Product') && gelikon_is_product_preorder($product->get_id())) {
+		return 'yes';
+	}
+
+	return $backorders;
+}, 20, 2);
+
+add_filter('woocommerce_product_backorders_allowed', function ($allowed, $product_id, $product) {
+	if ($product && is_a($product, 'WC_Product') && gelikon_is_product_preorder($product->get_id())) {
+		return true;
+	}
+
+	return $allowed;
+}, 20, 3);
+
+add_filter('woocommerce_product_is_purchasable', function ($is_purchasable, $product) {
+	if ($product && is_a($product, 'WC_Product') && gelikon_is_product_discontinued($product->get_id())) {
+		return false;
+	}
+
+	return $is_purchasable;
+}, 20, 2);
+
+add_filter('woocommerce_add_to_cart_validation', function ($passed, $product_id) {
+	if (gelikon_is_product_discontinued($product_id)) {
+		wc_add_notice('Товар снят с продажи и недоступен для покупки.', 'error');
+		return false;
+	}
+
+	return $passed;
+}, 20, 2);
+
+/**
  * Рендер статуса наличия товара
  */
 function gelikon_get_stock_status_html($product_id = 0) {
@@ -4538,19 +4852,15 @@ function gelikon_get_stock_status_html($product_id = 0) {
 		return '';
 	}
 
-	$text  = '';
-	$class = '';
-
-	$backorders = $product->get_backorders();
-
-	if ($product->is_in_stock()) {
-		if ($backorders && $backorders !== 'no') {
-			$text  = 'Предзаказ';
-			$class = 'is-preorder';
-		} else {
-			$text  = 'В наличии';
-			$class = 'is-instock';
-		}
+	if (gelikon_is_product_discontinued($product_id)) {
+		$text  = 'Снят с продажи';
+		$class = 'is-discontinued';
+	} elseif (gelikon_is_product_preorder($product_id) || $product->get_stock_status() === 'onbackorder') {
+		$text  = 'Предзаказ';
+		$class = 'is-preorder';
+	} elseif ($product->is_in_stock()) {
+		$text  = 'В наличии';
+		$class = 'is-instock';
 	} else {
 		$text  = 'Нет в наличии';
 		$class = 'is-outofstock';
@@ -4559,7 +4869,7 @@ function gelikon_get_stock_status_html($product_id = 0) {
 	ob_start();
 	?>
 
-	<div class="gl-write-btn" style="cursor: initial; color: #0f9f57; font-weight: 400; text-decoration: none;">
+	<div class="gl-write-btn gl-product-stock-status <?php echo esc_attr($class); ?>">
 		<span class="gl-write-btn__text"><?php echo esc_html($text); ?></span>
 	</div>
 	<?php
@@ -4581,9 +4891,6 @@ add_shortcode('gelikon_stock_status', function($atts = []) {
 
 	return gelikon_get_stock_status_html($product_id);
 });
-
-
-
 
 
 
@@ -4924,10 +5231,14 @@ function gelikon_remove_cart_item_ajax() {
 	woocommerce_mini_cart();
 	$mini_cart = ob_get_clean();
 
+	$count = WC()->cart->get_cart_contents_count();
+
 	wp_send_json_success([
-		'count'     => WC()->cart->get_cart_contents_count(),
+		'count'     => $count,
 		'fragments' => [
 			'div.widget_shopping_cart_content' => '<div class="widget_shopping_cart_content">' . $mini_cart . '</div>',
+			'.gl-cart-count'                  => '<span class="gl-cart-count">' . esc_html($count) . '</span>',
+			'span.gl-cart-count'              => '<span class="gl-cart-count">' . esc_html($count) . '</span>',
 		],
 	]);
 }
@@ -4968,10 +5279,14 @@ function gelikon_update_cart_item_qty_ajax() {
 	woocommerce_mini_cart();
 	$mini_cart = ob_get_clean();
 
+	$count = WC()->cart->get_cart_contents_count();
+
 	wp_send_json_success([
-		'count'     => WC()->cart->get_cart_contents_count(),
+		'count'     => $count,
 		'fragments' => [
 			'div.widget_shopping_cart_content' => '<div class="widget_shopping_cart_content">' . $mini_cart . '</div>',
+			'.gl-cart-count'                  => '<span class="gl-cart-count">' . esc_html($count) . '</span>',
+			'span.gl-cart-count'              => '<span class="gl-cart-count">' . esc_html($count) . '</span>',
 		],
 	]);
 }
@@ -5301,11 +5616,12 @@ add_action('wp_footer', function () {
 		const checkoutUrl = <?php echo wp_json_encode($checkout_url); ?>;
 		const ajaxUrl = <?php echo wp_json_encode($ajax_url); ?>;
 
-		let hideTimer = null;
 		let lastCartTrigger = null;
+		let refreshRequest = null;
+		let refreshSequence = 0;
 		const qtyTimers = {};
 		const qtyRequests = {};
-		const qtyDelay = 500;
+		const qtyDelay = 250;
 
 		function ensureMiniCart() {
 			let panel = document.getElementById(MINI_CART_ID);
@@ -5340,8 +5656,6 @@ add_action('wp_footer', function () {
 
 			document.body.appendChild(panel);
 
-			panel.addEventListener('mouseenter', clearHideTimer);
-			panel.addEventListener('mouseleave', scheduleHide);
 			panel.querySelector('.gl-full-mini-cart__close').addEventListener('click', hideMiniCart);
 
 			return panel;
@@ -5382,39 +5696,17 @@ add_action('wp_footer', function () {
 			});
 		}
 
-		function clearHideTimer() {
-			if (hideTimer) {
-				window.clearTimeout(hideTimer);
-				hideTimer = null;
-			}
-		}
-
-		function scheduleHide() {
-			clearHideTimer();
-
-			hideTimer = window.setTimeout(function(){
-				const panel = ensureMiniCart();
-
-				if (!panel.matches(':hover')) {
-					hideMiniCart();
-				}
-			}, 4500);
-		}
-
 		function showMiniCart() {
 			const panel = ensureMiniCart();
 
 			positionMiniCart(panel);
 			panel.classList.add('is-visible');
 
-			clearHideTimer();
-			scheduleHide();
 		}
 
 		function hideMiniCart() {
 			const panel = ensureMiniCart();
 			panel.classList.remove('is-visible');
-			clearHideTimer();
 		}
 
 		function positionMiniCart(panel) {
@@ -5596,15 +5888,28 @@ add_action('wp_footer', function () {
 			panel.classList.remove('is-loading');
 		}
 
-		function refreshMiniCartAjax(callback) {
+		function refreshMiniCartAjax(callback, options) {
 			if (!window.wc_cart_fragments_params || !window.jQuery) return;
 
-			setMiniCartLoading();
+			const settings = options || {};
+			const sequence = ++refreshSequence;
 
-			window.jQuery.ajax({
+			if (settings.showLoading !== false) {
+				setMiniCartLoading();
+			}
+
+			if (refreshRequest) {
+				refreshRequest.abort();
+			}
+
+			refreshRequest = window.jQuery.ajax({
 				url: window.wc_cart_fragments_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
 				type: 'POST',
 				success: function(data) {
+					if (sequence !== refreshSequence) {
+						return;
+					}
+
 					if (data && data.fragments) {
 						renderMiniCartFromFragments(data.fragments);
 						updateCartCountFromFragments(data.fragments);
@@ -5614,8 +5919,11 @@ add_action('wp_footer', function () {
 						}
 					}
 				},
-				complete: function() {
-					ensureMiniCart().classList.remove('is-loading');
+				complete: function(_xhr, status) {
+					if (status !== 'abort') {
+						ensureMiniCart().classList.remove('is-loading');
+						refreshRequest = null;
+					}
 				}
 			});
 		}
@@ -5661,7 +5969,6 @@ add_action('wp_footer', function () {
 					}
 
 					showMiniCart();
-					clearHideTimer();
 				},
 				error: function() {
 					refreshMiniCartAjax();
@@ -5758,7 +6065,6 @@ add_action('wp_footer', function () {
 						}
 
 						showMiniCart();
-						clearHideTimer();
 					},
 					error: function(xhr, status) {
 						if (status !== 'abort') {
@@ -5818,15 +6124,6 @@ add_action('wp_footer', function () {
 
 			showMiniCart();
 			refreshMiniCartAjax();
-			clearHideTimer();
-		}, true);
-
-		document.addEventListener('mouseleave', function(event){
-			const cartLink = event.target.closest('.gl-cart-link');
-
-			if (!cartLink) return;
-
-			scheduleHide();
 		}, true);
 
 		window.addEventListener('resize', function(){
@@ -5861,6 +6158,7 @@ add_action('wp_footer', function () {
 				}
 
 				showMiniCart();
+				refreshMiniCartAjax(null, { showLoading: false });
 			});
 		}
 
@@ -5877,11 +6175,6 @@ add_action('wp_footer', function () {
 
 			showMiniCart();
 			setMiniCartLoading();
-
-			window.setTimeout(function(){
-				setButtonInCartState(submitButton);
-				refreshMiniCartAjax();
-			}, 300);
 		});
 
 		removePostponedNotice();
@@ -6070,6 +6363,9 @@ add_action('wp_footer', function () {
 	?>
 	<script>
 		jQuery(function ($) {
+			var glLastCheckoutCity = '';
+			var glLastCheckoutAddress = '';
+
 			function glCreateBillingField(name) {
 				var $field = $('[name="' + name + '"]');
 
@@ -6087,9 +6383,21 @@ add_action('wp_footer', function () {
 				return $field;
 			}
 
+			function glNormalizeCheckoutValue(value) {
+				return $.trim(value || '').replace(/\s+/g, ' ');
+			}
+
+			function glGetShippingCity() {
+				return glNormalizeCheckoutValue($('[name="shipping_city"]').val());
+			}
+
+			function glGetShippingAddress() {
+				return glNormalizeCheckoutValue($('[name="shipping_address_1"]').val());
+			}
+
 			function glSyncShippingToBilling() {
-				var shippingCity = $('[name="shipping_city"]').val() || '';
-				var shippingAddress = $('[name="shipping_address_1"]').val() || '';
+				var shippingCity = glGetShippingCity();
+				var shippingAddress = glGetShippingAddress();
 
 				glCreateBillingField('billing_country').val('RU');
 				glCreateBillingField('billing_city').val(shippingCity);
@@ -6098,18 +6406,44 @@ add_action('wp_footer', function () {
 				glCreateBillingField('billing_postcode').val('');
 			}
 
-			$(document.body).on(
-				'input change blur keyup',
-				'[name="shipping_city"], [name="shipping_address_1"]',
-				function () {
-					glSyncShippingToBilling();
+			function glTriggerCheckoutUpdate() {
+				glLastCheckoutCity = glGetShippingCity();
+				glLastCheckoutAddress = glGetShippingAddress();
+				$(document.body).trigger('update_checkout');
+			}
 
-					clearTimeout(window.glCdekUpdateTimer);
-					window.glCdekUpdateTimer = setTimeout(function () {
-						$(document.body).trigger('update_checkout');
-					}, 500);
+			function glScheduleCheckoutUpdate(delay) {
+				clearTimeout(window.glCdekUpdateTimer);
+				window.glCdekUpdateTimer = setTimeout(glTriggerCheckoutUpdate, delay || 900);
+			}
+
+			$(document.body).on('input', '[name="shipping_city"], [name="shipping_address_1"]', function () {
+				glSyncShippingToBilling();
+			});
+
+			$(document.body).on('input', '[name="shipping_city"]', function () {
+				var shippingCity = glGetShippingCity();
+
+				if (shippingCity.length >= 2 && shippingCity !== glLastCheckoutCity) {
+					glScheduleCheckoutUpdate(900);
 				}
-			);
+			});
+
+			$(document.body).on('change blur', '[name="shipping_city"]', function () {
+				glSyncShippingToBilling();
+
+				if (glGetShippingCity() !== glLastCheckoutCity) {
+					glScheduleCheckoutUpdate(100);
+				}
+			});
+
+			$(document.body).on('change blur', '[name="shipping_address_1"]', function () {
+				glSyncShippingToBilling();
+
+				if (glGetShippingAddress() !== glLastCheckoutAddress) {
+					glScheduleCheckoutUpdate(250);
+				}
+			});
 
 			$(document.body).on('update_checkout checkout_place_order', function () {
 				glSyncShippingToBilling();
@@ -6120,6 +6454,8 @@ add_action('wp_footer', function () {
 			});
 
 			glSyncShippingToBilling();
+			glLastCheckoutCity = glGetShippingCity();
+			glLastCheckoutAddress = glGetShippingAddress();
 		});
 	</script>
 	<?php
@@ -6969,33 +7305,43 @@ add_action('wp_footer', function () {
 	?>
 	<script>
 	jQuery(function ($) {
-
 		$(document).on('submit', 'form.cart', function (e) {
 			e.preventDefault();
 
 			const $form = $(this);
-			const $button = $form.find('.single_add_to_cart_button');
+			const $button = $form.find('.single_add_to_cart_button').first();
 
-			if ($button.hasClass('disabled')) {
+			if (!$button.length || $button.hasClass('disabled') || $button.hasClass('loading') || $button.data('gelikonProcessing')) {
 				return;
 			}
 
-			let productId = $form.find('[name="add-to-cart"]').val() || $button.val();
-			let quantity  = $form.find('input.qty').val() || 1;
+			const productId = $form.find('[name="add-to-cart"]').val() || $form.find('[name="product_id"]').val() || $button.val();
 
 			if (!productId) {
 				return;
 			}
 
-			$button.addClass('loading').prop('disabled', true);
+			const data = {};
+
+			$.each($form.serializeArray(), function (_index, field) {
+				data[field.name] = field.value;
+			});
+
+			data.product_id = data.product_id || productId;
+			data.quantity = data.quantity || $form.find('input.qty').val() || 1;
+
+			// The sticky product bars use a hidden add-to-cart input for non-JS fallback.
+			// When sent to the WooCommerce AJAX endpoint, that field can also trigger
+			// the regular form handler and add the same product a second time.
+			delete data['add-to-cart'];
+
+			$button.data('gelikonProcessing', true).addClass('loading').prop('disabled', true);
+			$(document.body).trigger('adding_to_cart', [$button, data]);
 
 			$.ajax({
 				type: 'POST',
 				url: wc_add_to_cart_params.wc_ajax_url.replace('%%endpoint%%', 'add_to_cart'),
-				data: {
-					product_id: productId,
-					quantity: quantity
-				},
+				data: data,
 				success: function (response) {
 					if (!response) {
 						return;
@@ -7015,7 +7361,7 @@ add_action('wp_footer', function () {
 					$button.removeClass('loading').addClass('added');
 				},
 				complete: function () {
-					$button.prop('disabled', false).removeClass('loading');
+					$button.data('gelikonProcessing', false).prop('disabled', false).removeClass('loading');
 				}
 			});
 		});
@@ -7097,6 +7443,58 @@ add_filter('woocommerce_checkout_fields', function ($fields) {
     return $fields;
 });
 
+
+
+/**
+ * Checkout shipping: when a free shipping rate is available, hide paid alternatives.
+ *
+ * WooCommerce recalculates package rates during checkout AJAX updates. Keeping only
+ * free rates in the package prevents stale paid CDEK/flat-rate options from being
+ * rendered or submitted after the cart reaches the free-delivery threshold.
+ */
+add_filter('woocommerce_package_rates', 'gelikon_checkout_prefer_free_shipping_rates', 100, 2);
+add_filter('woocommerce_shipping_chosen_method', 'gelikon_checkout_choose_free_shipping_rate', 100, 3);
+
+function gelikon_checkout_prefer_free_shipping_rates($rates, $package) {
+	$free_rates = array();
+
+	foreach ($rates as $rate_id => $rate) {
+		if (gelikon_checkout_is_free_shipping_rate($rate)) {
+			$free_rates[$rate_id] = $rate;
+		}
+	}
+
+	if (empty($free_rates)) {
+		return $rates;
+	}
+
+	return $free_rates;
+}
+
+function gelikon_checkout_is_free_shipping_rate($rate) {
+	if (! $rate instanceof WC_Shipping_Rate) {
+		return false;
+	}
+
+	if ($rate->get_method_id() === 'free_shipping') {
+		return true;
+	}
+
+	$shipping_cost = (float) $rate->get_cost();
+	$shipping_taxes = array_sum(array_map('floatval', (array) $rate->get_taxes()));
+
+	return $shipping_cost <= 0 && $shipping_taxes <= 0;
+}
+
+function gelikon_checkout_choose_free_shipping_rate($chosen_method, $available_methods, $package) {
+	foreach ($available_methods as $rate_id => $rate) {
+		if (gelikon_checkout_is_free_shipping_rate($rate)) {
+			return $rate_id;
+		}
+	}
+
+	return $chosen_method;
+}
 
 
 

@@ -106,6 +106,8 @@ if (!empty($global_benefits) && is_array($global_benefits)) {
 	$section_3_feature_3 = gelikon_product_get_field('product_section_3_feature_3', 'Поддержка клиентов', $product_id);
 
 	$is_in_stock = $product && $product->is_in_stock();
+	$is_purchase_available = function_exists('gelikon_product_can_be_purchased') ? gelikon_product_can_be_purchased($product) : $is_in_stock;
+	$purchase_note_html = function_exists('gelikon_render_product_purchase_note') ? gelikon_render_product_purchase_note($product_id) : '';
 	$mobile_button_text = $product && $product->is_type('simple') ? 'Купить' : 'В корзину';
 
 
@@ -197,14 +199,14 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	
 
 		<div class="gl-product-summary__meta-inline">
-			<button type="button" class="gl-product-summary__meta-link">
+			<button type="button" class="gl-product-summary__meta-link" data-gl-popup-open="reviews" aria-controls="gelikon-product-popup">
 				<span class="gl-product-summary__rating">
 					<span class="gl-product-summary__rating-star" aria-hidden="true">★</span>
 					<span class="gl-product-summary__rating-value">4.3</span>
 				</span>
 			</button>
 
-			<button type="button" class="gl-product-summary__meta-link">
+			<button type="button" class="gl-product-summary__meta-link" data-gl-popup-open="reviews" aria-controls="gelikon-product-popup">
 				<span class="gl-product-summary__meta-text gl-product-summary__meta-text--reviews">(254 отзывов)</span>
 			</button>
 		</div>
@@ -478,8 +480,12 @@ document.addEventListener('DOMContentLoaded', function () {
 									<?php woocommerce_template_single_price(); ?>
 								</div>
 
-								<div class="gl-product-buybox__button">
-									<?php woocommerce_template_single_add_to_cart(); ?>
+								<div class="gl-product-buybox__button-wrap">
+									<div class="gl-product-buybox__button">
+										<?php woocommerce_template_single_add_to_cart(); ?>
+									</div>
+
+									<?php echo wp_kses_post($purchase_note_html); ?>
 								</div>
 							</div>
 								</div>
@@ -517,6 +523,53 @@ document.addEventListener('DOMContentLoaded', function () {
 			</section>
 			
 <style>
+	.gl-product-stock-status {
+		cursor: initial;
+		color: #0f9f57;
+		font-weight: 400;
+		text-decoration: none;
+	}
+
+	.gl-product-stock-status.is-preorder {
+		color: var(--gl-color-accent);
+	}
+
+	.gl-product-stock-status.is-outofstock,
+	.gl-product-stock-status.is-discontinued {
+		color: var(--gl-color-helper);
+	}
+
+	.gl-product-buybox__button-wrap {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		min-width: 0;
+	}
+
+	.gl-product-purchase-note {
+		max-width: 260px;
+		color: var(--gl-color-helper);
+		font-size: 13px;
+		font-weight: 400;
+		line-height: 1.35;
+	}
+
+	.gl-product-purchase-note p {
+		margin: 0;
+	}
+
+	@media (max-width: 767px) {
+		.gl-product-buybox__button-wrap {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.gl-product-purchase-note {
+			max-width: none;
+		}
+	}
+
 	.gl-trust-item__icon{
 	display: flex;
     align-items: center;
@@ -612,7 +665,7 @@ if (!empty($products_to_show)) :
 		
 		
 <!-- Мобильный sticky bar -->
-<?php if ($product && $is_in_stock) : ?>
+<?php if ($product && $is_purchase_available) : ?>
 	<div class="gl-product-mobile-bar">
 		<div class="gl-product-mobile-bar__inner">
 			<div class="gl-product-mobile-bar__price">
@@ -620,12 +673,16 @@ if (!empty($products_to_show)) :
 			</div>
 
 			<div class="gl-product-mobile-bar__button">
-				<form class="cart" method="post" enctype="multipart/form-data">
-					<input type="hidden" name="add-to-cart" value="<?php echo esc_attr($product_id); ?>">
-					<button type="submit" class="button alt single_add_to_cart_button">
-						<?php echo esc_html($mobile_button_text); ?>
-					</button>
-				</form>
+				<div class="gl-product-mobile-bar__action">
+					<form class="cart" method="post" enctype="multipart/form-data">
+						<input type="hidden" name="add-to-cart" value="<?php echo esc_attr($product_id); ?>">
+						<button type="submit" class="button alt single_add_to_cart_button">
+							<?php echo esc_html($mobile_button_text); ?>
+						</button>
+					</form>
+
+					<?php echo wp_kses_post($purchase_note_html); ?>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -633,7 +690,7 @@ if (!empty($products_to_show)) :
 
 
 <!-- ПК sticky bar -->
-<?php if ($product && $is_in_stock) : ?>
+<?php if ($product && $is_purchase_available) : ?>
 	<div class="gl-product-desktop-bar" id="glProductDesktopBar" aria-hidden="true">
 		<div class="gl-product-desktop-bar__inner gl-container">
 			<div class="gl-product-desktop-bar__left">
@@ -645,12 +702,16 @@ if (!empty($products_to_show)) :
 					<?php echo wp_kses_post($product->get_price_html()); ?>
 				</div>
 				
-				<form class="cart" method="post" enctype="multipart/form-data">
-					<input type="hidden" name="add-to-cart" value="<?php echo esc_attr($product_id); ?>">
-					<button type="submit" class="button alt single_add_to_cart_button">
-						<?php echo esc_html($mobile_button_text); ?>
-					</button>
-				</form>
+				<div class="gl-product-desktop-bar__action">
+					<form class="cart" method="post" enctype="multipart/form-data">
+						<input type="hidden" name="add-to-cart" value="<?php echo esc_attr($product_id); ?>">
+						<button type="submit" class="button alt single_add_to_cart_button">
+							<?php echo esc_html($mobile_button_text); ?>
+						</button>
+					</form>
+
+					<?php echo wp_kses_post($purchase_note_html); ?>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -826,6 +887,21 @@ if (!empty($products_to_show)) :
 	display: flex;
     align-items: center;
     gap: 25px;
+}
+
+.gl-product-mobile-bar__action,
+.gl-product-desktop-bar__action {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.gl-product-mobile-bar__action .gl-product-purchase-note {
+	display: none;
+}
+
+.gl-product-desktop-bar__action .gl-product-purchase-note {
+	max-width: 240px;
 }
 
 .gl-product-desktop-bar__right form.cart {
@@ -1482,7 +1558,7 @@ transition: transform .2s ease, filter .2s ease;
 	'title_reply_before'   => '',
 	'title_reply_after'    => '',
 	'comment_notes_before' => '',
-	'comment_notes_after'  => '',
+	'comment_notes_after'  => function_exists('gelikon_personal_data_consent_markup') ? gelikon_personal_data_consent_markup('gelikon_review_personal_data_consent', 'gelikon_personal_data_consent', 'comment-form-gelikon-consent gl-personal-data-consent gl-personal-data-consent--review') : '',
 	'label_submit'         => 'Отправить отзыв',
 	'class_submit'         => 'gl-product-form__submit',
 	'fields' => [
@@ -1562,6 +1638,11 @@ transition: transform .2s ease, filter .2s ease;
 
 						<input type="hidden" name="comment_post_ID" value="<?php echo esc_attr($product_id); ?>">
 						<?php wp_nonce_field('gelikon_product_question', 'gelikon_question_nonce'); ?>
+						<?php
+						if (function_exists('gelikon_personal_data_consent_markup')) {
+							echo gelikon_personal_data_consent_markup('gelikon_question_personal_data_consent', 'gelikon_personal_data_consent', 'gl-product-form__field gl-personal-data-consent gl-personal-data-consent--question'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						}
+						?>
 
 						<button type="submit" name="gelikon_submit_product_question" class="gl-product-form__submit">
 							Отправить вопрос
@@ -1799,6 +1880,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	font-weight: 700;
 }
 
+/* Стили кастомизации форм в popup временно отключены.
 .gl-product-form__field,
 .comment-form-author,
 .comment-form-email,
@@ -1834,6 +1916,40 @@ document.addEventListener('DOMContentLoaded', function () {
 	resize: vertical;
 }
 
+.gl-personal-data-consent label,
+.gl-product-popup .gl-personal-data-consent label{
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.45;
+	font-weight: 400;
+	color: var(--gl-color-helper);
+}
+
+.gl-personal-data-consent input[type="checkbox"],
+.gl-product-form .gl-personal-data-consent input[type="checkbox"],
+#review_form .gl-personal-data-consent input[type="checkbox"]{
+	flex: 0 0 auto;
+	width: 18px;
+	height: 18px;
+	min-height: 18px;
+	margin: 2px 0 0;
+	padding: 0;
+	accent-color: var(--gl-color-accent);
+}
+
+.gl-personal-data-consent a{
+	color: var(--gl-color-accent-2);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.comment-form-gelikon-consent{
+	grid-column: 1 / -1;
+}
+
 .gl-product-form__submit,
 #review_form .submit{
 	display: inline-flex;
@@ -1849,6 +1965,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	font-weight: 700;
 	cursor: pointer;
 }
+*/
 
 html.gl-popup-open,
 body.gl-popup-open{
@@ -1879,9 +1996,10 @@ body.gl-popup-open{
 	
 	
 	
-/* =========================
+/* Стили кастомизации формы отзыва в popup временно отключены.
+/ * =========================
    Форма отзыва в popup
-   ========================= */
+   ========================= * /
 
 .gl-product-popup #review_form,
 .gl-product-popup #respond,
@@ -1911,7 +2029,7 @@ body.gl-popup-open{
 	margin: 0;
 }
 
-/* Заголовок блока */
+/ * Заголовок блока * /
 .gl-product-popup .gl-review-form-title,
 .gl-product-popup .comment-form-title{
 	grid-column: 1 / -1;
@@ -1922,7 +2040,7 @@ body.gl-popup-open{
 	color: var(--gl-color-heading);
 }
 
-/* Лейблы */
+/ * Лейблы * /
 .gl-product-popup .comment-form label{
 	display: block;
 	margin: 0 0 8px;
@@ -1939,7 +2057,7 @@ body.gl-popup-open{
 }
 
 
-/* Текст отзыва */
+/ * Текст отзыва * /
 .gl-product-popup .comment-form-comment{
 	grid-column: 1 / -1;
 }
@@ -1964,7 +2082,7 @@ body.gl-popup-open{
 	color: var(--gl-color-helper);
 }
 
-/* Поля имя / email / сайт */
+/ * Поля имя / email / сайт * /
 .gl-product-popup .comment-form-author,
 .gl-product-popup .comment-form-email,
 .gl-product-popup .comment-form-url{
@@ -1997,7 +2115,7 @@ body.gl-popup-open{
 	background: #fff;
 }
 
-/* чекбокс */
+/ * чекбокс * /
 .gl-product-popup .comment-form-cookies-consent{
 	grid-column: 1 / -1;
 	display: flex;
@@ -2026,7 +2144,7 @@ body.gl-popup-open{
 	cursor: pointer;
 }
 
-/* submit */
+/ * submit * /
 .gl-product-popup .form-submit{
 	grid-column: 1 / -1;
 	margin-top: 4px;
@@ -2067,12 +2185,12 @@ body.gl-popup-open{
 	transform: translateY(0);
 }
 
-/* скрытый select рейтинга */
+/ * скрытый select рейтинга * /
 .gl-product-popup .comment-form-rating select{
 	display: none !important;
 }
 
-/* вспомогательные тексты WP */
+/ * вспомогательные тексты WP * /
 .gl-product-popup .logged-in-as,
 .gl-product-popup .comment-notes,
 .gl-product-popup .form-allowed-tags{
@@ -2083,7 +2201,7 @@ body.gl-popup-open{
 	color: var(--gl-color-helper);
 }
 
-/* ошибки */
+/ * ошибки * /
 .gl-product-popup .comment-form .woocommerce-error,
 .gl-product-popup .comment-form .error,
 .gl-product-popup .comment-form .form-error{
@@ -2096,7 +2214,7 @@ body.gl-popup-open{
 	font-size: 13px;
 }
 
-/* адаптив */
+/ * адаптив * /
 @media (max-width: 767px){
 	.gl-product-popup .comment-form{
 		grid-template-columns: 1fr;
@@ -2131,6 +2249,7 @@ body.gl-popup-open{
 	align-items: center;
 	gap: 6px;
 }
+*/
 	
 .added_to_cart.wc-forward {
 display: none;
