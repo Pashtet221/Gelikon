@@ -817,7 +817,8 @@ $products_query = new WP_Query($query_args);
 	padding-top: 0;
 }
 
-.gl-catalog-filter__toggle {
+.gl-catalog-filter__toggle,
+.gl-catalog-filter__heading {
 	width: 100%;
 	display: flex;
 	align-items: center;
@@ -826,12 +827,19 @@ $products_query = new WP_Query($query_args);
 	padding: 0;
 	border: 0;
 	background: transparent;
-	cursor: pointer;
 	text-align: left;
 	font-size: 15px;
 	font-weight: 700;
 	line-height: 1.3;
 	color: #171d2a;
+}
+
+.gl-catalog-filter__toggle {
+	cursor: pointer;
+}
+
+.gl-catalog-filter__heading {
+	cursor: default;
 }
 
 .gl-catalog-filter__arrow {
@@ -1020,7 +1028,7 @@ $products_query = new WP_Query($query_args);
 	gap: 18px;
 }
 
-/* Accordion */
+/* Filters */
 .gl-catalog-filter {
 	border-top: 1px solid #eef2ef;
 	padding-top: 16px;
@@ -1031,7 +1039,8 @@ $products_query = new WP_Query($query_args);
 	padding-top: 0;
 }
 
-.gl-catalog-filter__toggle {
+.gl-catalog-filter__toggle,
+.gl-catalog-filter__heading {
 	width: 100%;
 	display: flex;
 	align-items: center;
@@ -1040,12 +1049,19 @@ $products_query = new WP_Query($query_args);
 	padding: 0;
 	border: 0;
 	background: transparent;
-	cursor: pointer;
 	text-align: left;
 	font-size: 15px;
 	font-weight: 700;
 	line-height: 1.3;
 	color: #171d2a;
+}
+
+.gl-catalog-filter__toggle {
+	cursor: pointer;
+}
+
+.gl-catalog-filter__heading {
+	cursor: default;
 }
 
 .gl-catalog-filter__arrow {
@@ -1082,12 +1098,12 @@ $products_query = new WP_Query($query_args);
 
 .gl-catalog-filter__item {
 	display: grid;
-	grid-template-columns: 18px 1fr auto;
+	grid-template-columns: minmax(0, 1fr) auto 42px;
 	align-items: center;
 	gap: 10px;
-	min-height: 42px;
+	min-height: 46px;
 	padding: 8px 10px;
-	border-radius: 12px;
+	border-radius: 16px;
 	cursor: pointer;
 	transition: background-color .2s ease, color .2s ease;
 	position: relative;
@@ -1108,13 +1124,26 @@ $products_query = new WP_Query($query_args);
 }
 
 .gl-catalog-filter__check {
-	width: 18px;
-	height: 18px;
-	border-radius: 6px;
+	width: 38px;
+	height: 22px;
+	border-radius: 999px;
 	border: 1px solid #d9e1db;
-	background: #fff;
+	background: #eef2ef;
 	position: relative;
 	transition: background-color .2s ease, border-color .2s ease;
+}
+
+.gl-catalog-filter__check::after {
+	content: "";
+	position: absolute;
+	left: 3px;
+	top: 3px;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 2px 6px rgba(16, 22, 31, .14);
+	transition: transform .2s ease;
 }
 
 .gl-catalog-filter__item.is-active .gl-catalog-filter__check {
@@ -1123,15 +1152,7 @@ $products_query = new WP_Query($query_args);
 }
 
 .gl-catalog-filter__item.is-active .gl-catalog-filter__check::after {
-	content: "";
-	position: absolute;
-	left: 5px;
-	top: 2px;
-	width: 5px;
-	height: 9px;
-	border: solid #fff;
-	border-width: 0 2px 2px 0;
-	transform: rotate(45deg);
+	transform: translateX(16px);
 }
 
 .gl-catalog-filter__name {

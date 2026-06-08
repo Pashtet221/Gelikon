@@ -113,6 +113,13 @@ if (function_exists('get_field')) {
 	</svg>
 </button>
 
+					<a class="gl-header__icon gl-account-link" href="<?php echo esc_url(function_exists('wc_get_page_permalink') ? wc_get_page_permalink('myaccount') : home_url('/my-account/')); ?>" aria-label="<?php esc_attr_e('Личный кабинет', 'gelikon'); ?>">
+	<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+		<circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/>
+		<path d="M4.5 20c1.4-4 4.1-6 7.5-6s6.1 2 7.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+	</svg>
+</a>
+
 					<a class="gl-header__icon gl-cart-link" href="<?php echo esc_url(function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : home_url('/checkout/')); ?>" aria-label="<?php esc_attr_e('Корзина', 'gelikon'); ?>">
 	<svg width="22" height="22" viewBox="0 0 24 24" fill="none">
 		<path d="M5 6h16l-1.5 8.5a2 2 0 0 1-2 1.5H9a2 2 0 0 1-2-1.5L5 4H2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -135,6 +142,16 @@ if (function_exists('get_field')) {
 	<div class="gl-header__catalog gl-header__catalog--mobile">
 		<?php echo do_shortcode('[gelikon_catalog_dropdown title="Каталог"]'); ?>
 	</div>
+
+	<a class="gl-header-account-mobile" href="<?php echo esc_url(function_exists('wc_get_page_permalink') ? wc_get_page_permalink('myaccount') : home_url('/my-account/')); ?>">
+		<span class="gl-header-account-mobile__icon" aria-hidden="true">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/>
+				<path d="M4.5 20c1.4-4 4.1-6 7.5-6s6.1 2 7.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+			</svg>
+		</span>
+		<span><?php esc_html_e('Личный кабинет', 'gelikon'); ?></span>
+	</a>
 
 	<nav class="gl-nav gl-nav--mobile" aria-label="<?php esc_attr_e('Мобильная навигация', 'gelikon'); ?>">
 		<?php
@@ -644,8 +661,12 @@ button {
 	border-color: var(--gl-color-helper);
 }
 
-.gl-cart-link {
+.gl-account-link {
 	order: 4;
+}
+
+.gl-cart-link {
+	order: 5;
 }
 
 .gl-cart-count {
@@ -703,6 +724,10 @@ button {
 	width: 22px;
 	height: 22px;
 	flex: 0 0 22px;
+}
+
+.gl-header-account-mobile {
+	display: none;
 }
 
 .gl-header__search {
@@ -1125,6 +1150,10 @@ body.gl-modal-open {
 		display: none;
 	}
 
+	.gl-account-link {
+		display: none;
+	}
+
 	.gl-cart-link {
 		order: 2;
 	}
@@ -1205,9 +1234,36 @@ body.gl-modal-open {
 		order: 2;
 	}
 
+	.gl-header-account-mobile {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		order: 3;
+		margin: 0 16px;
+		padding: 12px 14px;
+		border: 1px solid var(--gl-color-line);
+		border-radius: 16px;
+		background: var(--gl-color-surface);
+		color: var(--gl-color-text);
+		font-size: 15px;
+		font-weight: 800;
+		text-decoration: none;
+	}
+
+	.gl-header-account-mobile__icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 38px;
+		height: 38px;
+		border-radius: 50%;
+		background: rgba(18, 212, 87, .1);
+		color: #12D457;
+	}
+
 	.gl-header__bottom .gl-nav--mobile {
 		display: block;
-		order: 3;
+		order: 4;
 		padding: 0 16px 16px;
 	}
 
