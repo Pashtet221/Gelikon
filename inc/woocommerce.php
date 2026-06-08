@@ -38,3 +38,21 @@ function gelikon_sale_flash_text($html) {
     return '<span class="onsale">' . esc_html($badge) . '</span>';
 }
 add_filter('woocommerce_sale_flash', 'gelikon_sale_flash_text');
+
+/**
+ * Always make customer registration available on the My Account page.
+ *
+ * The custom account template renders login/registration tabs there, so the
+ * WooCommerce registration handler must also be enabled for that page.
+ */
+function gelikon_enable_myaccount_registration_on_account_page($value) {
+    $is_registration_request = !empty($_POST['register']); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+    $is_account_page = function_exists('is_account_page') && is_account_page();
+
+    if (!is_admin() && !is_user_logged_in() && ($is_account_page || $is_registration_request)) {
+        return 'yes';
+    }
+
+    return $value;
+}
+add_filter('pre_option_woocommerce_enable_myaccount_registration', 'gelikon_enable_myaccount_registration_on_account_page');

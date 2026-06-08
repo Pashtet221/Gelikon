@@ -520,3 +520,82 @@ a.gl-product-card__button--disabled {
   .gl-reviews-grid { grid-template-columns: 1fr !important; }
   .gl-home-trust { padding: 20px; }
 }
+.gl-myaccount-auth {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.gl-myaccount-auth__tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+  padding: 6px;
+  border: 1px solid var(--gl-color-line);
+  border-radius: 18px;
+  background: #f4f6f8;
+}
+.gl-myaccount-auth__tab {
+  min-height: 48px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--gl-color-muted);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s ease;
+}
+.gl-myaccount-auth__tab:hover,
+.gl-myaccount-auth__tab.is-active {
+  background: var(--gl-color-dark);
+  color: #fff;
+}
+.gl-myaccount-auth__panel {
+  background: var(--gl-color-surface);
+  border: 1px solid var(--gl-color-line);
+  border-radius: var(--gl-radius);
+  padding: 28px;
+  box-shadow: var(--gl-shadow);
+}
+.gl-myaccount-auth__panel[hidden] {
+  display: none;
+}
+.gl-myaccount-auth__title {
+  margin: 0 0 22px;
+  color: var(--gl-color-heading);
+  font-size: 28px;
+  line-height: 1.2;
+}
+.gl-myaccount-auth__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.gl-myaccount-auth__hint {
+  margin: -4px 0 18px;
+  color: var(--gl-color-muted);
+}
+.gl-myaccount-auth .woocommerce-form-login__rememberme {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.gl-myaccount-auth .woocommerce-form__input-checkbox {
+  width: auto;
+  min-height: auto;
+}
+@media (max-width: 600px) {
+  .gl-myaccount-auth__tabs {
+    grid-template-columns: 1fr;
+  }
+  .gl-myaccount-auth__panel {
+    padding: 20px;
+  }
+  .gl-myaccount-auth__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
