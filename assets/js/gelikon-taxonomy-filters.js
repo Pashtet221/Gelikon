@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	const countNode = document.getElementById('gl-catalog-count');
 	const resetBtn = document.getElementById('gl-catalog-reset');
 	const sortSelect = document.getElementById('gl-catalog-sort');
-	const filtersNode = document.getElementById('gl-catalog-filters');
 
 	const termId = parseInt(layout.dataset.termId || '0', 10);
 	const perPage = parseInt(layout.dataset.perPage || '12', 10);
@@ -29,11 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	let debounceTimer = null;
 	let activeThumb = null;
 
-	if (filtersNode) {
-		window.requestAnimationFrame(function () {
-			filtersNode.classList.remove('gl-catalog-filters--booting');
-		});
-	}
 
 	function openFilters() {
 		if (!sidebar || !overlay) return;
@@ -141,14 +135,6 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (maxInput) formData.append('max_price', maxInput.value);
 		if (sortSelect) formData.append('orderby', sortSelect.value);
 
-		productsWrap.classList.add('is-loading');
-		if (filtersNode) filtersNode.classList.add('is-loading');
-
-		function stopLoading() {
-			productsWrap.classList.remove('is-loading');
-			if (filtersNode) filtersNode.classList.remove('is-loading');
-		}
-
 		fetch(gelikonCatalogAjax.ajaxurl, {
 			method: 'POST',
 			body: formData
@@ -158,12 +144,10 @@ document.addEventListener('DOMContentLoaded', function () {
 			})
 			.then(function (response) {
 				if (!response || !response.success || !response.data) {
-					stopLoading();
 					return;
 				}
 
 				productsWrap.innerHTML = response.data.html;
-				stopLoading();
 
 				if (countNode) {
 					countNode.textContent = `${response.data.count} ${gelikonCatalogAjax.i18n.countSuffix}`;
@@ -171,9 +155,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 				bindPagination();
 			})
-			.catch(function () {
-				stopLoading();
-			});
+			.catch(function () {});
 	}
 
 	function updatePriceUI() {
