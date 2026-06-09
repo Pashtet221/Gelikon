@@ -47,6 +47,7 @@ wp_reset_postdata();
 $privacy_url = gelikon_get_page_url_by_path('privacy-policy');
 $terms_url   = gelikon_get_page_url_by_path('user-agreement');
 $cookies_url = gelikon_get_page_url_by_path('cookies');
+$account_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('myaccount') : home_url('/my-account/');
 ?>
 
 <footer class="gl-footer">
@@ -191,6 +192,9 @@ $cookies_url = gelikon_get_page_url_by_path('cookies');
                 </a>
                 <a href="<?php echo esc_url($cookies_url); ?>">
                     Cookies
+                </a>
+                <a href="<?php echo esc_url($account_url); ?>">
+                    <?php esc_html_e('Личный кабинет', 'gelikon'); ?>
                 </a>
             </div>
         </div>
