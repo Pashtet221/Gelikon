@@ -113,12 +113,6 @@ if (function_exists('get_field')) {
 	</svg>
 </button>
 
-					<a class="gl-header__icon gl-account-link" href="<?php echo esc_url(function_exists('wc_get_page_permalink') ? wc_get_page_permalink('myaccount') : home_url('/my-account/')); ?>" aria-label="<?php esc_attr_e('Личный кабинет', 'gelikon'); ?>">
-	<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-		<circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/>
-		<path d="M4.5 20c1.4-4 4.1-6 7.5-6s6.1 2 7.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-	</svg>
-</a>
 
 					<a class="gl-header__icon gl-cart-link" href="<?php echo esc_url(function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : home_url('/checkout/')); ?>" aria-label="<?php esc_attr_e('Корзина', 'gelikon'); ?>">
 	<svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -143,16 +137,6 @@ if (function_exists('get_field')) {
 		<?php echo do_shortcode('[gelikon_catalog_dropdown title="Каталог"]'); ?>
 	</div>
 
-	<a class="gl-header-account-mobile" href="<?php echo esc_url(function_exists('wc_get_page_permalink') ? wc_get_page_permalink('myaccount') : home_url('/my-account/')); ?>">
-		<span class="gl-header-account-mobile__icon" aria-hidden="true">
-			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-				<circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/>
-				<path d="M4.5 20c1.4-4 4.1-6 7.5-6s6.1 2 7.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-			</svg>
-		</span>
-		<span><?php esc_html_e('Личный кабинет', 'gelikon'); ?></span>
-	</a>
-
 	<nav class="gl-nav gl-nav--mobile" aria-label="<?php esc_attr_e('Мобильная навигация', 'gelikon'); ?>">
 		<?php
 		wp_nav_menu([
@@ -163,6 +147,16 @@ if (function_exists('get_field')) {
 		]);
 		?>
 	</nav>
+
+	<a class="gl-header-account-mobile" href="<?php echo esc_url(function_exists('wc_get_page_permalink') ? wc_get_page_permalink('myaccount') : home_url('/my-account/')); ?>">
+		<span class="gl-header-account-mobile__icon" aria-hidden="true">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/>
+				<path d="M4.5 20c1.4-4 4.1-6 7.5-6s6.1 2 7.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+			</svg>
+		</span>
+		<span><?php esc_html_e('Личный кабинет', 'gelikon'); ?></span>
+	</a>
 </div>
 
 		</div>
@@ -1238,8 +1232,8 @@ body.gl-modal-open {
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		order: 3;
-		margin: 0 16px;
+		order: 4;
+		margin: 0;
 		padding: 12px 14px;
 		border: 1px solid var(--gl-color-line);
 		border-radius: 16px;
@@ -1263,7 +1257,7 @@ body.gl-modal-open {
 
 	.gl-header__bottom .gl-nav--mobile {
 		display: block;
-		order: 4;
+		order: 3;
 		padding: 0 16px 16px;
 	}
 
