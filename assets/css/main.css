@@ -309,12 +309,12 @@ a.gl-product-card__button--disabled {
   .gl-header__icon, .gl-header-search-trigger { width: 42px; height: 42px; }
   .gl-cart-count { min-width: 18px; height: 18px; font-size: 10px; line-height: 18px; top: -4px; right: -2px; }
   .gl-header__bottom { display: none; padding: 10px 0 12px; border-top: 1px solid var(--gl-color-line); }
-  .gl-header__bottom.is-open { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  .gl-header__bottom .gl-header__search-mobile { display: none; order: 1; }
-  .gl-header__bottom .gl-header__catalog--mobile { display: block; order: 2; }
-  .gl-header-account-mobile { display: flex; align-items: center; gap: 10px; order: 4; margin: 0; padding: 12px 14px; border: 1px solid var(--gl-color-line); border-radius: 16px; background: var(--gl-color-surface); color: var(--gl-color-text); font-size: 15px; font-weight: 800; text-decoration: none; }
+  .gl-header__bottom.is-open { display: flex; flex-direction: column; gap: 12px; }
+  .gl-header__bottom .gl-header__search-mobile { display: none; order: 0 !important; }
+  .gl-header__bottom .gl-header__catalog--mobile { display: block; order: 10 !important; }
+  .gl-header-account-mobile { display: flex; align-items: center; gap: 10px; order: 30 !important; margin: 0; padding: 12px 14px; border: 1px solid var(--gl-color-line); border-radius: 16px; background: var(--gl-color-surface); color: var(--gl-color-text); font-size: 15px; font-weight: 800; text-decoration: none; }
   .gl-header-account-mobile__icon { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: rgba(18, 212, 87, .1); color: #12D457; }
-  .gl-header__bottom .gl-nav--mobile { display: block; order: 3; padding: 0 16px 16px; }
+  .gl-header__bottom .gl-nav--mobile { display: block; order: 20 !important; padding: 0 16px 16px; }
   .gl-header__bottom .gl-menu { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; overflow: visible; }
   .gl-header__bottom .gl-menu > li, .gl-header__bottom .gl-menu > li > a { width: 100%; }
 }
