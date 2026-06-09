@@ -1174,14 +1174,14 @@ body.gl-modal-open {
 	}
 
 	.gl-header__bottom.is-open {
-		display: grid;
-		grid-template-columns: 1fr;
+		display: flex;
+		flex-direction: column;
 		gap: 12px;
 	}
 
 	.gl-header__bottom .gl-header__search-mobile {
 		display: none;
-		order: 1;
+		order: 0 !important;
 	}
 
 	.gl-catalog-dropdown__toggle{
@@ -1225,14 +1225,14 @@ body.gl-modal-open {
 
 	.gl-header__bottom .gl-header__catalog--mobile {
 		display: block;
-		order: 2;
+		order: 10 !important;
 	}
 
 	.gl-header-account-mobile {
 		display: flex;
 		align-items: center;
 		gap: 10px;
-		order: 4;
+		order: 30 !important;
 		margin: 0;
 		padding: 12px 14px;
 		border: 1px solid var(--gl-color-line);
@@ -1257,7 +1257,7 @@ body.gl-modal-open {
 
 	.gl-header__bottom .gl-nav--mobile {
 		display: block;
-		order: 3;
+		order: 20 !important;
 		padding: 0 16px 16px;
 	}
 
