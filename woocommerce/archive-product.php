@@ -178,7 +178,7 @@ if (!empty($product_ids_for_filters) && !empty($attribute_taxonomies)) {
 			$matching_products = get_posts([
 				'post_type'              => 'product',
 				'post_status'            => 'publish',
-				'posts_per_page'         => 1,
+				'posts_per_page'         => -1,
 				'fields'                 => 'ids',
 				'post__in'               => $product_ids_for_filters,
 				'ignore_sticky_posts'    => true,
@@ -195,7 +195,9 @@ if (!empty($product_ids_for_filters) && !empty($attribute_taxonomies)) {
 			]);
 
 			if (!empty($matching_products)) {
-				$filtered_terms[] = $term;
+				$term_for_display = clone $term;
+				$term_for_display->gelikon_filter_count = count($matching_products);
+				$filtered_terms[] = $term_for_display;
 			}
 		}
 
@@ -375,7 +377,8 @@ $products_query = new WP_Query($query_args);
 						</div>
 					</div>
 
-					<div class="gl-catalog-filters" id="gl-catalog-filters">
+					<div class="gl-catalog-filters gl-catalog-filters--booting" id="gl-catalog-filters">
+						<div class="gl-catalog-filters__preloader" aria-hidden="true"><span></span></div>
 
 						<?php if ($price_max > 0) : ?>
 							<div class="gl-catalog-filter" data-filter-block>
@@ -442,7 +445,7 @@ $products_query = new WP_Query($query_args);
 												>
 												<span class="gl-catalog-filter__check"></span>
 												<span class="gl-catalog-filter__name"><?php echo esc_html($term->name); ?></span>
-												<span class="gl-catalog-filter__count"><?php echo (int) $term->count; ?></span>
+												<span class="gl-catalog-filter__count"><?php echo esc_html(isset($term->gelikon_filter_count) ? (int) $term->gelikon_filter_count : (int) $term->count); ?></span>
 											</label>
 										<?php endforeach; ?>
 									</div>
@@ -601,6 +604,39 @@ $products_query = new WP_Query($query_args);
 	display: flex;
 	flex-direction: column;
 	gap: 20px;
+	position: relative;
+}
+
+.gl-catalog-filters__preloader {
+	position: absolute;
+	inset: -6px;
+	z-index: 2;
+	display: none;
+	align-items: flex-start;
+	justify-content: center;
+	padding-top: 54px;
+	border-radius: 18px;
+	background: rgba(255, 255, 255, .72);
+	backdrop-filter: blur(2px);
+}
+
+.gl-catalog-filters--booting .gl-catalog-filters__preloader,
+.gl-catalog-filters.is-loading .gl-catalog-filters__preloader {
+	display: flex;
+}
+
+.gl-catalog-filters__preloader span,
+#gl-catalog-products-wrap.is-loading::after {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	border: 3px solid #dfe8e2;
+	border-top-color: var(--gl-color-accent);
+	animation: gl-catalog-spin .75s linear infinite;
+}
+
+@keyframes gl-catalog-spin {
+	to { transform: rotate(360deg); }
 }
 
 .gl-catalog-filter__title {
@@ -619,7 +655,7 @@ $products_query = new WP_Query($query_args);
 
 .gl-catalog-filter__item {
 	display: grid;
-	grid-template-columns: 18px 1fr auto;
+	grid-template-columns: 18px minmax(0, 1fr) auto;
 	align-items: center;
 	gap: 10px;
 	min-height: 38px;
@@ -665,12 +701,25 @@ $products_query = new WP_Query($query_args);
 }
 
 .gl-catalog-filter__name {
+	min-width: 0;
 	font-size: 14px;
 	line-height: 1.35;
+	word-break: normal;
+	overflow-wrap: anywhere;
 }
 
 .gl-catalog-filter__count {
-	font-size: 13px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 24px;
+	height: 24px;
+	padding: 0 7px;
+	border-radius: 999px;
+	background: #f3f6f4;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 1;
 	color: #8a9199;
 }
 
@@ -914,8 +963,17 @@ $products_query = new WP_Query($query_args);
 }
 
 #gl-catalog-products-wrap.is-loading {
-	opacity: .45;
+	opacity: .65;
 	pointer-events: none;
+}
+
+#gl-catalog-products-wrap.is-loading::after {
+	content: "";
+	position: absolute;
+	top: 42px;
+	left: 50%;
+	z-index: 3;
+	margin-left: -14px;
 }
 	
 	
@@ -1641,6 +1699,10 @@ $products_query = new WP_Query($query_args);
 		min-width: 0;
 	}
 }
+
+
+/* Filter loading and tidy counts override */
+.gl-catalog-filters{position:relative}.gl-catalog-filter__item{grid-template-columns:18px minmax(0,1fr) auto}.gl-catalog-filter--choices .gl-catalog-filter__item{grid-template-columns:minmax(0,1fr) auto 18px}.gl-catalog-filter__name{min-width:0;overflow-wrap:anywhere}.gl-catalog-filter__count{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:#f3f6f4;font-size:12px;font-weight:700;line-height:1;color:#8a9199}.gl-catalog-filters__preloader{position:absolute;inset:-6px;z-index:2;display:none;align-items:flex-start;justify-content:center;padding-top:54px;border-radius:18px;background:rgba(255,255,255,.72);backdrop-filter:blur(2px)}.gl-catalog-filters--booting .gl-catalog-filters__preloader,.gl-catalog-filters.is-loading .gl-catalog-filters__preloader{display:flex}.gl-catalog-filters__preloader span,#gl-catalog-products-wrap.is-loading::after{width:28px;height:28px;border-radius:50%;border:3px solid #dfe8e2;border-top-color:var(--gl-color-accent);animation:gl-catalog-spin .75s linear infinite}#gl-catalog-products-wrap.is-loading::after{content:"";position:absolute;top:42px;left:50%;z-index:3;margin-left:-14px}@keyframes gl-catalog-spin{to{transform:rotate(360deg)}}
 </style>
 
 <script>

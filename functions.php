@@ -76,6 +76,15 @@ add_action('woocommerce_review_order_before_submit', function () {
 	echo gelikon_personal_data_consent_markup('gelikon_checkout_personal_data_consent', 'gelikon_personal_data_consent', 'gl-personal-data-consent gl-personal-data-consent--checkout'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }, 8);
 
+
+/**
+ * На оформлении заказа оставляем только кастомный обязательный чекбокс согласия,
+ * чтобы стандартный текст политики WooCommerce не дублировался рядом с ним.
+ */
+add_action('init', function () {
+	remove_action('woocommerce_checkout_terms_and_conditions', 'wc_checkout_privacy_policy_text', 20);
+});
+
 /**
  * Валидация согласия в оформлении заказа.
  */
@@ -283,7 +292,72 @@ if (!function_exists('gelikon_get_term_thumbnail_url')) {
 }
 
 /**
- * Дерево категорий WooCommerce
+ * Формирует пункт ручного меню каталога.
+ */
+if (!function_exists('gelikon_prepare_catalog_menu_item')) {
+	function gelikon_prepare_catalog_menu_item($menu_item) {
+		$term = null;
+
+		if (!empty($menu_item->object) && 'product_cat' === $menu_item->object && !empty($menu_item->object_id)) {
+			$maybe_term = get_term((int) $menu_item->object_id, 'product_cat');
+			$term = (!is_wp_error($maybe_term) && $maybe_term) ? $maybe_term : null;
+		}
+
+		return [
+			'id'       => (int) $menu_item->ID,
+			'term'     => $term,
+			'title'    => $menu_item->title,
+			'url'      => $menu_item->url,
+			'children' => [],
+		];
+	}
+}
+
+/**
+ * Дерево ручного меню каталога из Внешний вид > Меню.
+ */
+if (!function_exists('gelikon_get_catalog_menu_tree')) {
+	function gelikon_get_catalog_menu_tree() {
+		$locations = get_nav_menu_locations();
+
+		if (empty($locations['catalog'])) {
+			return [];
+		}
+
+		$items = wp_get_nav_menu_items($locations['catalog']);
+
+		if (empty($items) || is_wp_error($items)) {
+			return [];
+		}
+
+		$children_by_parent = [];
+
+		foreach ($items as $item) {
+			$children_by_parent[(int) $item->menu_item_parent][] = $item;
+		}
+
+		$build_tree = function ($parent_id) use (&$build_tree, $children_by_parent) {
+			$branch = [];
+
+			if (empty($children_by_parent[$parent_id])) {
+				return $branch;
+			}
+
+			foreach ($children_by_parent[$parent_id] as $item) {
+				$catalog_item = gelikon_prepare_catalog_menu_item($item);
+				$catalog_item['children'] = $build_tree((int) $item->ID);
+				$branch[] = $catalog_item;
+			}
+
+			return $branch;
+		};
+
+		return $build_tree(0);
+	}
+}
+
+/**
+ * Дерево категорий WooCommerce (fallback, если ручное меню каталога не назначено).
  */
 if (!function_exists('gelikon_get_product_cat_tree')) {
 	function gelikon_get_product_cat_tree() {
@@ -324,11 +398,66 @@ if (!function_exists('gelikon_get_product_cat_tree')) {
 
 			$tree[] = [
 				'term'     => $top_term,
-				'children' => $children,
+				'title'    => $top_term->name,
+				'url'      => get_term_link($top_term),
+				'children' => array_map(function ($child) {
+					return [
+						'term'     => $child,
+						'title'    => $child->name,
+						'url'      => get_term_link($child),
+						'children' => [],
+					];
+				}, $children),
 			];
 		}
 
 		return $tree;
+	}
+}
+
+/**
+ * Дерево каталога: сначала ручное меню, затем автоматический fallback.
+ */
+if (!function_exists('gelikon_get_catalog_dropdown_tree')) {
+	function gelikon_get_catalog_dropdown_tree() {
+		$menu_tree = gelikon_get_catalog_menu_tree();
+
+		return !empty($menu_tree) ? $menu_tree : gelikon_get_product_cat_tree();
+	}
+}
+
+/**
+ * Название пункта каталога.
+ */
+if (!function_exists('gelikon_catalog_item_title')) {
+	function gelikon_catalog_item_title($item) {
+		if (!empty($item['title'])) {
+			return $item['title'];
+		}
+
+		return !empty($item['term']->name) ? $item['term']->name : '';
+	}
+}
+
+/**
+ * URL пункта каталога.
+ */
+if (!function_exists('gelikon_catalog_item_url')) {
+	function gelikon_catalog_item_url($item) {
+		if (!empty($item['url'])) {
+			return $item['url'];
+		}
+
+		return !empty($item['term']) ? get_term_link($item['term']) : '#';
+	}
+}
+
+/**
+ * Количество товаров для пункта каталога.
+ */
+if (!function_exists('gelikon_catalog_item_count')) {
+	function gelikon_catalog_item_count($item) {
+		return !empty($item['term']->count) ? (int) $item['term']->count : 0;
 	}
 }
 
@@ -345,7 +474,7 @@ if (!function_exists('gelikon_render_catalog_dropdown')) {
 			'title' => 'Каталог',
 		]);
 
-		$tree = gelikon_get_product_cat_tree();
+		$tree = gelikon_get_catalog_dropdown_tree();
 
 		if (empty($tree)) {
 			return '';
@@ -388,9 +517,12 @@ if (!function_exists('gelikon_render_catalog_dropdown')) {
 					<div class="gl-catalog-dropdown__sidebar">
 						<ul class="gl-catalog-dropdown__parents" role="tablist">
 							<?php foreach ($tree as $index => $item) :
-								$term      = $item['term'];
-								$panel_id  = 'cat-' . $term->term_id;
-								$is_active = $index === 0;
+								$term       = !empty($item['term']) ? $item['term'] : null;
+								$item_title = gelikon_catalog_item_title($item);
+								$item_url   = gelikon_catalog_item_url($item);
+								$item_count = gelikon_catalog_item_count($item);
+								$panel_id   = 'cat-' . (!empty($item['id']) ? (int) $item['id'] : ($term ? (int) $term->term_id : $index));
+								$is_active  = $index === 0;
 								?>
 								<li class="gl-catalog-dropdown__parent-item">
 									<div
@@ -400,15 +532,17 @@ if (!function_exists('gelikon_render_catalog_dropdown')) {
 										aria-selected="<?php echo $is_active ? 'true' : 'false'; ?>"
 										tabindex="0"
 									>
-										<a class="gl-catalog-dropdown__parent-link-main" href="<?php echo esc_url(get_term_link($term)); ?>">
+										<a class="gl-catalog-dropdown__parent-link-main" href="<?php echo esc_url($item_url); ?>">
 											<span class="gl-catalog-dropdown__parent-name">
-												<?php echo esc_html($term->name); ?>
+												<?php echo esc_html($item_title); ?>
 											</span>
 										</a>
 
-										<span class="gl-catalog-dropdown__parent-meta">
-											<?php echo (int) $term->count; ?>
-										</span>
+										<?php if ($item_count > 0) : ?>
+											<span class="gl-catalog-dropdown__parent-meta">
+												<?php echo esc_html($item_count); ?>
+											</span>
+										<?php endif; ?>
 
 										<span class="gl-catalog-dropdown__parent-arrow" aria-hidden="true">›</span>
 									</div>
@@ -425,10 +559,12 @@ if (!function_exists('gelikon_render_catalog_dropdown')) {
 						</button>
 
 						<?php foreach ($tree as $index => $item) :
-							$term      = $item['term'];
-							$children  = $item['children'];
-							$panel_id  = 'cat-' . $term->term_id;
-							$is_active = $index === 0;
+							$term       = !empty($item['term']) ? $item['term'] : null;
+							$children   = !empty($item['children']) ? $item['children'] : [];
+							$item_title = gelikon_catalog_item_title($item);
+							$item_url   = gelikon_catalog_item_url($item);
+							$panel_id   = 'cat-' . (!empty($item['id']) ? (int) $item['id'] : ($term ? (int) $term->term_id : $index));
+							$is_active  = $index === 0;
 							?>
 							<div
 								class="gl-catalog-dropdown__children-panel <?php echo $is_active ? 'is-active' : ''; ?>"
@@ -436,36 +572,42 @@ if (!function_exists('gelikon_render_catalog_dropdown')) {
 								<?php echo $is_active ? '' : 'hidden'; ?>
 							>
 								<div class="gl-catalog-dropdown__children-head">
-									<a class="gl-catalog-dropdown__parent-link" href="<?php echo esc_url(get_term_link($term)); ?>">
-										<?php echo esc_html($term->name); ?>
+									<a class="gl-catalog-dropdown__parent-link" href="<?php echo esc_url($item_url); ?>">
+										<?php echo esc_html($item_title); ?>
 									</a>
 								</div>
 
 								<?php if (!empty($children)) : ?>
 									<div class="gl-catalog-dropdown__children-list">
 										<?php foreach ($children as $child) :
-											$thumb_url = gelikon_get_term_thumbnail_url($child->term_id, 'thumbnail');
+											$child_term  = !empty($child['term']) ? $child['term'] : null;
+											$child_title = gelikon_catalog_item_title($child);
+											$child_url   = gelikon_catalog_item_url($child);
+											$child_count = gelikon_catalog_item_count($child);
+											$thumb_url   = $child_term ? gelikon_get_term_thumbnail_url($child_term->term_id, 'thumbnail') : '';
 											?>
-											<a class="gl-catalog-dropdown__child-link" href="<?php echo esc_url(get_term_link($child)); ?>">
+											<a class="gl-catalog-dropdown__child-link" href="<?php echo esc_url($child_url); ?>">
 												<?php if ($thumb_url) : ?>
 													<span class="gl-catalog-dropdown__child-thumb">
-														<img src="<?php echo esc_url($thumb_url); ?>" alt="<?php echo esc_attr($child->name); ?>" loading="lazy">
+														<img src="<?php echo esc_url($thumb_url); ?>" alt="<?php echo esc_attr($child_title); ?>" loading="lazy">
 													</span>
 												<?php endif; ?>
 
 												<span class="gl-catalog-dropdown__child-name">
-													<?php echo esc_html($child->name); ?>
+													<?php echo esc_html($child_title); ?>
 												</span>
 
-												<span class="gl-catalog-dropdown__child-count">
-													<?php echo (int) $child->count; ?>
-												</span>
+												<?php if ($child_count > 0) : ?>
+													<span class="gl-catalog-dropdown__child-count">
+														<?php echo esc_html($child_count); ?>
+													</span>
+												<?php endif; ?>
 											</a>
 										<?php endforeach; ?>
 									</div>
 								<?php else : ?>
 									<div class="gl-catalog-dropdown__empty">
-										<a href="<?php echo esc_url(get_term_link($term)); ?>">
+										<a href="<?php echo esc_url($item_url); ?>">
 											<?php esc_html_e('Перейти в категорию', 'gelikon'); ?>
 										</a>
 									</div>
@@ -1148,7 +1290,7 @@ add_action('wp_head', function () {
 	}
 	?>
 	<style id="gelikon-catalog-critical-styles">
-		.gl-catalog-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:start}.gl-catalog-sidebar{min-width:0}.gl-catalog-sidebar__inner{position:sticky;top:96px;padding:22px;border-radius:24px;background:#fff;border:1px solid #e5ebe7}.gl-catalog-mobile-bar,.gl-catalog-overlay{display:none}.gl-catalog-products{min-width:0}.gl-catalog-products__grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:0;padding:0;list-style:none}.gl-catalog-products__grid li.product{width:auto!important;float:none!important;margin:0!important}@media (max-width:1199px){.gl-catalog-layout{grid-template-columns:260px minmax(0,1fr);gap:22px}.gl-catalog-products__grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:991px){.gl-catalog-mobile-bar{display:block}.gl-catalog-layout{grid-template-columns:1fr}.gl-catalog-sidebar{position:fixed;top:0;left:0;width:min(380px,90vw);height:100vh;z-index:1000;transform:translateX(-100%);padding:0}.gl-catalog-sidebar.is-open{transform:translateX(0)}.gl-catalog-sidebar__inner{position:relative;top:0;height:100%;overflow-y:auto;border-radius:0 24px 24px 0;padding:18px}.gl-catalog-overlay.is-visible{display:block;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:999}}@media (max-width:767px){.gl-catalog-products__grid{grid-template-columns:1fr;gap:16px}}
+		.gl-catalog-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:start}.gl-catalog-sidebar{min-width:0}.gl-catalog-sidebar__inner{position:sticky;top:96px;padding:22px;border-radius:24px;background:#fff;border:1px solid #e5ebe7}.gl-catalog-mobile-bar,.gl-catalog-overlay{display:none}.gl-catalog-products{min-width:0}.gl-catalog-products__grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin:0;padding:0;list-style:none}.gl-catalog-products__grid li.product{width:auto!important;float:none!important;margin:0!important}.gl-catalog-filters{position:relative}.gl-catalog-filter__item{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:10px}.gl-catalog-filter--choices .gl-catalog-filter__item{grid-template-columns:minmax(0,1fr) auto 18px}.gl-catalog-filter__name{min-width:0;overflow-wrap:anywhere}.gl-catalog-filter__count{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:#f3f6f4;font-size:12px;font-weight:700;line-height:1;color:#8a9199}.gl-catalog-filters__preloader{position:absolute;inset:-6px;z-index:2;display:none;align-items:flex-start;justify-content:center;padding-top:54px;border-radius:18px;background:rgba(255,255,255,.72);backdrop-filter:blur(2px)}.gl-catalog-filters--booting .gl-catalog-filters__preloader,.gl-catalog-filters.is-loading .gl-catalog-filters__preloader{display:flex}.gl-catalog-filters__preloader span,#gl-catalog-products-wrap.is-loading::after{width:28px;height:28px;border-radius:50%;border:3px solid #dfe8e2;border-top-color:var(--gl-color-accent);animation:gl-catalog-spin .75s linear infinite}#gl-catalog-products-wrap.is-loading::after{content:"";position:absolute;top:42px;left:50%;z-index:3;margin-left:-14px}@keyframes gl-catalog-spin{to{transform:rotate(360deg)}}@media (max-width:1199px){.gl-catalog-layout{grid-template-columns:260px minmax(0,1fr);gap:22px}.gl-catalog-products__grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:991px){.gl-catalog-mobile-bar{display:block}.gl-catalog-layout{grid-template-columns:1fr}.gl-catalog-sidebar{position:fixed;top:0;left:0;width:min(380px,90vw);height:100vh;z-index:1000;transform:translateX(-100%);padding:0}.gl-catalog-sidebar.is-open{transform:translateX(0)}.gl-catalog-sidebar__inner{position:relative;top:0;height:100%;overflow-y:auto;border-radius:0 24px 24px 0;padding:18px}.gl-catalog-overlay.is-visible{display:block;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:999}}@media (max-width:767px){.gl-catalog-products__grid{grid-template-columns:1fr;gap:16px}}
 	</style>
 	<?php
 }, 5);
