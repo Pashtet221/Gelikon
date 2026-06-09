@@ -321,8 +321,7 @@ $products_query = new WP_Query($query_args);
 						</div>
 					</div>
 
-					<div class="gl-catalog-filters gl-catalog-filters--booting" id="gl-catalog-filters">
-						<div class="gl-catalog-filters__preloader" aria-hidden="true"><span></span></div>
+					<div class="gl-catalog-filters" id="gl-catalog-filters">
 
 						<?php if ($price_max > 0) : ?>
 							<div class="gl-catalog-filter" data-filter-block>
@@ -1481,6 +1480,62 @@ $products_query = new WP_Query($query_args);
 	padding-top: 14px;
 	min-width: 0;
 }
+/* Open filter values and radio-style selectors */
+.gl-catalog-filter__list {
+	max-height: none;
+	overflow: visible;
+	padding-right: 0;
+}
+
+.gl-catalog-filter--choices .gl-catalog-filter__item,
+.gl-catalog-filter__item {
+	grid-template-columns: minmax(0, 1fr) auto 18px;
+}
+
+.gl-catalog-filter__check,
+.gl-catalog-filter__item.is-active .gl-catalog-filter__check {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	border: 1px solid #d9e1db;
+	background: #fff;
+	position: relative;
+	transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.gl-catalog-filter__item.is-active .gl-catalog-filter__check {
+	border-color: var(--gl-color-accent);
+	box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+}
+
+.gl-catalog-filter__check::after,
+.gl-catalog-filter__item.is-active .gl-catalog-filter__check::after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 8px;
+	height: 8px;
+	border: 0;
+	border-radius: 50%;
+	background: var(--gl-color-accent);
+	box-shadow: none;
+	transform: translate(-50%, -50%) scale(0);
+	transition: transform .2s ease;
+}
+
+.gl-catalog-filter__item.is-active .gl-catalog-filter__check::after {
+	transform: translate(-50%, -50%) scale(1);
+}
+
+.gl-catalog-filters__preloader,
+.gl-catalog-filters--booting .gl-catalog-filters__preloader,
+.gl-catalog-filters.is-loading .gl-catalog-filters__preloader,
+#gl-catalog-products-wrap.is-loading::after {
+	display: none !important;
+	content: none !important;
+}
+
 </style>
 
 
@@ -1599,7 +1654,7 @@ $products_query = new WP_Query($query_args);
 
 
 /* Filter loading and tidy counts override */
-.gl-catalog-filters{position:relative}.gl-catalog-filter__item{grid-template-columns:18px minmax(0,1fr) auto}.gl-catalog-filter--choices .gl-catalog-filter__item{grid-template-columns:minmax(0,1fr) auto 18px}.gl-catalog-filter__name{min-width:0;overflow-wrap:anywhere}.gl-catalog-filter__count{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:#f3f6f4;font-size:12px;font-weight:700;line-height:1;color:#8a9199}.gl-catalog-filters__preloader{position:absolute;inset:-6px;z-index:2;display:none;align-items:flex-start;justify-content:center;padding-top:54px;border-radius:18px;background:rgba(255,255,255,.72);backdrop-filter:blur(2px)}.gl-catalog-filters--booting .gl-catalog-filters__preloader,.gl-catalog-filters.is-loading .gl-catalog-filters__preloader{display:flex}.gl-catalog-filters__preloader span,#gl-catalog-products-wrap.is-loading::after{width:28px;height:28px;border-radius:50%;border:3px solid #dfe8e2;border-top-color:var(--gl-color-accent);animation:gl-catalog-spin .75s linear infinite}#gl-catalog-products-wrap.is-loading::after{content:"";position:absolute;top:42px;left:50%;z-index:3;margin-left:-14px}@keyframes gl-catalog-spin{to{transform:rotate(360deg)}}
+.gl-catalog-filters{position:relative}.gl-catalog-filter__item{grid-template-columns:minmax(0,1fr) auto 18px}.gl-catalog-filter--choices .gl-catalog-filter__item{grid-template-columns:minmax(0,1fr) auto 18px}.gl-catalog-filter__list{max-height:none;overflow:visible;padding-right:0}.gl-catalog-filter__name{min-width:0;overflow-wrap:anywhere}.gl-catalog-filter__count{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:#f3f6f4;font-size:12px;font-weight:700;line-height:1;color:#8a9199}.gl-catalog-filter__check{width:18px;height:18px;border-radius:50%;border:1px solid #d9e1db;background:#fff;position:relative}.gl-catalog-filter__item.is-active .gl-catalog-filter__check{border-color:var(--gl-color-accent);box-shadow:0 0 0 4px rgba(34,197,94,.12);background:#fff}.gl-catalog-filter__check::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;border:0;border-radius:50%;background:var(--gl-color-accent);transform:translate(-50%,-50%) scale(0)}.gl-catalog-filter__item.is-active .gl-catalog-filter__check::after{transform:translate(-50%,-50%) scale(1)}.gl-catalog-filters__preloader,#gl-catalog-products-wrap.is-loading::after{display:none!important;content:none!important}
 </style>
 
 <script>
