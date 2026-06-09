@@ -41,6 +41,7 @@ function gelikon_theme_setup() {
 
     register_nav_menus([
         'primary' => __('Основное меню', 'gelikon'),
+        'catalog' => __('Каталог в шапке', 'gelikon'),
         'footer'  => __('Меню в подвале', 'gelikon'),
     ]);
 
