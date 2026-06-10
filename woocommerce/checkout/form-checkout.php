@@ -107,6 +107,16 @@ if (
 	display: none;
 }
 
+
+.gl-checkout-compact__main > .gl-checkout-card:first-child #billing_address_1_field,
+.gl-checkout-compact__main > .gl-checkout-card:first-child #billing_address_2_field,
+.gl-checkout-compact__main > .gl-checkout-card:first-child #billing_city_field,
+.gl-checkout-compact__main > .gl-checkout-card:first-child #billing_state_field,
+.gl-checkout-compact__main > .gl-checkout-card:first-child #billing_postcode_field,
+.gl-checkout-compact__main > .gl-checkout-card:first-child #billing_country_field {
+	display: none !important;
+}
+
 .gl-checkout-compact .shipping_address {
 	display: block !important;
 }

@@ -573,7 +573,7 @@ $products_query = new WP_Query($query_args);
 	margin: 0 0 12px;
 	font-size: 15px;
 	line-height: 1.3;
-	font-weight: 700;
+	font-weight: 800;
 	color: #171d2a;
 }
 
@@ -808,7 +808,7 @@ $products_query = new WP_Query($query_args);
 	cursor: pointer;
 	text-align: left;
 	font-size: 15px;
-	font-weight: 700;
+	font-weight: 800;
 	line-height: 1.3;
 	color: #171d2a;
 }
@@ -1031,7 +1031,7 @@ $products_query = new WP_Query($query_args);
 	cursor: pointer;
 	text-align: left;
 	font-size: 15px;
-	font-weight: 700;
+	font-weight: 800;
 	line-height: 1.3;
 	color: #171d2a;
 }

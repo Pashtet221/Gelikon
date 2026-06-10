@@ -44,7 +44,7 @@ function gelikon_personal_data_consent_markup($field_id = '', $field_name = 'gel
 		$field_id = $field_name . '_' . wp_rand(1000, 9999);
 	}
 
-	$privacy_url = gelikon_get_privacy_policy_url();
+	$consent_text = get_theme_mod('gelikon_personal_data_consent_text', gelikon_personal_data_consent_default_text());
 
 	ob_start();
 	?>
@@ -57,16 +57,27 @@ function gelikon_personal_data_consent_markup($field_id = '', $field_name = 'gel
 				value="1"
 				required
 			>
-			<span>
-				<?php esc_html_e('Я даю согласие на обработку персональных данных и принимаю условия', 'gelikon'); ?>
-				<a href="<?php echo esc_url($privacy_url); ?>" target="_blank" rel="noopener noreferrer">
-					<?php esc_html_e('политики конфиденциальности', 'gelikon'); ?>
-				</a>.
-			</span>
+			<span><?php echo wp_kses_post($consent_text); ?></span>
 		</label>
 	</p>
 	<?php
 	return ob_get_clean();
+}
+
+/**
+ * Текст согласия по умолчанию для всех форм с возможностью правки в админке.
+ */
+function gelikon_personal_data_consent_default_text() {
+	$privacy_url = gelikon_get_privacy_policy_url();
+	$offer_page  = get_page_by_path('public-offer');
+	$offer_url   = $offer_page ? get_permalink($offer_page->ID) : home_url('/public-offer/');
+
+	return sprintf(
+		/* translators: 1: privacy policy URL, 2: public offer URL. */
+		__('Я ознакомлен(а) с <a href="%1$s" target="_blank" rel="noopener noreferrer">Политикой обработки персональных данных</a> и принимаю условия <a href="%2$s" target="_blank" rel="noopener noreferrer">Публичной оферты</a>.', 'gelikon'),
+		esc_url($privacy_url),
+		esc_url($offer_url)
+	);
 }
 
 /**
@@ -93,6 +104,21 @@ add_action('woocommerce_after_checkout_validation', function ($data, $errors) {
 		$errors->add('personal_data_consent', __('Подтвердите согласие на обработку персональных данных.', 'gelikon'));
 	}
 }, 10, 2);
+
+/**
+ * Вывод и валидация согласия в форме регистрации WooCommerce.
+ */
+add_action('woocommerce_register_form', function () {
+	echo gelikon_personal_data_consent_markup('gelikon_register_personal_data_consent', 'gelikon_personal_data_consent', 'gl-personal-data-consent gl-personal-data-consent--register'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}, 20);
+
+add_filter('woocommerce_registration_errors', function ($errors) {
+	if (!gelikon_is_personal_data_consent_given()) {
+		$errors->add('personal_data_consent', __('Подтвердите согласие на обработку персональных данных.', 'gelikon'));
+	}
+
+	return $errors;
+}, 10);
 
 /**
  * Валидация согласия для формы отзыва о товаре.
@@ -7755,8 +7781,8 @@ function gelikon_checkout_shipping_method_label($label, $method) {
 
 	$cost = (float) $method->get_cost() + array_sum(array_map('floatval', (array) $method->get_taxes()));
 
-	if ($cost <= 0 && strpos($label, 'amount') === false) {
-		$label = wp_kses_post($method->get_label()) . ': ' . wc_price(0);
+	if ($cost <= 0 && strpos($label, 'amount') === false && false === strpos($label, 'Бесплатно')) {
+		$label = wp_kses_post($method->get_label()) . ': ' . esc_html__('Бесплатно', 'gelikon');
 	}
 
 	return $label;

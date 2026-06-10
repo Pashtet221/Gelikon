@@ -599,3 +599,54 @@ a.gl-product-card__button--disabled {
     flex-direction: column;
   }
 }
+
+.gl-myaccount-auth form.woocommerce-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.gl-myaccount-auth form.woocommerce-form > p {
+  margin: 0;
+}
+.gl-myaccount-auth .form-row label:not(.woocommerce-form-login__rememberme):not(.gl-personal-data-consent label) {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--gl-color-muted);
+  font-weight: 600;
+}
+.gl-myaccount-auth .form-row input.input-text,
+.gl-myaccount-auth .form-row .woocommerce-Input {
+  width: 100%;
+}
+.gl-myaccount-auth__actions {
+  margin-top: 2px !important;
+}
+.gl-myaccount-auth .lost_password {
+  margin-top: -4px !important;
+}
+.gl-myaccount-auth .gl-personal-data-consent {
+  margin: 0;
+  color: var(--gl-color-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.gl-myaccount-auth .gl-personal-data-consent label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  font-weight: 500;
+}
+.gl-myaccount-auth .gl-personal-data-consent input[type="checkbox"] {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--gl-color-accent);
+}
+.gl-myaccount-auth .gl-personal-data-consent a {
+  color: var(--gl-color-accent-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

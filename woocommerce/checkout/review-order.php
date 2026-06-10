@@ -55,7 +55,15 @@ if (! function_exists('gelikon_checkout_shipping_block_html')) {
 												);
 											}
 
-											printf('<label for="%1$s">%2$s</label>', esc_attr($input_id), wp_kses_post(wc_cart_totals_shipping_method_label($method)));
+											$shipping_cost = (float) $method->get_cost() + array_sum(array_map('floatval', (array) $method->get_taxes()));
+											$shipping_price = $shipping_cost <= 0 ? esc_html__('Бесплатно', 'gelikon') : wc_price($shipping_cost);
+
+											printf(
+												'<label for="%1$s"><span class="gl-checkout-shipping-method__name">%2$s</span><span class="gl-checkout-shipping-method__price">%3$s</span></label>',
+												esc_attr($input_id),
+												wp_kses_post($method->get_label()),
+												wp_kses_post($shipping_price)
+											);
 											do_action('woocommerce_after_shipping_rate', $method, $index);
 											?>
 										</li>
@@ -426,7 +434,10 @@ if (! function_exists('gelikon_checkout_shipping_block_html')) {
 }
 
 .gl-order-review-table .gl-checkout-shipping-methods label {
-	display: block;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 10px;
+	align-items: start;
 	min-width: 0;
 	width: 100%;
 	margin: 0;
@@ -440,15 +451,22 @@ if (! function_exists('gelikon_checkout_shipping_block_html')) {
 	overflow-wrap: anywhere;
 }
 
-.gl-order-review-table .gl-checkout-shipping-methods label .amount {
-	display: inline-block;
-	margin-left: 4px;
+.gl-checkout-shipping-method__name {
+	min-width: 0;
+}
+
+.gl-checkout-shipping-method__price {
 	font-size: 14px;
 	line-height: 1.2;
 	font-weight: 800;
 	color: #171b20;
 	white-space: nowrap;
-	text-align: left;
+	text-align: right;
+}
+
+.gl-checkout-shipping-method__price .amount {
+	font-size: inherit;
+	font-weight: inherit;
 }
 
 .gl-checkout-shipping-block__message,
