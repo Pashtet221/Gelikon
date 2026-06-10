@@ -148,15 +148,6 @@ if (function_exists('get_field')) {
 		?>
 	</nav>
 
-	<a class="gl-header-account-mobile" href="<?php echo esc_url(function_exists('wc_get_page_permalink') ? wc_get_page_permalink('myaccount') : home_url('/my-account/')); ?>">
-		<span class="gl-header-account-mobile__icon" aria-hidden="true">
-			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-				<circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/>
-				<path d="M4.5 20c1.4-4 4.1-6 7.5-6s6.1 2 7.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-			</svg>
-		</span>
-		<span><?php esc_html_e('Личный кабинет', 'gelikon'); ?></span>
-	</a>
 </div>
 
 		</div>
@@ -1258,7 +1249,7 @@ body.gl-modal-open {
 	.gl-header__bottom .gl-nav--mobile {
 		display: block;
 		order: 20 !important;
-		padding: 0 16px 16px;
+		padding: 0 7px 0px;
 	}
 
 	.gl-header__bottom .gl-menu {

@@ -187,15 +187,10 @@ $account_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink(
                 <a href="<?php echo esc_url($privacy_url); ?>">
                     Политика конфиденциальности
                 </a>
-                <a href="<?php echo esc_url($terms_url); ?>">
-                    Пользовательское соглашение
-                </a>
-                <a href="<?php echo esc_url($cookies_url); ?>">
-                    Cookies
-                </a>
-                <a href="<?php echo esc_url($account_url); ?>">
+               
+<!--                 <a href="<?php echo esc_url($account_url); ?>">
                     <?php esc_html_e('Личный кабинет', 'gelikon'); ?>
-                </a>
+                </a> -->
             </div>
         </div>
     </div>
