@@ -8,6 +8,18 @@
 defined('ABSPATH') || exit;
 
 
+if (! function_exists('gelikon_checkout_shipping_method_name')) {
+	/**
+	 * Keep the shipping method title separate from the right-aligned price label.
+	 */
+	function gelikon_checkout_shipping_method_name($method) {
+		$label = $method instanceof WC_Shipping_Rate ? $method->get_label() : '';
+		$label = preg_replace('/(?:\s*[-–—:]\s*)?Бесплатно\s*$/iu', '', wp_strip_all_tags((string) $label));
+
+		return trim($label);
+	}
+}
+
 if (! function_exists('gelikon_checkout_shipping_block_html')) {
 	/**
 	 * Render checkout shipping as a full-width block instead of a narrow table row.
@@ -55,13 +67,14 @@ if (! function_exists('gelikon_checkout_shipping_block_html')) {
 												);
 											}
 
-											$shipping_cost = (float) $method->get_cost() + array_sum(array_map('floatval', (array) $method->get_taxes()));
+											$shipping_cost  = (float) $method->get_cost() + array_sum(array_map('floatval', (array) $method->get_taxes()));
+											$shipping_name  = gelikon_checkout_shipping_method_name($method);
 											$shipping_price = $shipping_cost <= 0 ? esc_html__('Бесплатно', 'gelikon') : wc_price($shipping_cost);
 
 											printf(
 												'<label for="%1$s"><span class="gl-checkout-shipping-method__name">%2$s</span><span class="gl-checkout-shipping-method__price">%3$s</span></label>',
 												esc_attr($input_id),
-												wp_kses_post($method->get_label()),
+												esc_html($shipping_name),
 												wp_kses_post($shipping_price)
 											);
 											do_action('woocommerce_after_shipping_rate', $method, $index);
@@ -436,7 +449,8 @@ if (! function_exists('gelikon_checkout_shipping_block_html')) {
 .gl-order-review-table .gl-checkout-shipping-methods label {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto;
-	gap: 10px;
+	column-gap: 22px;
+	row-gap: 6px;
 	align-items: start;
 	min-width: 0;
 	width: 100%;
@@ -455,11 +469,16 @@ if (! function_exists('gelikon_checkout_shipping_block_html')) {
 	min-width: 0;
 }
 
+.gl-checkout-shipping-method__name:empty {
+	display: block;
+}
+
 .gl-checkout-shipping-method__price {
 	font-size: 14px;
 	line-height: 1.2;
 	font-weight: 800;
 	color: #171b20;
+	padding-left: 12px;
 	white-space: nowrap;
 	text-align: right;
 }

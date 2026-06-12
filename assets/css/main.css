@@ -578,14 +578,50 @@ a.gl-product-card__button--disabled {
   color: var(--gl-color-muted);
 }
 .gl-myaccount-auth .woocommerce-form-login__rememberme {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin: 0;
+  color: var(--gl-color-heading);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
 }
-.gl-myaccount-auth .woocommerce-form__input-checkbox {
-  width: auto;
-  min-height: auto;
+.gl-myaccount-auth .woocommerce-form-login__rememberme .woocommerce-form__input-checkbox {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  margin: 0;
+  border: 2px solid var(--gl-color-line);
+  border-radius: 7px;
+  background: #fff;
+  appearance: none;
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.gl-myaccount-auth .woocommerce-form-login__rememberme .woocommerce-form__input-checkbox:checked {
+  border-color: var(--gl-color-accent);
+  background: var(--gl-color-accent);
+  box-shadow: 0 6px 14px rgba(18, 212, 87, .24);
+}
+.gl-myaccount-auth .woocommerce-form-login__rememberme .woocommerce-form__input-checkbox:checked::after {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 11px;
+  margin: 2px 0 0 7px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.gl-myaccount-auth .woocommerce-form-login__rememberme .woocommerce-form__input-checkbox:focus-visible {
+  outline: 3px solid rgba(18, 212, 87, .24);
+  outline-offset: 2px;
+}
+.gl-myaccount-auth .woocommerce-form-login__rememberme span {
+  line-height: 1.35;
 }
 @media (max-width: 600px) {
   .gl-myaccount-auth__tabs {
