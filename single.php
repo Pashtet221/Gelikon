@@ -561,7 +561,7 @@ while (have_posts()) :
 	.gl-blog-card__image {
 		display: block;
 		aspect-ratio: 1.18 / 0.78;
-		background: #e9ece8;
+		background: #fff;
 		overflow: hidden;
 	}
 
@@ -569,7 +569,7 @@ while (have_posts()) :
 		display: block;
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
+		object-fit: contain;
 	}
 
 	.gl-blog-card__placeholder {

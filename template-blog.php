@@ -168,7 +168,7 @@ $blog_query = new WP_Query([
 .gl-blog-card__image {
 	display: block;
 	aspect-ratio: 1.35 / .85;
-	background: #e9ede8;
+	background: #fff;
 	overflow: hidden;
 	text-decoration: none;
 }
@@ -177,7 +177,7 @@ $blog_query = new WP_Query([
 	display: block;
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
+	object-fit: contain;
 }
 
 .gl-blog-card__placeholder {
