@@ -7797,3 +7797,69 @@ add_action('admin_init', function () {
     remove_all_actions('admin_notices');
     remove_all_actions('all_admin_notices');
 }, 100);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// add_action('pmxi_saved_post', 'gl_import_external_images_to_media', 10, 3);
+
+// function gl_import_external_images_to_media($post_id, $xml_node, $is_update) {
+//     $post = get_post($post_id);
+
+//     if (!$post || $post->post_type !== 'post') {
+//         return;
+//     }
+
+//     $content = $post->post_content;
+
+//     if (strpos($content, '<img') === false) {
+//         return;
+//     }
+
+//     preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $content, $matches);
+
+//     if (empty($matches[1])) {
+//         return;
+//     }
+
+//     require_once ABSPATH . 'wp-admin/includes/media.php';
+//     require_once ABSPATH . 'wp-admin/includes/file.php';
+//     require_once ABSPATH . 'wp-admin/includes/image.php';
+
+//     foreach ($matches[1] as $old_url) {
+//         if (strpos($old_url, '/image/catalog/') === false) {
+//             continue;
+//         }
+
+//         $attachment_id = media_sideload_image($old_url, $post_id, null, 'id');
+
+//         if (is_wp_error($attachment_id)) {
+//             continue;
+//         }
+
+//         $new_url = wp_get_attachment_url($attachment_id);
+
+//         if ($new_url) {
+//             $content = str_replace($old_url, $new_url, $content);
+//         }
+//     }
+
+//     remove_action('pmxi_saved_post', 'gl_import_external_images_to_media', 10);
+
+//     wp_update_post([
+//         'ID'           => $post_id,
+//         'post_content' => $content,
+//     ]);
+
+//     add_action('pmxi_saved_post', 'gl_import_external_images_to_media', 10, 3);
+// }
