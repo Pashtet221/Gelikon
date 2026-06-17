@@ -177,7 +177,7 @@ $blog_query = new WP_Query([
 	display: block;
 	width: 100%;
 	height: 100%;
-	object-fit: contain;
+	object-fit: cover;
 }
 
 .gl-blog-card__placeholder {

@@ -330,9 +330,10 @@ while (have_posts()) :
 	}
 
 	.gl-single-blog-content {
-		font-size: 17px;
-		line-height: 1.8;
-		color: #2b3138;
+		font-family: Manrope, sans-serif;
+		font-size: 16px;
+		line-height: 1.65;
+		color: var(--gl-color-text);
 	}
 
 	.gl-single-blog-content > *:first-child {
@@ -344,16 +345,16 @@ while (have_posts()) :
 	}
 
 	.gl-single-blog-content p {
-		margin: 0 0 18px;
+		margin: 0 0 12px;
 	}
 
 	.gl-single-blog-content h2,
 	.gl-single-blog-content h3,
 	.gl-single-blog-content h4 {
-		margin: 34px 0 16px;
+		margin: 28px 0 12px;
 		line-height: 1.18;
 		letter-spacing: -0.03em;
-		color: #171d2a;
+		color: var(--gl-color-heading);
 	}
 
 	.gl-single-blog-content h2 {
@@ -370,12 +371,12 @@ while (have_posts()) :
 
 	.gl-single-blog-content ul,
 	.gl-single-blog-content ol {
-		margin: 0 0 20px 22px;
+		margin: 0 0 16px 20px;
 		padding: 0;
 	}
 
 	.gl-single-blog-content li {
-		margin-bottom: 10px;
+		margin-bottom: 6px;
 	}
 
 	.gl-single-blog-content img {
@@ -569,7 +570,7 @@ while (have_posts()) :
 		display: block;
 		width: 100%;
 		height: 100%;
-		object-fit: contain;
+		object-fit: cover;
 	}
 
 	.gl-blog-card__placeholder {

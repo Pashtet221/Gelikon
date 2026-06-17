@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
 }
 
 function gelikon_enqueue_assets() {
-    wp_enqueue_style('gelikon-fonts', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap', [], null);
+    wp_enqueue_style('gelikon-fonts', 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap', [], null);
     wp_enqueue_style('gelikon-main', GELIKON_URI . '/assets/css/main.css', ['gelikon-fonts'], GELIKON_VERSION);
 
     wp_enqueue_script('gelikon-navigation', GELIKON_URI . '/assets/js/main.js', [], GELIKON_VERSION, true);
