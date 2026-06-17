@@ -25,6 +25,7 @@
   --gl-color-dark: #10161f;
 }
 * { box-sizing: border-box; }
+html, body, button, input, select, textarea { font-family: Manrope, sans-serif; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
@@ -220,7 +221,7 @@ a.gl-product-card__button--disabled {
 .gl-posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .gl-post-card { overflow: hidden; }
 .gl-post-card__thumb { display: block; background: #fff; }
-.gl-post-card__thumb img { width: 100%; aspect-ratio: 1.25/1; object-fit: contain; background: #fff; }
+.gl-post-card__thumb img { width: 100%; aspect-ratio: 1.25/1; object-fit: cover; background: #fff; }
 .gl-post-card__content, .gl-entry { padding: 26px; }
 .gl-entry__thumb { margin: 24px 0; overflow: hidden; border-radius: calc(var(--gl-radius) - 6px); }
 .gl-entry__content h2, .gl-entry__content h3 { line-height: 1.14; }
