@@ -6742,6 +6742,25 @@ add_filter('woocommerce_short_description', function ($description) {
 /**
  * Admin hint for blog post featured images.
  */
+if (!function_exists('gelikon_blog_featured_image_hint_html')) {
+	function gelikon_blog_featured_image_hint_html() {
+		return '<div class="gelikon-featured-image-requirements">'
+			. '<strong>Требования к изображению записи</strong>'
+			. '<ul>'
+			. '<li>Рекомендуемый размер: <strong>425 × 267 px</strong> или больше в той же пропорции.</li>'
+			. '<li>Соотношение сторон: <strong>425:267</strong> — примерно <strong>1.59:1</strong>.</li>'
+			. '<li>Ключевой объект держите по центру кадра, чтобы карточки блога выглядели единообразно.</li>'
+			. '</ul>'
+			. '</div>';
+	}
+}
+
+if (!function_exists('gelikon_blog_featured_image_hint_styles')) {
+	function gelikon_blog_featured_image_hint_styles() {
+		return '.gelikon-featured-image-requirements{margin:10px 0 0;padding:12px;border:1px solid #c3c4c7;border-radius:4px;background:#f6f7f7;color:#1d2327;font-size:12px;line-height:1.45}.gelikon-featured-image-requirements strong{display:block;margin:0 0 6px}.gelikon-featured-image-requirements ul{margin:8px 0 0 18px;list-style:disc}.gelikon-featured-image-requirements li{margin:0 0 4px}';
+	}
+}
+
 add_filter('admin_post_thumbnail_html', function ($content, $post_id, $thumbnail_id) {
 	$post = get_post($post_id);
 
@@ -6749,17 +6768,72 @@ add_filter('admin_post_thumbnail_html', function ($content, $post_id, $thumbnail
 		return $content;
 	}
 
-	$hint = '<div class="gelikon-featured-image-requirements" style="margin:10px 0 0;padding:12px;border:1px solid #c3c4c7;border-radius:4px;background:#f6f7f7;color:#1d2327;">'
-		. '<strong>Требования к изображению записи</strong>'
-		. '<ul style="margin:8px 0 0 18px;list-style:disc;">'
-		. '<li>Рекомендуемый размер: <strong>425 × 267 px</strong> или больше в той же пропорции.</li>'
-		. '<li>Соотношение сторон: <strong>425:267</strong> — примерно <strong>1.59:1</strong>.</li>'
-		. '<li>Ключевой объект держите по центру кадра, чтобы карточки блога выглядели единообразно.</li>'
-		. '</ul>'
-		. '</div>';
-
-	return $content . $hint;
+	return $content . gelikon_blog_featured_image_hint_html();
 }, 10, 3);
+
+add_action('admin_head-post.php', function () {
+	$screen = get_current_screen();
+
+	if (!$screen || $screen->post_type !== 'post') {
+		return;
+	}
+
+	echo '<style id="gelikon-featured-image-requirements-style">' . gelikon_blog_featured_image_hint_styles() . '</style>';
+});
+
+add_action('admin_head-post-new.php', function () {
+	$screen = get_current_screen();
+
+	if (!$screen || $screen->post_type !== 'post') {
+		return;
+	}
+
+	echo '<style id="gelikon-featured-image-requirements-style">' . gelikon_blog_featured_image_hint_styles() . '</style>';
+});
+
+add_action('enqueue_block_editor_assets', function () {
+	$screen = get_current_screen();
+
+	if (!$screen || $screen->post_type !== 'post') {
+		return;
+	}
+
+	$hint = wp_json_encode(gelikon_blog_featured_image_hint_html());
+	$script = <<<JS
+(function () {
+	var hintHtml = {$hint};
+	var hintClass = 'gelikon-featured-image-requirements';
+
+	function findFeaturedImagePanel() {
+		return document.querySelector('.editor-post-featured-image') ||
+			document.querySelector('[class*="editor-post-featured-image"]') ||
+			document.querySelector('[aria-label="Изображение записи"]') ||
+			document.querySelector('[aria-label="Featured image"]');
+	}
+
+	function addHint() {
+		var panel = findFeaturedImagePanel();
+
+		if (!panel || panel.querySelector('.' + hintClass)) {
+			return;
+		}
+
+		panel.insertAdjacentHTML('beforeend', hintHtml);
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', addHint);
+	} else {
+		addHint();
+	}
+
+	var observer = new MutationObserver(addHint);
+	observer.observe(document.body, { childList: true, subtree: true });
+}());
+JS;
+
+	wp_add_inline_script('wp-edit-post', $script);
+});
 
 
 
