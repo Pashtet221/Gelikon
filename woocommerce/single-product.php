@@ -311,7 +311,7 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 			$post_object = get_post($product->get_id());
 
 			if ($post_object && !empty($post_object->post_content)) {
-				echo apply_filters('the_content', $post_object->post_content);
+				echo gelikon_clean_product_description_html($post_object->post_content);
 			}
 		}
 		?>
@@ -589,7 +589,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	global $post;
 
 	if (!empty($post->post_content)) {
-		echo apply_filters('the_content', $post->post_content);
+		echo gelikon_clean_product_description_html($post->post_content);
 	}
 	?>
 </div>
