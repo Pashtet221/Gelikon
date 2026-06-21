@@ -6687,129 +6687,17 @@ add_action('wp_footer', function () {
 
 
 
-/**
- * Product description fields: plain textarea instead of Gutenberg/visual editors.
- */
 
 /**
- * Отключаем Gutenberg для товаров.
+ * Product descriptions: keep default WooCommerce editors in admin,
+ * but strip imported editor junk before rendering on the frontend.
  */
-add_filter('use_block_editor_for_post_type', function ($use_block_editor, $post_type) {
-	return $post_type === 'product' ? false : $use_block_editor;
-}, 10, 2);
+function gelikon_clean_product_description_html($content) {
+	$content = trim((string) $content);
 
-
-/**
- * Убираем стандартный редактор описания товара.
- */
-add_action('init', function () {
-	remove_post_type_support('product', 'editor');
-}, 100);
-
-
-/**
- * Добавляем обычное textarea для полного описания товара.
- */
-add_action('add_meta_boxes_product', function () {
-	add_meta_box(
-		'gelikon_plain_product_description',
-		'Описание товара',
-		'gelikon_plain_product_description_metabox',
-		'product',
-		'normal',
-		'high'
-	);
-});
-
-function gelikon_plain_product_description_metabox($post) {
-	wp_nonce_field('gelikon_save_plain_product_description', 'gelikon_plain_product_description_nonce');
-
-	$content = get_post_field('post_content', $post->ID);
-
-	echo '<p style="margin-top:0;color:#666;">Вставляйте обычный текст. Лишние стили, шрифты и HTML будут удалены при сохранении.</p>';
-
-	echo '<textarea name="gelikon_product_description" style="width:100%;min-height:260px;font-family:monospace;font-size:14px;line-height:1.5;">' . esc_textarea($content) . '</textarea>';
-}
-
-
-/**
- * Заменяем краткое описание товара на обычное textarea.
- */
-add_action('add_meta_boxes_product', function () {
-	remove_meta_box('postexcerpt', 'product', 'normal');
-
-	add_meta_box(
-		'gelikon_plain_product_excerpt',
-		'Краткое описание товара',
-		'gelikon_plain_product_excerpt_metabox',
-		'product',
-		'normal',
-		'high'
-	);
-}, 99);
-
-function gelikon_plain_product_excerpt_metabox($post) {
-	$excerpt = get_post_field('post_excerpt', $post->ID);
-
-	echo '<p style="margin-top:0;color:#666;">Краткий текст рядом с ценой/кнопкой покупки. Без сторонних стилей и шрифтов.</p>';
-
-	echo '<textarea name="gelikon_product_excerpt" style="width:100%;min-height:160px;font-family:monospace;font-size:14px;line-height:1.5;">' . esc_textarea($excerpt) . '</textarea>';
-}
-
-
-/**
- * Сохраняем оба поля.
- */
-add_action('save_post_product', 'gelikon_save_plain_product_fields', 20);
-
-function gelikon_save_plain_product_fields($post_id) {
-	if (
-		defined('DOING_AUTOSAVE') && DOING_AUTOSAVE
-		|| wp_is_post_revision($post_id)
-		|| !current_user_can('edit_product', $post_id)
-	) {
-		return;
+	if ($content === '') {
+		return '';
 	}
-
-	if (
-		empty($_POST['gelikon_plain_product_description_nonce'])
-		|| !wp_verify_nonce(
-			sanitize_text_field(wp_unslash($_POST['gelikon_plain_product_description_nonce'])),
-			'gelikon_save_plain_product_description'
-		)
-	) {
-		return;
-	}
-
-	remove_action('save_post_product', 'gelikon_save_plain_product_fields', 20);
-
-	if (isset($_POST['gelikon_product_description'])) {
-		$description = gelikon_clean_plain_product_text(wp_unslash($_POST['gelikon_product_description']));
-
-		wp_update_post([
-			'ID'           => $post_id,
-			'post_content' => $description,
-		]);
-	}
-
-	if (isset($_POST['gelikon_product_excerpt'])) {
-		$excerpt = gelikon_clean_plain_product_text(wp_unslash($_POST['gelikon_product_excerpt']));
-
-		wp_update_post([
-			'ID'           => $post_id,
-			'post_excerpt' => $excerpt,
-		]);
-	}
-
-	add_action('save_post_product', 'gelikon_save_plain_product_fields', 20);
-}
-
-
-/**
- * Чистка текста от мусора Word / Google Docs / inline-стилей.
- */
-function gelikon_clean_plain_product_text($content) {
-	$content = trim($content);
 
 	$content = preg_replace('/<!--(.|\s)*?-->/', '', $content);
 	$content = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $content);
@@ -6844,31 +6732,82 @@ function gelikon_clean_plain_product_text($content) {
 		],
 	]);
 
-	$content = wpautop($content);
-
-	return $content;
+	return wpautop($content);
 }
 
+add_filter('woocommerce_short_description', function ($description) {
+	return gelikon_clean_product_description_html($description);
+}, 20);
+
 /**
- * Clean imported/saved product descriptions even when they bypass the custom textarea.
+ * Admin hint for blog post featured images.
  */
-add_filter('wp_insert_post_data', function ($data, $postarr) {
-	if (($data['post_type'] ?? '') !== 'product') {
-		return $data;
+add_filter('admin_post_thumbnail_html', function ($content, $post_id, $thumbnail_id) {
+	$post = get_post($post_id);
+
+	if (!$post || $post->post_type !== 'post') {
+		return $content;
 	}
 
-	if (!empty($data['post_content'])) {
-		$data['post_content'] = gelikon_clean_plain_product_text($data['post_content']);
+	$hint = '<div class="gelikon-featured-image-requirements" style="margin:10px 0 0;padding:12px;border:1px solid #c3c4c7;border-radius:4px;background:#f6f7f7;color:#1d2327;">'
+		. '<strong>Требования к изображению записи</strong>'
+		. '<ul style="margin:8px 0 0 18px;list-style:disc;">'
+		. '<li>Рекомендуемый размер: <strong>425 × 267 px</strong> или больше в той же пропорции.</li>'
+		. '<li>Соотношение сторон: <strong>425:267</strong> — примерно <strong>1.59:1</strong>.</li>'
+		. '<li>Ключевой объект держите по центру кадра, чтобы карточки блога выглядели единообразно.</li>'
+		. '</ul>'
+		. '</div>';
+
+	return $content . $hint;
+}, 10, 3);
+
+
+add_action('enqueue_block_editor_assets', function () {
+	$screen = function_exists('get_current_screen') ? get_current_screen() : null;
+
+	if (!$screen || $screen->post_type !== 'post') {
+		return;
 	}
 
-	if (!empty($data['post_excerpt'])) {
-		$data['post_excerpt'] = gelikon_clean_plain_product_text($data['post_excerpt']);
+	$script = <<<'JS'
+(function () {
+	const hintId = 'gelikon-featured-image-requirements-block-editor';
+	const hintHtml = `
+		<div id="${hintId}" class="gelikon-featured-image-requirements" style="margin:10px 0 14px;padding:12px;border:1px solid #c3c4c7;border-radius:4px;background:#f6f7f7;color:#1d2327;font-size:12px;line-height:1.4;">
+			<strong style="display:block;margin-bottom:6px;">Требования к изображению записи</strong>
+			<div>Рекомендуемый размер: <strong>425 × 267 px</strong> или больше в той же пропорции.</div>
+			<div>Соотношение сторон: <strong>425:267</strong> — примерно <strong>1.59:1</strong>.</div>
+			<div>Ключевой объект держите по центру кадра.</div>
+		</div>
+	`;
+
+	function placeHint() {
+		if (document.getElementById(hintId)) {
+			return;
+		}
+
+		const featuredImagePanel = document.querySelector('.editor-post-featured-image');
+
+		if (!featuredImagePanel) {
+			return;
+		}
+
+		featuredImagePanel.insertAdjacentHTML('beforeend', hintHtml);
 	}
 
-	return $data;
-}, 20, 2);
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', placeHint);
+	} else {
+		placeHint();
+	}
 
+	const observer = new MutationObserver(placeHint);
+	observer.observe(document.body, { childList: true, subtree: true });
+}());
+JS;
 
+	wp_add_inline_script('wp-edit-post', $script);
+});
 
 
 
