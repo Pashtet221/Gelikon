@@ -90,9 +90,10 @@ $max_price_selected = isset($_GET['max_price']) ? (int) $_GET['max_price'] : 0;
 $tax_query = [
 	'relation' => 'AND',
 	[
-		'taxonomy' => 'product_cat',
-		'field'    => 'term_id',
-		'terms'    => [$current_term->term_id],
+		'taxonomy'         => 'product_cat',
+		'field'            => 'term_id',
+		'terms'            => [$current_term->term_id],
+		'include_children' => false,
 	],
 ];
 
@@ -115,9 +116,10 @@ $product_ids_for_filters = get_posts([
 	'fields'         => 'ids',
 	'tax_query'      => [
 		[
-			'taxonomy' => 'product_cat',
-			'field'    => 'term_id',
-			'terms'    => [$current_term->term_id],
+			'taxonomy'         => 'product_cat',
+			'field'            => 'term_id',
+			'terms'            => [$current_term->term_id],
+			'include_children' => false,
 		],
 	],
 ]);
@@ -159,9 +161,10 @@ if (!empty($product_ids_for_filters) && !empty($attribute_taxonomies)) {
 				'update_post_term_cache' => false,
 				'tax_query'      => [
 					[
-						'taxonomy' => 'product_cat',
-						'field'    => 'term_id',
-						'terms'    => [$current_term->term_id],
+						'taxonomy'         => 'product_cat',
+						'field'            => 'term_id',
+						'terms'            => [$current_term->term_id],
+						'include_children' => false,
 					],
 					[
 						'taxonomy' => $taxonomy,
