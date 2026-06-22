@@ -1183,9 +1183,10 @@ function gelikon_filter_products_ajax() {
 	 */
 	if ($term_id > 0) {
 		$tax_query[] = [
-			'taxonomy' => 'product_cat',
-			'field'    => 'term_id',
-			'terms'    => [$term_id],
+			'taxonomy'         => 'product_cat',
+			'field'            => 'term_id',
+			'terms'            => [$term_id],
+			'include_children' => false,
 		];
 	}
 
