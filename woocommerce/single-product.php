@@ -377,6 +377,19 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	margin-bottom: 6px;
 }
 
+.gl-product-summary__excerpt strong,
+.gl-product-summary__excerpt b {
+	font-weight: 400;
+}
+
+.gl-product-summary__excerpt img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	margin: 12px 0;
+	border-radius: 16px;
+}
+
 .gl-product-summary__more {
 	align-self: flex-start;
 	padding: 0;
@@ -584,7 +597,22 @@ document.addEventListener('DOMContentLoaded', function () {
 </style>
 			
 			
-			<div id="gl-product-details" class="gl-product-summary__description">
+			<style>
+.gl-product-summary__description strong,
+.gl-product-summary__description b {
+	font-weight: 400;
+}
+
+.gl-product-summary__description img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	margin: 18px 0;
+	border-radius: 20px;
+}
+</style>
+
+<div id="gl-product-details" class="gl-product-summary__description">
 	<?php
 	global $post;
 

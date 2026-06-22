@@ -6716,6 +6716,15 @@ function gelikon_clean_product_description_html($content) {
 	$content = wp_kses($content, [
 		'p'      => [],
 		'br'     => [],
+		'img'    => [
+			'src'      => [],
+			'alt'      => [],
+			'title'    => [],
+			'loading'  => [],
+			'decoding' => [],
+			'srcset'   => [],
+			'sizes'    => [],
+		],
 		'strong' => [],
 		'b'      => [],
 		'em'     => [],
