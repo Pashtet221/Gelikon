@@ -6710,8 +6710,27 @@ function gelikon_clean_product_description_html($content) {
 	// Keep the imported text, but drop H4/H5/H6 wrappers from descriptions.
 	$content = preg_replace('/<h[4-6]\b[^>]*>(.*?)<\/h[4-6]>/is', '$1', $content);
 
-	$content = preg_replace('/\s(style|class|id|face|font-family|lang|width|height)="[^"]*"/i', '', $content);
-	$content = preg_replace("/\s(style|class|id|face|font-family|lang|width|height)='[^']*'/i", '', $content);
+	// Preserve image dimensions set in the editor before stripping unsafe inline styles.
+	$content = preg_replace_callback('/<img\b[^>]*>/i', function ($matches) {
+		$img = $matches[0];
+
+		if (preg_match("/\sstyle=(['\"])(.*?)\\1/i", $img, $style_match)) {
+			$style = html_entity_decode($style_match[2], ENT_QUOTES, get_bloginfo('charset'));
+
+			if (!preg_match("/\swidth=(['\"])?[^\s'\">]+/i", $img) && preg_match('/(?:^|;)\s*width\s*:\s*(\d+(?:\.\d+)?)px\b/i', $style, $width_match)) {
+				$img = preg_replace('/\s*\/?>(\s*)$/', ' width="' . esc_attr((string) round((float) $width_match[1])) . '">$1', $img);
+			}
+
+			if (!preg_match("/\sheight=(['\"])?[^\s'\">]+/i", $img) && preg_match('/(?:^|;)\s*height\s*:\s*(\d+(?:\.\d+)?)px\b/i', $style, $height_match)) {
+				$img = preg_replace('/\s*\/?>(\s*)$/', ' height="' . esc_attr((string) round((float) $height_match[1])) . '">$1', $img);
+			}
+		}
+
+		return $img;
+	}, $content);
+
+	$content = preg_replace('/\s(style|class|id|face|font-family|lang)="[^"]*"/i', '', $content);
+	$content = preg_replace("/\s(style|class|id|face|font-family|lang)='[^']*'/i", '', $content);
 
 	$content = wp_kses($content, [
 		'p'      => [],
@@ -6719,6 +6738,8 @@ function gelikon_clean_product_description_html($content) {
 		'img'    => [
 			'src'      => [],
 			'alt'      => [],
+			'width'    => [],
+			'height'   => [],
 			'title'    => [],
 			'loading'  => [],
 			'decoding' => [],
