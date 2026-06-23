@@ -6710,8 +6710,8 @@ function gelikon_clean_product_description_html($content) {
 	// Keep the imported text, but drop H4/H5/H6 wrappers from descriptions.
 	$content = preg_replace('/<h[4-6]\b[^>]*>(.*?)<\/h[4-6]>/is', '$1', $content);
 
-	$content = preg_replace('/\s(style|class|id|face|font-family|lang|width|height)="[^"]*"/i', '', $content);
-	$content = preg_replace("/\s(style|class|id|face|font-family|lang|width|height)='[^']*'/i", '', $content);
+	$content = preg_replace('/\s(style|class|id|face|font-family|lang)="[^"]*"/i', '', $content);
+	$content = preg_replace("/\s(style|class|id|face|font-family|lang)='[^']*'/i", '', $content);
 
 	$content = wp_kses($content, [
 		'p'      => [],
@@ -6719,6 +6719,8 @@ function gelikon_clean_product_description_html($content) {
 		'img'    => [
 			'src'      => [],
 			'alt'      => [],
+			'width'    => [],
+			'height'   => [],
 			'title'    => [],
 			'loading'  => [],
 			'decoding' => [],
