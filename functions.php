@@ -6693,6 +6693,37 @@ add_action('wp_footer', function () {
  * Product descriptions: keep default WooCommerce editors in admin,
  * but strip imported editor junk before rendering on the frontend.
  */
+
+function gelikon_preserve_product_description_image_size($matches) {
+	$img = $matches[0];
+
+	if (!preg_match('/\sstyle=("|\')(.*?)\1/is', $img, $style_match)) {
+		return $img;
+	}
+
+	$style = html_entity_decode($style_match[2], ENT_QUOTES, get_bloginfo('charset'));
+
+	foreach (['width', 'height'] as $attribute) {
+		if (preg_match('/\s' . $attribute . '\s*=/i', $img)) {
+			continue;
+		}
+
+		if (!preg_match('/(?:^|;)\s*' . $attribute . '\s*:\s*(\d+(?:\.\d+)?)px\s*(?:;|$)/i', $style, $dimension_match)) {
+			continue;
+		}
+
+		$value = (int) round((float) $dimension_match[1]);
+
+		if ($value <= 0) {
+			continue;
+		}
+
+		$img = preg_replace('/\s*\/?' . '>$/', ' ' . $attribute . '="' . $value . '"$0', $img, 1);
+	}
+
+	return $img;
+}
+
 function gelikon_clean_product_description_html($content) {
 	$content = trim((string) $content);
 
@@ -6705,6 +6736,10 @@ function gelikon_clean_product_description_html($content) {
 	$content = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $content);
 	$content = preg_replace('/<font\b[^>]*>(.*?)<\/font>/is', '$1', $content);
 	$content = preg_replace('/<span\b[^>]*>(.*?)<\/span>/is', '$1', $content);
+
+	// Product editors often store resized image dimensions in inline styles.
+	// Preserve those dimensions before stripping imported editor styles below.
+	$content = preg_replace_callback('/<img\b[^>]*>/i', 'gelikon_preserve_product_description_image_size', $content);
 
 	// WP All Import can wrap plain product descriptions in heading tags.
 	// Keep the imported text, but drop H4/H5/H6 wrappers from descriptions.
