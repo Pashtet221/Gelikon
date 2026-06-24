@@ -11,7 +11,7 @@ if (!$current_term || is_wp_error($current_term)) {
 }
 
 $paged = max(1, (int) get_query_var('paged'), (int) get_query_var('page'));
-$per_page = 12;
+$per_page = 20;
 
 /**
  * Доступные атрибуты WooCommerce

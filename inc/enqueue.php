@@ -13,26 +13,6 @@ function gelikon_enqueue_assets() {
         'menuLabelOpen'  => __('Открыть меню', 'gelikon'),
         'menuLabelClose' => __('Закрыть меню', 'gelikon'),
     ]);
-
-    if (function_exists('is_product') && is_product()) {
-        wp_enqueue_script(
-            'gelikon-print-product-price',
-            GELIKON_URI . '/assets/js/print-product-price.js',
-            [],
-            file_exists(GELIKON_DIR . '/assets/js/print-product-price.js')
-                ? filemtime(GELIKON_DIR . '/assets/js/print-product-price.js')
-                : GELIKON_VERSION,
-            true
-        );
-
-        wp_localize_script('gelikon-print-product-price', 'gelikonPrintProductPrice', [
-            'ajaxUrl'     => admin_url('admin-ajax.php'),
-            'nonce'       => wp_create_nonce('gelikon_print_product_price'),
-            'productId'   => get_queried_object_id(),
-            'loadingText' => __('Пересчитываем цену…', 'gelikon'),
-            'errorText'   => __('Не удалось пересчитать цену. Попробуйте изменить параметры ещё раз.', 'gelikon'),
-        ]);
-    }
 }
 add_action('wp_enqueue_scripts', 'gelikon_enqueue_assets');
 
