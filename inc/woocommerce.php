@@ -56,3 +56,21 @@ function gelikon_enable_myaccount_registration_on_account_page($value) {
     return $value;
 }
 add_filter('pre_option_woocommerce_enable_myaccount_registration', 'gelikon_enable_myaccount_registration_on_account_page');
+
+/**
+ * Make WooCommerce customer registration available during checkout.
+ *
+ * The checkout template already renders WooCommerce billing hooks, so enabling
+ * this option exposes the native "Create an account" checkbox for guests.
+ */
+function gelikon_enable_checkout_registration($value) {
+    $is_checkout_request = !empty($_POST['createaccount']) || !empty($_POST['woocommerce-process-checkout-nonce']); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+    $is_checkout_page = function_exists('is_checkout') && is_checkout();
+
+    if (!is_admin() && !is_user_logged_in() && ($is_checkout_page || $is_checkout_request)) {
+        return 'yes';
+    }
+
+    return $value;
+}
+add_filter('pre_option_woocommerce_enable_signup_and_login_from_checkout', 'gelikon_enable_checkout_registration');

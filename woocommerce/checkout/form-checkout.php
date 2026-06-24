@@ -205,6 +205,38 @@ if (
 	gap: 0;
 }
 
+.gl-checkout-compact .woocommerce-account-fields {
+	margin-top: 6px;
+}
+
+.gl-checkout-compact .woocommerce-account-fields .form-row {
+	margin-bottom: 0 !important;
+}
+
+.gl-checkout-compact .woocommerce-account-fields label.checkbox {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0;
+	padding: 12px 14px;
+	border: 1px solid #dce4ea;
+	border-radius: 12px;
+	background: #f7fbf8;
+	font-size: 14px;
+	line-height: 1.35;
+	font-weight: 700;
+	color: #2a3038;
+	cursor: pointer;
+}
+
+.gl-checkout-compact .woocommerce-account-fields input[type="checkbox"] {
+	width: 18px;
+	height: 18px;
+	margin: 1px 0 0;
+	accent-color: #1f7a3d;
+	flex: 0 0 auto;
+}
+
 .gl-checkout-coupon {
 	background: #f7fbf8;
 	border: 1px dashed #b9d8c3;
