@@ -6263,6 +6263,15 @@ add_action('wp_footer', function () {
 		document.querySelectorAll('.gl-product-card__button.added, .single_add_to_cart_button.added').forEach(setButtonInCartState);
 
 		document.body.addEventListener('click', function(event){
+			const cartLink = event.target.closest('.gl-cart-link');
+
+			if (cartLink) {
+				event.preventDefault();
+				showMiniCart();
+				refreshMiniCartAjax();
+				return;
+			}
+
 			const qtyButton = event.target.closest('.gl-full-mini-cart__qty-btn');
 
 			if (qtyButton) {
@@ -6285,15 +6294,6 @@ add_action('wp_footer', function () {
 				lastCartTrigger = btn;
 			}
 		});
-
-		document.addEventListener('mouseenter', function(event){
-			const cartLink = event.target.closest('.gl-cart-link');
-
-			if (!cartLink) return;
-
-			showMiniCart();
-			refreshMiniCartAjax();
-		}, true);
 
 		window.addEventListener('resize', function(){
 			const panel = ensureMiniCart();
