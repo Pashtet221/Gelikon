@@ -4,6 +4,7 @@ if (!defined('ABSPATH')) {
 }
 
 $gl_address = '';
+$gl_site_description = trim((string) get_bloginfo('description', 'display'));
 
 if (function_exists('get_field')) {
 	$gl_address = get_field('address', 'option');
@@ -43,9 +44,11 @@ if (function_exists('get_field')) {
 							<?php gelikon_site_logo(); ?>
 						</div>
 
-						<div class="gl-logo-slogan">
-							Умные технологии для жизни и дома
-						</div>
+						<?php if ($gl_site_description !== '') : ?>
+							<div class="gl-logo-slogan">
+								<?php echo esc_html($gl_site_description); ?>
+							</div>
+						<?php endif; ?>
 					</div>
 				</div>
 
@@ -484,7 +487,7 @@ if (function_exists('get_field')) {
 
 .gl-logo-slogan {
 	margin-top: 8px;
-	font-size: clamp(9px, 0.95vw, 12px);
+	font-size: clamp(8px, 0.85vw, 11px);
 	line-height: 1.3;
 	font-weight: 600;
 	color: var(--gl-color-subtitle);
@@ -1067,7 +1070,7 @@ body.gl-modal-open {
 	}
 
 	.gl-logo-slogan {
-		font-size: clamp(9px, 0.9vw, 11px);
+		font-size: clamp(8px, 0.8vw, 10px);
 	}
 
 	.gl-menu {
