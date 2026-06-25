@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 if (!function_exists('gelikon_get_page_url_by_path')) {
     function gelikon_get_page_url_by_path($path) {
         $page = get_page_by_path($path);
-        return $page ? get_permalink($page->ID) : '#';
+        return $page ? get_permalink($page->ID) : home_url('/' . trim($path, '/') . '/');
     }
 }
 
@@ -187,10 +187,10 @@ $account_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink(
                 <a href="<?php echo esc_url($privacy_url); ?>">
                     Политика конфиденциальности
                 </a>
-               
-<!--                 <a href="<?php echo esc_url($account_url); ?>">
-                    <?php esc_html_e('Личный кабинет', 'gelikon'); ?>
-                </a> -->
+
+                <a href="<?php echo esc_url($terms_url); ?>">
+                    Пользовательское соглашение
+                </a>
             </div>
         </div>
     </div>

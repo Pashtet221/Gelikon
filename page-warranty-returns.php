@@ -70,7 +70,7 @@ $return_email = gelikon_warranty_get_field('warranty_email', 'info@gelikon-line.
 <section class="gl-home-trust gl-card">
 	<div class="gl-trust-grid">
 		<?php foreach ($benefits as $benefit) : ?>
-			<a class="gl-trust-item" href="http://paveld9o.beget.tech/gelikon/user-agreement/">
+			<a class="gl-trust-item" href="<?php echo esc_url(home_url('/user-agreement/')); ?>">
 				<div class="gl-trust-item__icon" aria-hidden="true">
 					<?php if (!empty($benefit['icon'])) : ?>
 						<?php if (is_array($benefit['icon']) && !empty($benefit['icon']['url'])) : ?>

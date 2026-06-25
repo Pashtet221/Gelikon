@@ -105,7 +105,7 @@ if (empty($check_return_items) || !is_array($check_return_items)) {
 
 	<div class="gl-trust-grid">
 		<?php foreach ($global_benefits as $item) : ?>
-			<a class="gl-trust-item" href="http://paveld9o.beget.tech/gelikon/user-agreement/">
+			<a class="gl-trust-item" href="<?php echo esc_url(home_url('/user-agreement/')); ?>">
 
 				<div class="gl-trust-item__icon-wrap" aria-hidden="true">
 					<?php if (!empty($item['icon']['url'])) : ?>
@@ -138,7 +138,7 @@ if (empty($check_return_items) || !is_array($check_return_items)) {
 
 	<div class="gl-delivery-cards">
 		<?php foreach ($pickup_methods as $method) : ?>
-			<a class="gl-delivery-card" href="http://paveld9o.beget.tech/gelikon/user-agreement/">
+			<a class="gl-delivery-card" href="<?php echo esc_url(home_url('/user-agreement/')); ?>">
 
 				<?php if (!empty($method['icon']['url'])) : ?>
 					<img
@@ -184,7 +184,7 @@ if (empty($check_return_items) || !is_array($check_return_items)) {
 
 	<div class="gl-delivery-cards gl-delivery-payments">
 		<?php foreach ($payment_methods as $method) : ?>
-			<a class="gl-delivery-card gl-delivery-card--iconed" href="http://paveld9o.beget.tech/gelikon/user-agreement/">
+			<a class="gl-delivery-card gl-delivery-card--iconed" href="<?php echo esc_url(home_url('/user-agreement/')); ?>">
 
 				<?php if (!empty($method['icon']['url'])) : ?>
 					<img
