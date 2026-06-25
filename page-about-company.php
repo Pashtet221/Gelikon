@@ -134,7 +134,7 @@ $brand_text = gelikon_about_get_field('brand_text', 'В 2022 году был з�
 		$title = !empty($item['title']) ? $item['title'] : 'Пункт';
 		$description = !empty($item['description']) ? $item['description'] : '';
 	?>
-		<a class="gl-about-approach__item" href="http://paveld9o.beget.tech/gelikon/user-agreement/">
+		<a class="gl-about-approach__item" href="<?php echo esc_url(home_url('/user-agreement/')); ?>">
 			<div class="gl-about-approach__icon">
 				<?php if ($icon_url) : ?>
 					<img src="<?php echo esc_url($icon_url); ?>" alt="">

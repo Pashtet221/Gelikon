@@ -484,14 +484,13 @@ if (function_exists('get_field')) {
 
 .gl-logo-slogan {
 	margin-top: 8px;
-	font-size: 12px;
+	font-size: clamp(9px, 0.95vw, 12px);
 	line-height: 1.3;
 	font-weight: 600;
 	color: var(--gl-color-subtitle);
 	max-width: 100%;
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
+	white-space: nowrap;
+	display: block;
 	overflow: hidden;
 }
 
@@ -1068,7 +1067,7 @@ body.gl-modal-open {
 	}
 
 	.gl-logo-slogan {
-		font-size: 11px;
+		font-size: clamp(9px, 0.9vw, 11px);
 	}
 
 	.gl-menu {
