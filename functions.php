@@ -7783,7 +7783,7 @@ function gelikon_checkout_shipping_method_label($label, $method) {
 
 
 /**
- * Use the site custom logo as the WooCommerce email header image.
+ * Use the same logo in WooCommerce emails as in the site header.
  *
  * Шаблон письма о заказе редактируется в теме:
  * - общий макет писем WooCommerce — woocommerce/emails/*.php;
@@ -7798,15 +7798,31 @@ function gelikon_woocommerce_email_site_logo($image) {
 		return $custom_logo_url;
 	}
 
-	$theme_logo_path = 'assets/img/gelikon-email-logo.svg';
-
-	if (file_exists(get_theme_file_path($theme_logo_path))) {
-		return get_theme_file_uri($theme_logo_path);
-	}
-
 	return $image;
 }
 add_filter('woocommerce_email_header_image', 'gelikon_woocommerce_email_site_logo');
+
+function gelikon_woocommerce_email_site_logo_attributes($attrs) {
+	$custom_logo_id = get_theme_mod('custom_logo');
+	$site_name      = get_bloginfo('name');
+
+	if ($custom_logo_id) {
+		$metadata = wp_get_attachment_metadata($custom_logo_id);
+
+		if (!empty($metadata['width'])) {
+			$attrs['width'] = (string) min(220, (int) $metadata['width']);
+		}
+
+		if (!empty($metadata['height']) && !empty($metadata['width'])) {
+			$attrs['height'] = (string) round(((int) $attrs['width'] / (int) $metadata['width']) * (int) $metadata['height']);
+		}
+	}
+
+	$attrs['alt'] = $site_name ? $site_name : __('Site logo', 'gelikon');
+
+	return $attrs;
+}
+add_filter('woocommerce_email_header_image_attributes', 'gelikon_woocommerce_email_site_logo_attributes');
 
 // Отключить предупреждения WooCommerce в админке
 add_filter('woocommerce_helper_suppress_admin_notices', '__return_true');
