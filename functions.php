@@ -1171,7 +1171,7 @@ function gelikon_filter_products_ajax() {
 	$filters = isset($_POST['filters']) && is_array($_POST['filters']) ? $_POST['filters'] : [];
 	$min_price = isset($_POST['min_price']) ? (int) $_POST['min_price'] : 0;
 	$max_price = isset($_POST['max_price']) ? (int) $_POST['max_price'] : 0;
-	$orderby_selected = function_exists('gelikon_get_catalog_orderby_from_request') ? gelikon_get_catalog_orderby_from_request($_POST) : (isset($_POST['orderby']) ? sanitize_key(wp_unslash($_POST['orderby'])) : 'price_desc');
+	$orderby_selected = function_exists('gelikon_get_catalog_orderby_from_request') ? gelikon_get_catalog_orderby_from_request($_POST) : (isset($_POST['orderby']) ? sanitize_key(wp_unslash($_POST['orderby'])) : 'menu_order');
 
 	$tax_query = [
 		'relation' => 'AND',
@@ -1317,7 +1317,7 @@ add_action('wp_enqueue_scripts', function () {
 
 	wp_localize_script('gelikon-taxonomy-filters', 'gelikonCatalogAjax', [
 		'ajaxurl'       => admin_url('admin-ajax.php'),
-		'defaultOrderby' => function_exists('gelikon_get_default_catalog_orderby') ? gelikon_get_default_catalog_orderby() : 'price_desc',
+		'defaultOrderby' => function_exists('gelikon_get_default_catalog_orderby') ? gelikon_get_default_catalog_orderby() : 'menu_order',
 		'i18n'          => [
 			'countSuffix' => 'товаров',
 		],
