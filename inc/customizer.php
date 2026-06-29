@@ -73,19 +73,19 @@ function gelikon_customize_register($wp_customize) {
     ]);
 
     $wp_customize->add_setting('gelikon_catalog_default_orderby', [
-        'default'           => 'price_desc',
+        'default'           => 'menu_order',
         'sanitize_callback' => 'gelikon_sanitize_catalog_orderby',
         'transport'         => 'refresh',
     ]);
 
     $wp_customize->add_control('gelikon_catalog_default_orderby', [
         'label'       => __('Сортировка товаров по умолчанию', 'gelikon'),
-        'description' => __('Выберите «позиция WooCommerce» для стандартной сортировки WooCommerce или «ручной порядок по ID», чтобы выводить товары в порядке из списка ID ниже. Сейчас по умолчанию включено «Сначала дороже».', 'gelikon'),
+        'description' => __('Выберите порядок товаров, который будет применяться в каталоге без выбора сортировки. Вариант «По умолчанию» показывает товары в ручном порядке из списка ID ниже, затем по позиции WooCommerce и названию.', 'gelikon'),
         'section'     => 'gelikon_catalog',
         'type'        => 'select',
         'choices'     => function_exists('gelikon_catalog_sorting_options') ? gelikon_catalog_sorting_options() : [
+            'menu_order' => __('По умолчанию', 'gelikon'),
             'price_desc' => __('Сначала дороже', 'gelikon'),
-            'menu_order' => __('По умолчанию (ручной порядок)', 'gelikon'),
         ],
     ]);
 
@@ -98,7 +98,7 @@ function gelikon_customize_register($wp_customize) {
 
     $wp_customize->add_control('gelikon_catalog_manual_product_ids', [
         'label'       => __('ID товаров для ручного порядка', 'gelikon'),
-        'description' => __('Введите ID товаров в нужном порядке через запятую, например: 125, 18, 304. Эти товары будут показаны первыми при сортировке «Ручной порядок по ID», остальные — после них по позиции WooCommerce и названию.', 'gelikon'),
+        'description' => __('Введите ID товаров в нужном порядке через запятую, например: 125, 18, 304. Эти товары будут показаны первыми при сортировке «По умолчанию», остальные — после них по позиции WooCommerce и названию.', 'gelikon'),
         'section'     => 'gelikon_catalog',
         'type'        => 'textarea',
     ]);

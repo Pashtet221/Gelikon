@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 
 			if (sortSelect) {
-				sortSelect.value = gelikonCatalogAjax.defaultOrderby || 'price_desc';
+				sortSelect.value = gelikonCatalogAjax.defaultOrderby || 'menu_order';
 			}
 
 			refreshActiveItems();

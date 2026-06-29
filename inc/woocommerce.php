@@ -45,8 +45,7 @@ add_filter('woocommerce_sale_flash', 'gelikon_sale_flash_text');
  */
 function gelikon_catalog_sorting_options() {
 	return [
-		'menu_order'  => __('По умолчанию (позиция WooCommerce)', 'gelikon'),
-		'manual_ids'  => __('Ручной порядок по ID', 'gelikon'),
+		'menu_order'  => __('По умолчанию', 'gelikon'),
 		'date_desc'   => __('Сначала новые', 'gelikon'),
 		'price_asc'  => __('Сначала дешевле', 'gelikon'),
 		'price_desc' => __('Сначала дороже', 'gelikon'),
@@ -58,11 +57,11 @@ function gelikon_sanitize_catalog_orderby($value) {
 	$value   = sanitize_key($value);
 	$options = gelikon_catalog_sorting_options();
 
-	return array_key_exists($value, $options) ? $value : 'price_desc';
+	return array_key_exists($value, $options) ? $value : 'menu_order';
 }
 
 function gelikon_get_default_catalog_orderby() {
-	return gelikon_sanitize_catalog_orderby(get_theme_mod('gelikon_catalog_default_orderby', 'price_desc'));
+	return gelikon_sanitize_catalog_orderby(get_theme_mod('gelikon_catalog_default_orderby', 'menu_order'));
 }
 
 function gelikon_get_manual_catalog_product_ids() {
@@ -128,22 +127,6 @@ function gelikon_get_catalog_orderby_args($orderby_selected) {
 				'order'   => 'DESC',
 			];
 
-		case 'manual_ids':
-			$manual_ids = gelikon_get_manual_catalog_product_ids();
-
-			if (empty($manual_ids)) {
-				return [
-					'orderby' => 'menu_order title',
-					'order'   => 'ASC',
-				];
-			}
-
-			return [
-				'gelikon_manual_product_ids' => $manual_ids,
-				'orderby'                    => 'menu_order title',
-				'order'                      => 'ASC',
-			];
-
 		case 'price_asc':
 			return [
 				'meta_key' => '_price',
@@ -166,10 +149,17 @@ function gelikon_get_catalog_orderby_args($orderby_selected) {
 
 		case 'menu_order':
 		default:
-			return [
+			$args       = [
 				'orderby' => 'menu_order title',
 				'order'   => 'ASC',
 			];
+			$manual_ids = gelikon_get_manual_catalog_product_ids();
+
+			if (!empty($manual_ids)) {
+				$args['gelikon_manual_product_ids'] = $manual_ids;
+			}
+
+			return $args;
 	}
 }
 

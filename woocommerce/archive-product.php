@@ -35,7 +35,7 @@ $attribute_taxonomies = function_exists('wc_get_attribute_taxonomies') ? wc_get_
 /**
  * Текущая сортировка
  */
-$orderby_selected = function_exists('gelikon_get_catalog_orderby_from_request') ? gelikon_get_catalog_orderby_from_request($_GET) : (isset($_GET['orderby']) ? sanitize_key(wp_unslash($_GET['orderby'])) : 'price_desc');
+$orderby_selected = function_exists('gelikon_get_catalog_orderby_from_request') ? gelikon_get_catalog_orderby_from_request($_GET) : (isset($_GET['orderby']) ? sanitize_key(wp_unslash($_GET['orderby'])) : 'menu_order');
 $orderby_args     = function_exists('gelikon_get_catalog_orderby_args') ? gelikon_get_catalog_orderby_args($orderby_selected) : [
 	'meta_key' => '_price',
 	'orderby'  => 'meta_value_num',
