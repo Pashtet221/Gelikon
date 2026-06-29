@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="96" viewBox="0 0 420 96" role="img" aria-labelledby="title desc">
+  <title id="title">GELIKON LINE</title>
+  <desc id="desc">Логотип GELIKON LINE — умные технологии для дома и жизни</desc>
+  <rect width="420" height="96" rx="20" fill="#ffffff"/>
+  <g fill="none" stroke="#8526ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M46 30h34l12 18-12 18H46L34 48z"/>
+    <path d="M51 48h24"/>
+    <path d="M63 36v24"/>
+  </g>
+  <text x="112" y="45" fill="#1e1e1e" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="800" letter-spacing="1">GELIKON LINE</text>
+  <text x="113" y="68" fill="#787c82" font-family="Arial, Helvetica, sans-serif" font-size="14">умные технологии для дома и жизни</text>
+</svg>

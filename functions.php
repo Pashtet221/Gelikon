@@ -7794,7 +7794,17 @@ function gelikon_woocommerce_email_site_logo($image) {
 	$custom_logo_id = get_theme_mod('custom_logo');
 	$custom_logo_url = $custom_logo_id ? wp_get_attachment_image_url($custom_logo_id, 'full') : '';
 
-	return $custom_logo_url ?: $image;
+	if ($custom_logo_url) {
+		return $custom_logo_url;
+	}
+
+	$theme_logo_path = 'assets/img/gelikon-email-logo.svg';
+
+	if (file_exists(get_theme_file_path($theme_logo_path))) {
+		return get_theme_file_uri($theme_logo_path);
+	}
+
+	return $image;
 }
 add_filter('woocommerce_email_header_image', 'gelikon_woocommerce_email_site_logo');
 
