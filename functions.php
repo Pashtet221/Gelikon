@@ -7783,29 +7783,20 @@ function gelikon_checkout_shipping_method_label($label, $method) {
 
 
 /**
- * Order confirmation emails: use the site custom logo as the WooCommerce header image.
+ * Use the site custom logo as the WooCommerce email header image.
  *
- * Шаблон письма подтверждения заказа редактируется в теме:
- * - общий макет письма WooCommerce — woocommerce/emails/customer-processing-order.php
- *   (если понадобится полная переопределенная копия шаблона);
+ * Шаблон письма о заказе редактируется в теме:
+ * - общий макет писем WooCommerce — woocommerce/emails/*.php;
  * - таблица состава заказа — woocommerce/emails/email-order-details.php;
- * - заголовок письма и логотип — через этот фильтр и настройки WooCommerce email header.
+ * - заголовок письма и логотип — через этот фильтр и настройки логотипа сайта.
  */
-function gelikon_customer_order_confirmation_logo($image, $email = null) {
-	if (! $email || ! is_object($email) || empty($email->id)) {
-		return $image;
-	}
-
-	if (! in_array($email->id, array('customer_processing_order', 'customer_completed_order'), true)) {
-		return $image;
-	}
-
+function gelikon_woocommerce_email_site_logo($image) {
 	$custom_logo_id = get_theme_mod('custom_logo');
 	$custom_logo_url = $custom_logo_id ? wp_get_attachment_image_url($custom_logo_id, 'full') : '';
 
 	return $custom_logo_url ?: $image;
 }
-add_filter('woocommerce_email_header_image', 'gelikon_customer_order_confirmation_logo', 10, 2);
+add_filter('woocommerce_email_header_image', 'gelikon_woocommerce_email_site_logo');
 
 // Отключить предупреждения WooCommerce в админке
 add_filter('woocommerce_helper_suppress_admin_notices', '__return_true');
