@@ -65,3 +65,14 @@ SCSS
 ----
 Основные переменные находятся в:
 assets/scss/_variables.scss
+
+Письма WooCommerce
+------------------
+Письмо подтверждения заказа покупателю формирует WooCommerce-шаблон `customer-processing-order.php`.
+Если нужно полностью переопределить текст письма, скопируйте оригинальный файл плагина WooCommerce в тему по пути:
+`woocommerce/emails/customer-processing-order.php`.
+
+В этой теме уже переопределена таблица состава заказа:
+`woocommerce/emails/email-order-details.php`. В ней настраиваются колонки товара, количества и цены.
+
+Логотип в письме подтверждения заказа берется из логотипа сайта WordPress (Внешний вид -> Настроить -> Свойства сайта -> Логотип) через фильтр `gelikon_customer_order_confirmation_logo` в `functions.php`.

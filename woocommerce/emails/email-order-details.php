@@ -79,13 +79,18 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 </h2>
 
 <div style="margin-bottom: <?php echo $email_improvements_enabled ? '24px' : '40px'; ?>;">
-	<table class="td font-family <?php echo esc_attr( $order_table_class ); ?>" cellspacing="0" cellpadding="6" style="width: 100%;" border="1">
+	<table class="td font-family <?php echo esc_attr( $order_table_class ); ?>" cellspacing="0" cellpadding="6" style="width: 100%; table-layout: fixed;" border="1">
+		<colgroup>
+			<col style="width: 62%;">
+			<col style="width: 14%;">
+			<col style="width: 24%;">
+		</colgroup>
 		<?php if ( ! $block_email_editor_enabled ) : ?>
 		<thead>
 			<tr>
-				<th class="td" scope="col" style="text-align:<?php echo esc_attr( $text_align ); ?>;"><?php esc_html_e( 'Product', 'woocommerce' ); ?></th>
-				<th class="td" scope="col" style="text-align:<?php echo esc_attr( $order_quantity_text_align ); ?>;"><?php esc_html_e( 'Quantity', 'woocommerce' ); ?></th>
-				<th class="td" scope="col" style="text-align:<?php echo esc_attr( $order_total_text_align ); ?>;"><?php esc_html_e( 'Price', 'woocommerce' ); ?></th>
+				<th class="td" scope="col" width="62%" style="width:62%; text-align:<?php echo esc_attr( $text_align ); ?>; overflow-wrap: break-word; word-break: break-word;"><?php esc_html_e( 'Product', 'woocommerce' ); ?></th>
+				<th class="td" scope="col" width="14%" style="width:14%; text-align:<?php echo esc_attr( $order_quantity_text_align ); ?>;"><?php esc_html_e( 'Quantity', 'woocommerce' ); ?></th>
+				<th class="td" scope="col" width="24%" style="width:24%; text-align:<?php echo esc_attr( $order_total_text_align ); ?>;"><?php esc_html_e( 'Price', 'woocommerce' ); ?></th>
 			</tr>
 		</thead>
 		<?php endif; ?>
