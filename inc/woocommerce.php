@@ -45,8 +45,9 @@ add_filter('woocommerce_sale_flash', 'gelikon_sale_flash_text');
  */
 function gelikon_catalog_sorting_options() {
 	return [
-		'menu_order' => __('По умолчанию (ручной порядок)', 'gelikon'),
-		'date_desc'  => __('Сначала новые', 'gelikon'),
+		'menu_order'  => __('По умолчанию (позиция WooCommerce)', 'gelikon'),
+		'manual_ids'  => __('Ручной порядок по ID', 'gelikon'),
+		'date_desc'   => __('Сначала новые', 'gelikon'),
 		'price_asc'  => __('Сначала дешевле', 'gelikon'),
 		'price_desc' => __('Сначала дороже', 'gelikon'),
 		'title_asc'  => __('По названию', 'gelikon'),
@@ -63,6 +64,47 @@ function gelikon_sanitize_catalog_orderby($value) {
 function gelikon_get_default_catalog_orderby() {
 	return gelikon_sanitize_catalog_orderby(get_theme_mod('gelikon_catalog_default_orderby', 'price_desc'));
 }
+
+function gelikon_get_manual_catalog_product_ids() {
+	$value = get_theme_mod('gelikon_catalog_manual_product_ids', '');
+
+	if (!is_string($value) || $value === '') {
+		return [];
+	}
+
+	$ids = preg_split('/[\s,;]+/', $value);
+	$ids = array_map('absint', is_array($ids) ? $ids : []);
+	$ids = array_values(array_unique(array_filter($ids)));
+
+	return $ids;
+}
+
+function gelikon_sanitize_manual_catalog_product_ids($value) {
+	$ids = preg_split('/[\s,;]+/', (string) $value);
+	$ids = array_map('absint', is_array($ids) ? $ids : []);
+	$ids = array_values(array_unique(array_filter($ids)));
+
+	return implode(', ', $ids);
+}
+
+function gelikon_catalog_manual_ids_orderby($orderby, $query) {
+	$ids = $query->get('gelikon_manual_product_ids');
+
+	if (empty($ids) || !is_array($ids)) {
+		return $orderby;
+	}
+
+	global $wpdb;
+
+	$ids_sql = implode(',', array_map('absint', $ids));
+
+	if ($ids_sql === '') {
+		return $orderby;
+	}
+
+	return "CASE WHEN {$wpdb->posts}.ID IN ({$ids_sql}) THEN 0 ELSE 1 END ASC, FIELD({$wpdb->posts}.ID, {$ids_sql}) ASC, {$wpdb->posts}.menu_order ASC, {$wpdb->posts}.post_title ASC";
+}
+add_filter('posts_orderby', 'gelikon_catalog_manual_ids_orderby', 10, 2);
 
 function gelikon_get_catalog_orderby_from_request($source = null) {
 	if ($source === null) {
@@ -84,6 +126,22 @@ function gelikon_get_catalog_orderby_args($orderby_selected) {
 			return [
 				'orderby' => 'date',
 				'order'   => 'DESC',
+			];
+
+		case 'manual_ids':
+			$manual_ids = gelikon_get_manual_catalog_product_ids();
+
+			if (empty($manual_ids)) {
+				return [
+					'orderby' => 'menu_order title',
+					'order'   => 'ASC',
+				];
+			}
+
+			return [
+				'gelikon_manual_product_ids' => $manual_ids,
+				'orderby'                    => 'menu_order title',
+				'order'                      => 'ASC',
 			];
 
 		case 'price_asc':

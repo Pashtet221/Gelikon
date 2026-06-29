@@ -1316,8 +1316,9 @@ add_action('wp_enqueue_scripts', function () {
 	);
 
 	wp_localize_script('gelikon-taxonomy-filters', 'gelikonCatalogAjax', [
-		'ajaxurl' => admin_url('admin-ajax.php'),
-		'i18n'    => [
+		'ajaxurl'       => admin_url('admin-ajax.php'),
+		'defaultOrderby' => function_exists('gelikon_get_default_catalog_orderby') ? gelikon_get_default_catalog_orderby() : 'price_desc',
+		'i18n'          => [
 			'countSuffix' => 'товаров',
 		],
 	]);
