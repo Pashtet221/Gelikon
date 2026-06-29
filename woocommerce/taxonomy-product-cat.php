@@ -21,44 +21,12 @@ $attribute_taxonomies = function_exists('wc_get_attribute_taxonomies') ? wc_get_
 /**
  * Текущая сортировка
  */
-$orderby_selected = isset($_GET['orderby']) ? sanitize_key($_GET['orderby']) : 'menu_order';
-
-$orderby_args = [
-	'orderby' => 'menu_order title',
-	'order'   => 'ASC',
+$orderby_selected = function_exists('gelikon_get_catalog_orderby_from_request') ? gelikon_get_catalog_orderby_from_request($_GET) : (isset($_GET['orderby']) ? sanitize_key(wp_unslash($_GET['orderby'])) : 'price_desc');
+$orderby_args     = function_exists('gelikon_get_catalog_orderby_args') ? gelikon_get_catalog_orderby_args($orderby_selected) : [
+	'meta_key' => '_price',
+	'orderby'  => 'meta_value_num',
+	'order'    => 'DESC',
 ];
-
-switch ($orderby_selected) {
-	case 'date_desc':
-		$orderby_args = [
-			'orderby' => 'date',
-			'order'   => 'DESC',
-		];
-		break;
-
-	case 'price_asc':
-		$orderby_args = [
-			'meta_key' => '_price',
-			'orderby'  => 'meta_value_num',
-			'order'    => 'ASC',
-		];
-		break;
-
-	case 'price_desc':
-		$orderby_args = [
-			'meta_key' => '_price',
-			'orderby'  => 'meta_value_num',
-			'order'    => 'DESC',
-		];
-		break;
-
-	case 'title_asc':
-		$orderby_args = [
-			'orderby' => 'title',
-			'order'   => 'ASC',
-		];
-		break;
-}
 
 /**
  * Активные фильтры из GET
@@ -285,11 +253,9 @@ $products_query = new WP_Query($query_args);
 					</label>
 
 					<select id="gl-catalog-sort" class="gl-catalog-sort__select">
-						<option value="menu_order" <?php selected($orderby_selected, 'menu_order'); ?>>По умолчанию</option>
-						<option value="date_desc" <?php selected($orderby_selected, 'date_desc'); ?>>Сначала новые</option>
-						<option value="price_asc" <?php selected($orderby_selected, 'price_asc'); ?>>Сначала дешевле</option>
-						<option value="price_desc" <?php selected($orderby_selected, 'price_desc'); ?>>Сначала дороже</option>
-						<option value="title_asc" <?php selected($orderby_selected, 'title_asc'); ?>>По названию</option>
+						<?php foreach (gelikon_catalog_sorting_options() as $orderby_value => $orderby_label) : ?>
+							<option value="<?php echo esc_attr($orderby_value); ?>" <?php selected($orderby_selected, $orderby_value); ?>><?php echo esc_html($orderby_label); ?></option>
+						<?php endforeach; ?>
 					</select>
 				</div>
 			</div>

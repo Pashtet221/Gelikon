@@ -39,6 +39,146 @@ function gelikon_sale_flash_text($html) {
 }
 add_filter('woocommerce_sale_flash', 'gelikon_sale_flash_text');
 
+
+/**
+ * Catalog sorting options shared by catalog templates, AJAX filtering and Customizer.
+ */
+function gelikon_catalog_sorting_options() {
+	return [
+		'manual_ids' => __('Ручной порядок по ID', 'gelikon'),
+		'menu_order' => __('Порядок WooCommerce', 'gelikon'),
+		'date_desc'  => __('Сначала новые', 'gelikon'),
+		'price_asc'  => __('Сначала дешевле', 'gelikon'),
+		'price_desc' => __('Сначала дороже', 'gelikon'),
+		'title_asc'  => __('По названию', 'gelikon'),
+	];
+}
+
+function gelikon_sanitize_catalog_orderby($value) {
+	$value   = sanitize_key($value);
+	$options = gelikon_catalog_sorting_options();
+
+	return array_key_exists($value, $options) ? $value : 'price_desc';
+}
+
+function gelikon_get_default_catalog_orderby() {
+	return gelikon_sanitize_catalog_orderby(get_theme_mod('gelikon_catalog_default_orderby', 'price_desc'));
+}
+
+function gelikon_get_manual_catalog_product_ids() {
+	$raw_ids = (string) get_theme_mod('gelikon_catalog_manual_product_ids', '');
+
+	if ($raw_ids === '') {
+		return [];
+	}
+
+	$ids = preg_split('/[\s,;]+/', $raw_ids);
+	$ids = array_map('absint', is_array($ids) ? $ids : []);
+	$ids = array_values(array_unique(array_filter($ids)));
+
+	return $ids;
+}
+
+function gelikon_get_catalog_orderby_from_request($source = null) {
+	if ($source === null) {
+		$source = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	if (isset($source['orderby']) && $source['orderby'] !== '') {
+		return gelikon_sanitize_catalog_orderby(wp_unslash($source['orderby']));
+	}
+
+	return gelikon_get_default_catalog_orderby();
+}
+
+function gelikon_get_catalog_orderby_args($orderby_selected) {
+	$orderby_selected = gelikon_sanitize_catalog_orderby($orderby_selected);
+
+	switch ($orderby_selected) {
+		case 'manual_ids':
+			$manual_ids = gelikon_get_manual_catalog_product_ids();
+
+			if (empty($manual_ids)) {
+				return [
+					'orderby' => 'menu_order title',
+					'order'   => 'ASC',
+				];
+			}
+
+			return [
+				'orderby'                    => 'menu_order title',
+				'order'                      => 'ASC',
+				'gelikon_manual_product_ids' => $manual_ids,
+			];
+
+		case 'date_desc':
+			return [
+				'orderby' => 'date',
+				'order'   => 'DESC',
+			];
+
+		case 'price_asc':
+			return [
+				'meta_key' => '_price',
+				'orderby'  => 'meta_value_num',
+				'order'    => 'ASC',
+			];
+
+		case 'price_desc':
+			return [
+				'meta_key' => '_price',
+				'orderby'  => 'meta_value_num',
+				'order'    => 'DESC',
+			];
+
+		case 'title_asc':
+			return [
+				'orderby' => 'title',
+				'order'   => 'ASC',
+			];
+
+		case 'menu_order':
+		default:
+			return [
+				'orderby' => 'menu_order title',
+				'order'   => 'ASC',
+			];
+	}
+}
+
+
+function gelikon_apply_manual_catalog_product_order($orderby, $query) {
+	$manual_ids = $query->get('gelikon_manual_product_ids');
+
+	if (empty($manual_ids) || !is_array($manual_ids)) {
+		return $orderby;
+	}
+
+	global $wpdb;
+
+	$manual_ids = array_values(array_unique(array_filter(array_map('absint', $manual_ids))));
+
+	if (empty($manual_ids)) {
+		return $orderby;
+	}
+
+	$cases = [];
+
+	foreach ($manual_ids as $position => $product_id) {
+		$cases[] = sprintf('WHEN %d THEN %d', $product_id, $position);
+	}
+
+	$manual_order_sql = sprintf(
+		'CASE %1$s.ID %2$s ELSE %3$d END ASC',
+		$wpdb->posts,
+		implode(' ', $cases),
+		count($manual_ids)
+	);
+
+	return $manual_order_sql . ', ' . $wpdb->posts . '.menu_order ASC, ' . $wpdb->posts . '.post_title ASC';
+}
+add_filter('posts_orderby', 'gelikon_apply_manual_catalog_product_order', 10, 2);
+
 /**
  * Always make customer registration available on the My Account page.
  *

@@ -1171,7 +1171,7 @@ function gelikon_filter_products_ajax() {
 	$filters = isset($_POST['filters']) && is_array($_POST['filters']) ? $_POST['filters'] : [];
 	$min_price = isset($_POST['min_price']) ? (int) $_POST['min_price'] : 0;
 	$max_price = isset($_POST['max_price']) ? (int) $_POST['max_price'] : 0;
-	$orderby_selected = isset($_POST['orderby']) ? sanitize_key($_POST['orderby']) : 'menu_order';
+	$orderby_selected = function_exists('gelikon_get_catalog_orderby_from_request') ? gelikon_get_catalog_orderby_from_request($_POST) : (isset($_POST['orderby']) ? sanitize_key(wp_unslash($_POST['orderby'])) : 'price_desc');
 
 	$tax_query = [
 		'relation' => 'AND',
@@ -1236,34 +1236,12 @@ function gelikon_filter_products_ajax() {
 		];
 	}
 
-	switch ($orderby_selected) {
-		case 'date_desc':
-			$args['orderby'] = 'date';
-			$args['order']   = 'DESC';
-			break;
-
-		case 'price_asc':
-			$args['meta_key'] = '_price';
-			$args['orderby']  = 'meta_value_num';
-			$args['order']    = 'ASC';
-			break;
-
-		case 'price_desc':
-			$args['meta_key'] = '_price';
-			$args['orderby']  = 'meta_value_num';
-			$args['order']    = 'DESC';
-			break;
-
-		case 'title_asc':
-			$args['orderby'] = 'title';
-			$args['order']   = 'ASC';
-			break;
-
-		case 'menu_order':
-		default:
-			$args['orderby'] = 'menu_order title';
-			$args['order']   = 'ASC';
-			break;
+	if (function_exists('gelikon_get_catalog_orderby_args')) {
+		$args = array_merge($args, gelikon_get_catalog_orderby_args($orderby_selected));
+	} else {
+		$args['meta_key'] = '_price';
+		$args['orderby']  = 'meta_value_num';
+		$args['order']    = 'DESC';
 	}
 
 	$query = new WP_Query($args);

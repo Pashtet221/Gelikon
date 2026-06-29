@@ -65,6 +65,45 @@ function gelikon_customize_register($wp_customize) {
     }
 
 
+    $wp_customize->add_section('gelikon_catalog', [
+        'title'       => __('Каталог', 'gelikon'),
+        'panel'       => 'gelikon_theme_options',
+        'priority'    => 35,
+        'description' => __('Настройте порядок товаров, который покупатель видит без выбора сортировки.', 'gelikon'),
+    ]);
+
+    $wp_customize->add_setting('gelikon_catalog_default_orderby', [
+        'default'           => 'price_desc',
+        'sanitize_callback' => 'gelikon_sanitize_catalog_orderby',
+        'transport'         => 'refresh',
+    ]);
+
+    $wp_customize->add_control('gelikon_catalog_default_orderby', [
+        'label'       => __('Сортировка товаров по умолчанию', 'gelikon'),
+        'description' => __('Выберите порядок, который покупатель увидит без выбора сортировки. Сейчас по умолчанию включено «Сначала дороже».', 'gelikon'),
+        'section'     => 'gelikon_catalog',
+        'type'        => 'select',
+        'choices'     => function_exists('gelikon_catalog_sorting_options') ? gelikon_catalog_sorting_options() : [
+            'price_desc' => __('Сначала дороже', 'gelikon'),
+            'manual_ids' => __('Ручной порядок по ID', 'gelikon'),
+        ],
+    ]);
+
+
+    $wp_customize->add_setting('gelikon_catalog_manual_product_ids', [
+        'default'           => '',
+        'sanitize_callback' => 'gelikon_sanitize_catalog_manual_product_ids',
+        'transport'         => 'refresh',
+    ]);
+
+    $wp_customize->add_control('gelikon_catalog_manual_product_ids', [
+        'label'       => __('Ручной порядок товаров по ID', 'gelikon'),
+        'description' => __('Укажите ID товаров в нужном порядке через запятую, пробел или с новой строки. Например: 125, 98, 143. Этот список применяется, когда выше выбрана сортировка «Ручной порядок по ID». Остальные товары будут показаны после указанного списка.', 'gelikon'),
+        'section'     => 'gelikon_catalog',
+        'type'        => 'textarea',
+    ]);
+
+
     $wp_customize->add_section('gelikon_legal_texts', [
         'title'       => __('Юридические тексты', 'gelikon'),
         'panel'       => 'gelikon_theme_options',
@@ -104,4 +143,12 @@ function gelikon_sanitize_legal_text($value) {
             'class' => true,
         ],
     ]);
+}
+
+function gelikon_sanitize_catalog_manual_product_ids($value) {
+    $ids = preg_split('/[\s,;]+/', (string) $value);
+    $ids = array_map('absint', is_array($ids) ? $ids : []);
+    $ids = array_values(array_unique(array_filter($ids)));
+
+    return implode(', ', $ids);
 }
