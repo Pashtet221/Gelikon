@@ -65,6 +65,31 @@ function gelikon_customize_register($wp_customize) {
     }
 
 
+    $wp_customize->add_section('gelikon_catalog', [
+        'title'       => __('Каталог', 'gelikon'),
+        'panel'       => 'gelikon_theme_options',
+        'priority'    => 35,
+        'description' => __('Настройте порядок товаров, который покупатель видит без выбора сортировки.', 'gelikon'),
+    ]);
+
+    $wp_customize->add_setting('gelikon_catalog_default_orderby', [
+        'default'           => 'price_desc',
+        'sanitize_callback' => 'gelikon_sanitize_catalog_orderby',
+        'transport'         => 'refresh',
+    ]);
+
+    $wp_customize->add_control('gelikon_catalog_default_orderby', [
+        'label'       => __('Сортировка товаров по умолчанию', 'gelikon'),
+        'description' => __('Выберите «ручной порядок», чтобы управлять позицией товаров через стандартную сортировку WooCommerce в админке. Сейчас по умолчанию включено «Сначала дороже».', 'gelikon'),
+        'section'     => 'gelikon_catalog',
+        'type'        => 'select',
+        'choices'     => function_exists('gelikon_catalog_sorting_options') ? gelikon_catalog_sorting_options() : [
+            'price_desc' => __('Сначала дороже', 'gelikon'),
+            'menu_order' => __('По умолчанию (ручной порядок)', 'gelikon'),
+        ],
+    ]);
+
+
     $wp_customize->add_section('gelikon_legal_texts', [
         'title'       => __('Юридические тексты', 'gelikon'),
         'panel'       => 'gelikon_theme_options',
