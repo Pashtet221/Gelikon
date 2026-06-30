@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Gelikon">
+  <defs>
+    <linearGradient id="gelikon-favicon-bg" x1="96" y1="64" x2="416" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#38e879"/>
+      <stop offset="1" stop-color="#08a844"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="#f6f7f5"/>
+  <circle cx="256" cy="256" r="208" fill="url(#gelikon-favicon-bg)"/>
+  <path fill="#fff" d="M276 126c-84 0-150 57-150 132 0 78 65 132 151 132 43 0 82-13 110-36V238H260v62h58v18c-12 7-27 11-43 11-47 0-80-29-80-71 0-41 34-70 82-70 27 0 52 9 73 27l41-49c-30-26-70-40-115-40Z"/>
+</svg>
