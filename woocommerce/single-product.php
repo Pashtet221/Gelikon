@@ -543,6 +543,21 @@ document.addEventListener('DOMContentLoaded', function () {
 		text-decoration: none;
 	}
 
+	.gl-product-stock-status .gl-write-btn__text {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+	}
+
+	.gl-product-stock-status__dot {
+		display: inline-block;
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: currentColor;
+		flex: 0 0 6px;
+	}
+
 	.gl-product-stock-status.is-preorder {
 		color: var(--gl-color-accent);
 	}

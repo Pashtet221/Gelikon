@@ -105,6 +105,37 @@ function gelikon_catalog_manual_ids_orderby($orderby, $query) {
 }
 add_filter('posts_orderby', 'gelikon_catalog_manual_ids_orderby', 10, 2);
 
+function gelikon_catalog_stock_last_clauses($clauses, $query) {
+	if (!$query->get('gelikon_stock_last')) {
+		return $clauses;
+	}
+
+	global $wpdb;
+
+	$stock_alias        = 'gelikon_stock_status_pm';
+	$discontinued_alias = 'gelikon_discontinued_pm';
+
+	if (strpos($clauses['join'], " {$stock_alias} ") === false) {
+		$clauses['join'] .= $wpdb->prepare(
+			" LEFT JOIN {$wpdb->postmeta} AS {$stock_alias} ON ({$stock_alias}.post_id = {$wpdb->posts}.ID AND {$stock_alias}.meta_key = %s)",
+			'_stock_status'
+		);
+	}
+
+	if (strpos($clauses['join'], " {$discontinued_alias} ") === false) {
+		$clauses['join'] .= $wpdb->prepare(
+			" LEFT JOIN {$wpdb->postmeta} AS {$discontinued_alias} ON ({$discontinued_alias}.post_id = {$wpdb->posts}.ID AND {$discontinued_alias}.meta_key = %s)",
+			'_gelikon_discontinued'
+		);
+	}
+
+	$stock_last_order = "CASE WHEN {$discontinued_alias}.meta_value IN ('1', 'yes', 'on') OR {$stock_alias}.meta_value = 'outofstock' THEN 1 ELSE 0 END ASC";
+	$clauses['orderby'] = $stock_last_order . ($clauses['orderby'] ? ', ' . $clauses['orderby'] : '');
+
+	return $clauses;
+}
+add_filter('posts_clauses', 'gelikon_catalog_stock_last_clauses', 20, 2);
+
 function gelikon_get_catalog_orderby_from_request($source = null) {
 	if ($source === null) {
 		$source = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -123,12 +154,14 @@ function gelikon_get_catalog_orderby_args($orderby_selected) {
 	switch ($orderby_selected) {
 		case 'date_desc':
 			return [
+				'gelikon_stock_last' => true,
 				'orderby' => 'date',
 				'order'   => 'DESC',
 			];
 
 		case 'price_asc':
 			return [
+				'gelikon_stock_last' => true,
 				'meta_key' => '_price',
 				'orderby'  => 'meta_value_num',
 				'order'    => 'ASC',
@@ -136,6 +169,7 @@ function gelikon_get_catalog_orderby_args($orderby_selected) {
 
 		case 'price_desc':
 			return [
+				'gelikon_stock_last' => true,
 				'meta_key' => '_price',
 				'orderby'  => 'meta_value_num',
 				'order'    => 'DESC',
@@ -143,6 +177,7 @@ function gelikon_get_catalog_orderby_args($orderby_selected) {
 
 		case 'title_asc':
 			return [
+				'gelikon_stock_last' => true,
 				'orderby' => 'title',
 				'order'   => 'ASC',
 			];
@@ -150,6 +185,7 @@ function gelikon_get_catalog_orderby_args($orderby_selected) {
 		case 'menu_order':
 		default:
 			$args       = [
+				'gelikon_stock_last' => true,
 				'orderby' => 'menu_order title',
 				'order'   => 'ASC',
 			];
