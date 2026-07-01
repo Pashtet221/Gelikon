@@ -166,6 +166,12 @@ $blog_title     = gelikon_home_get_field('home_blog_title', 'Блог', $page_id
 $blog_link_text = gelikon_home_get_field('home_blog_link_text', 'Смотреть все статьи', $page_id);
 $blog_page_url  = gelikon_home_blog_page_url();
 $reviews_title  = gelikon_home_get_field('home_reviews_title', 'Отзывы', $page_id);
+$prefooter_title = gelikon_home_get_field('home_prefooter_title', 'Попробуйте инновационные продукты от российского бренда', $page_id);
+$prefooter_button_text = gelikon_home_get_field('home_prefooter_button_text', 'Перейти в каталог', $page_id);
+$prefooter_button_link = gelikon_home_link_url(
+    gelikon_home_get_field('home_prefooter_button_link', function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/shop/'), $page_id),
+    function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/shop/')
+);
 
 $trust_items = gelikon_home_get_field('home_trust_items', [], $page_id);
 if (empty($trust_items) || !is_array($trust_items)) {
@@ -1193,11 +1199,11 @@ $reviews_query = new WP_Query([
         <div class="gl-card gl-prefooter__inner">
             <div class="gl-prefooter__content">
                 <h2 class="gl-prefooter__title">
-                    <?php esc_html_e('Попробуйте инновационные продукты от российского бренда', 'gelikon'); ?>
+                    <?php echo esc_html($prefooter_title); ?>
                 </h2>
 
-                <a class="gl-btn gl-prefooter__button" href="<?php echo esc_url(function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/shop/')); ?>">
-                    <?php esc_html_e('Перейти в каталог', 'gelikon'); ?>
+                <a class="gl-btn gl-prefooter__button" href="<?php echo esc_url($prefooter_button_link); ?>">
+                    <?php echo esc_html($prefooter_button_text); ?>
                 </a>
             </div>
         </div>
