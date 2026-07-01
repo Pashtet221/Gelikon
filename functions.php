@@ -5018,7 +5018,7 @@ function gelikon_get_stock_status_html($product_id = 0) {
 	?>
 
 	<div class="gl-write-btn gl-product-stock-status <?php echo esc_attr($class); ?>">
-		<span class="gl-write-btn__text"><?php echo esc_html($text); ?></span>
+		<span class="gl-write-btn__text"><?php echo esc_html('·' . $text); ?></span>
 	</div>
 	<?php
 

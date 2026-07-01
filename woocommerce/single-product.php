@@ -549,7 +549,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	.gl-product-stock-status.is-outofstock,
 	.gl-product-stock-status.is-discontinued {
-		color: var(--gl-color-helper);
+		color: #ef4444;
 	}
 
 	.gl-product-buybox__button-wrap {

@@ -12,7 +12,7 @@ $product_url  = get_permalink($product_id);
 $product_name = $product->get_name();
 $price_html   = $product->get_price_html();
 $is_in_stock  = $product->is_in_stock();
-$is_preorder  = function_exists('gelikon_is_product_preorder') && gelikon_is_product_preorder($product_id);
+$is_preorder  = (function_exists('gelikon_is_product_preorder') && gelikon_is_product_preorder($product_id)) || $product->get_stock_status() === 'onbackorder';
 $is_discontinued = function_exists('gelikon_is_product_discontinued') && gelikon_is_product_discontinued($product_id);
 $is_purchase_available = function_exists('gelikon_product_can_be_purchased') ? gelikon_product_can_be_purchased($product) : $is_in_stock;
 $stock_label = $is_discontinued ? __('Снят с продажи', 'gelikon') : ($is_preorder ? __('Предзаказ', 'gelikon') : ($is_in_stock ? __('В наличии', 'gelikon') : __('Нет в наличии', 'gelikon')));
@@ -63,7 +63,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 
 				<div class="gl-product-card__meta">
 					<span class="gl-product-card__stock <?php echo esc_attr($stock_class); ?>">
-						<?php echo esc_html($stock_label); ?>
+						<?php echo esc_html('·' . $stock_label); ?>
 					</span>
 				</div>
 			</div>
@@ -224,7 +224,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 
 .gl-product-card__stock.is-out-of-stock,
 .gl-product-card__stock.is-discontinued {
-	color: var(--gl-color-helper);
+	color: #ef4444;
 	font-weight: 500;
 }
 
