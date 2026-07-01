@@ -76,6 +76,46 @@ if (!function_exists('gelikon_home_link_url')) {
     }
 }
 
+if (!function_exists('gelikon_home_blog_page_url')) {
+    function gelikon_home_blog_page_url() {
+        $posts_page_id = (int) get_option('page_for_posts');
+
+        if ($posts_page_id > 0) {
+            $posts_page_url = get_permalink($posts_page_id);
+
+            if ($posts_page_url) {
+                return $posts_page_url;
+            }
+        }
+
+        $blog_pages = get_pages([
+            'meta_key'   => '_wp_page_template',
+            'meta_value' => 'template-blog.php',
+            'number'     => 1,
+        ]);
+
+        if (!empty($blog_pages)) {
+            $blog_page_url = get_permalink((int) $blog_pages[0]->ID);
+
+            if ($blog_page_url) {
+                return $blog_page_url;
+            }
+        }
+
+        $blog_page = get_page_by_path('blog');
+
+        if ($blog_page) {
+            $blog_page_url = get_permalink((int) $blog_page->ID);
+
+            if ($blog_page_url) {
+                return $blog_page_url;
+            }
+        }
+
+        return home_url('/blog/');
+    }
+}
+
 $page_id = (int) get_queried_object_id();
 
 $default_banners = [
@@ -124,6 +164,7 @@ $products_title = gelikon_home_get_field('home_products_title', 'Популяр�
 $trust_title    = gelikon_home_get_field('home_trust_title', 'Почему выбирают Gelikon', $page_id);
 $blog_title     = gelikon_home_get_field('home_blog_title', 'Блог', $page_id);
 $blog_link_text = gelikon_home_get_field('home_blog_link_text', 'Смотреть все статьи', $page_id);
+$blog_page_url  = gelikon_home_blog_page_url();
 $reviews_title  = gelikon_home_get_field('home_reviews_title', 'Отзывы', $page_id);
 
 $trust_items = gelikon_home_get_field('home_trust_items', [], $page_id);
@@ -790,7 +831,7 @@ a.gl-card:hover .gl-home-banner__action{
                     <h2><?php echo esc_html($blog_title); ?></h2>
 
                     <div class="gl-home-blog__head-actions">
-                        <a class="gl-section-link" href="<?php echo esc_url(get_permalink(get_option('page_for_posts')) ?: get_post_type_archive_link('post')); ?>"><?php echo esc_html($blog_link_text); ?></a>
+                        <a class="gl-section-link" href="<?php echo esc_url($blog_page_url); ?>"><?php echo esc_html($blog_link_text); ?></a>
 
                         <div class="gl-blog-slider__nav">
                             <button type="button" class="gl-blog-slider__prev" aria-label="Назад">‹</button>
