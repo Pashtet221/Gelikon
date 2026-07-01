@@ -63,7 +63,8 @@ $primary_cta_text = __('В корзину', 'gelikon');
 
 				<div class="gl-product-card__meta">
 					<span class="gl-product-card__stock <?php echo esc_attr($stock_class); ?>">
-						<?php echo esc_html('· ' . $stock_label); ?>
+						<span class="gl-product-card__stock-dot" aria-hidden="true"></span>
+						<?php echo esc_html($stock_label); ?>
 					</span>
 				</div>
 			</div>
@@ -210,6 +211,21 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	font-size: 14px;
 	line-height: 1.4;
 	flex-shrink: 0;
+}
+
+.gl-product-card__stock {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.gl-product-card__stock-dot {
+	display: inline-block;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+	flex: 0 0 6px;
 }
 
 .gl-product-card__stock.is-in-stock {
