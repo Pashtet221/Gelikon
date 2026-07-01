@@ -218,7 +218,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 }
 
 .gl-product-card__stock.is-preorder {
-	color: var(--gl-color-accent);
+	color: #f59e0b;
 	font-weight: 500;
 }
 
