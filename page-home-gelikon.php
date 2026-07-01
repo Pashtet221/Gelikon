@@ -76,46 +76,6 @@ if (!function_exists('gelikon_home_link_url')) {
     }
 }
 
-if (!function_exists('gelikon_home_blog_page_url')) {
-    function gelikon_home_blog_page_url() {
-        $posts_page_id = (int) get_option('page_for_posts');
-
-        if ($posts_page_id > 0) {
-            $posts_page_url = get_permalink($posts_page_id);
-
-            if ($posts_page_url) {
-                return $posts_page_url;
-            }
-        }
-
-        $blog_pages = get_pages([
-            'meta_key'   => '_wp_page_template',
-            'meta_value' => 'template-blog.php',
-            'number'     => 1,
-        ]);
-
-        if (!empty($blog_pages)) {
-            $blog_page_url = get_permalink((int) $blog_pages[0]->ID);
-
-            if ($blog_page_url) {
-                return $blog_page_url;
-            }
-        }
-
-        $blog_page = get_page_by_path('blog');
-
-        if ($blog_page) {
-            $blog_page_url = get_permalink((int) $blog_page->ID);
-
-            if ($blog_page_url) {
-                return $blog_page_url;
-            }
-        }
-
-        return home_url('/blog/');
-    }
-}
-
 $page_id = (int) get_queried_object_id();
 
 $default_banners = [
@@ -164,7 +124,6 @@ $products_title = gelikon_home_get_field('home_products_title', 'Популяр�
 $trust_title    = gelikon_home_get_field('home_trust_title', 'Почему выбирают Gelikon', $page_id);
 $blog_title     = gelikon_home_get_field('home_blog_title', 'Блог', $page_id);
 $blog_link_text = gelikon_home_get_field('home_blog_link_text', 'Смотреть все статьи', $page_id);
-$blog_page_url  = gelikon_home_blog_page_url();
 $reviews_title  = gelikon_home_get_field('home_reviews_title', 'Отзывы', $page_id);
 $prefooter_title = gelikon_home_get_field('home_prefooter_title', 'Попробуйте инновационные продукты от российского бренда', $page_id);
 $prefooter_button_text = gelikon_home_get_field('home_prefooter_button_text', 'Перейти в каталог', $page_id);
@@ -835,20 +794,16 @@ a.gl-card:hover .gl-home-banner__action{
             <section class="gl-home-blog gl-home-section">
                 <div class="gl-section-head gl-section-head--between">
                     <h2><?php echo esc_html($blog_title); ?></h2>
-
-                    <div class="gl-home-blog__head-actions">
-                        <a class="gl-section-link" href="<?php echo esc_url($blog_page_url); ?>"><?php echo esc_html($blog_link_text); ?></a>
-
-                        <div class="gl-blog-slider__nav">
-                            <button type="button" class="gl-blog-slider__prev" aria-label="Назад">‹</button>
-                            <button type="button" class="gl-blog-slider__next" aria-label="Вперёд">›</button>
-                        </div>
-                    </div>
+                    
+					
+					<a class="gl-section-link" href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>">
+	<?php esc_html_e( 'Все статьи', 'gelikon' ); ?>
+</a>
+					
+					
                 </div>
-                <div class="gl-blog-slider swiper">
-                    <div class="swiper-wrapper">
+                <div class="gl-posts-grid">
                     <?php while ($blog_query->have_posts()) : $blog_query->the_post(); ?>
-                        <div class="swiper-slide">
                         <article <?php post_class('gl-card gl-post-card'); ?>>
                             <?php if (has_post_thumbnail()) : ?>
                                 <a class="gl-post-card__thumb" href="<?php the_permalink(); ?>">
@@ -861,88 +816,10 @@ a.gl-card:hover .gl-home-banner__action{
                                 <p><?php echo esc_html(wp_trim_words(get_the_excerpt(), 20)); ?></p>
                             </div>
                         </article>
-                        </div>
                     <?php endwhile; wp_reset_postdata(); ?>
-                    </div>
-
-                    <div class="gl-blog-slider__pagination"></div>
                 </div>
             </section>
         <?php endif; ?>
-
-<style>
-.gl-home-blog__head-actions,
-.gl-blog-slider__nav {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-}
-
-.gl-blog-slider {
-	overflow: hidden;
-}
-
-.gl-blog-slider .swiper-slide {
-	height: auto;
-}
-
-.gl-blog-slider .gl-post-card {
-	height: 100%;
-}
-
-.gl-blog-slider__prev,
-.gl-blog-slider__next {
-	width: 44px;
-	height: 44px;
-	border: 1px solid #dbe2dd;
-	border-radius: 999px;
-	background: #fff;
-	cursor: pointer;
-	font-size: 22px;
-	line-height: 1;
-	transition: .2s ease;
-}
-
-.gl-blog-slider__prev:hover,
-.gl-blog-slider__next:hover {
-	background: var(--gl-color-accent);
-	border-color: var(--gl-color-accent);
-	color: #fff;
-}
-
-.gl-blog-slider__pagination {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 10px;
-	margin-top: 22px;
-}
-
-.gl-blog-slider__pagination .swiper-pagination-bullet {
-	width: 10px;
-	height: 10px;
-	margin: 0 !important;
-	border-radius: 999px;
-	background: var(--gl-border, #cfd6d1);
-	opacity: 1;
-	transition: width .2s ease, background-color .2s ease, transform .2s ease;
-}
-
-.gl-blog-slider__pagination .swiper-pagination-bullet-active {
-	width: 28px;
-	background: var(--gl-accent, var(--gl-color-accent));
-}
-
-@media (max-width: 767px) {
-	.gl-home-blog__head-actions {
-		gap: 10px;
-	}
-
-	.gl-blog-slider__nav {
-		display: none;
-	}
-}
-</style>
 
         
 		
