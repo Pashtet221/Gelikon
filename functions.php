@@ -4689,6 +4689,50 @@ add_action('acf/init', function () {
 });
 
 
+add_action('acf/init', function () {
+	if (!function_exists('acf_add_local_field_group')) {
+		return;
+	}
+
+	acf_add_local_field_group([
+		'key' => 'group_gelikon_home_prefooter',
+		'title' => 'Главная — CTA блок перед футером',
+		'fields' => [
+			[
+				'key' => 'field_home_prefooter_title',
+				'label' => 'Текст CTA блока',
+				'name' => 'home_prefooter_title',
+				'type' => 'text',
+				'default_value' => 'Попробуйте инновационные продукты от российского бренда',
+			],
+			[
+				'key' => 'field_home_prefooter_button_text',
+				'label' => 'Текст кнопки',
+				'name' => 'home_prefooter_button_text',
+				'type' => 'text',
+				'default_value' => 'Перейти в каталог',
+			],
+			[
+				'key' => 'field_home_prefooter_button_link',
+				'label' => 'Ссылка кнопки',
+				'name' => 'home_prefooter_button_link',
+				'type' => 'link',
+				'return_format' => 'array',
+			],
+		],
+		'location' => [
+			[
+				[
+					'param' => 'page_template',
+					'operator' => '==',
+					'value' => 'page-home-gelikon.php',
+				],
+			],
+		],
+	]);
+});
+
+
 
 add_action('acf/init', function () {
 	if (!function_exists('acf_add_local_field_group')) return;
