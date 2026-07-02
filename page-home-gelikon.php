@@ -817,7 +817,14 @@ a.gl-card:hover .gl-home-banner__action{
                                     </a>
                                 <?php endif; ?>
                                 <div class="gl-post-card__content">
-                                    <div class="gl-post-card__meta"><?php echo esc_html(get_the_date()); ?></div>
+                                    <?php $home_post_categories = get_the_category(); ?>
+                                    <div class="gl-post-card__meta gl-post-card__meta--blog">
+                                        <?php if (!empty($home_post_categories)) : ?>
+                                            <span class="gl-post-card__category"><?php echo esc_html($home_post_categories[0]->name); ?></span>
+                                            <span class="gl-post-card__dot">•</span>
+                                        <?php endif; ?>
+                                        <span><?php echo esc_html(get_the_date()); ?></span>
+                                    </div>
                                     <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
                                     <p><?php echo esc_html(wp_trim_words(get_the_excerpt(), 20)); ?></p>
                                 </div>
@@ -825,7 +832,6 @@ a.gl-card:hover .gl-home-banner__action{
                         </div>
                     <?php endwhile; wp_reset_postdata(); ?>
                     </div>
-                    <div class="gl-home-blog-slider__pagination"></div>
                 </div>
             </section>
         <?php endif; ?>
@@ -837,12 +843,14 @@ a.gl-card:hover .gl-home-banner__action{
 .gl-home-blog-slider { overflow: hidden; }
 .gl-home-blog-slider .swiper-slide { height: auto; }
 .gl-home-blog-slider .gl-post-card { height: 100%; }
-.gl-home-blog-slider__nav { display: inline-flex; gap: 10px; }
+.gl-home-blog-slider__nav { display: flex; align-items: center; gap: 12px; }
 .gl-home-blog-slider__prev,
-.gl-home-blog-slider__next { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid #e2e6e1; border-radius: 50%; background: #fff; color: #171d2a; font-size: 26px; line-height: 1; cursor: pointer; transition: .2s ease; }
+.gl-home-blog-slider__next { width: 44px; height: 44px; border: 1px solid #dbe2dd; border-radius: 999px; background: #fff; cursor: pointer; font-size: 22px; line-height: 1; transition: .2s ease; }
 .gl-home-blog-slider__prev:hover,
-.gl-home-blog-slider__next:hover { border-color: var(--gl-color-accent, #2f8f5b); color: var(--gl-color-accent, #2f8f5b); }
-.gl-home-blog-slider__pagination { display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
+.gl-home-blog-slider__next:hover { background: var(--gl-color-accent); border-color: var(--gl-color-accent); color: #fff; }
+.gl-home-blog-slider .gl-post-card__meta--blog { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.gl-home-blog-slider .gl-post-card__category { color: var(--gl-color-accent, #2f8f5b); font-weight: 800; }
+.gl-home-blog-slider .gl-post-card__dot { color: #c4cac3; }
 @media (max-width: 767px) { .gl-home-blog__head-actions { align-items: flex-end; flex-direction: column; gap: 10px; } }
 </style>
 

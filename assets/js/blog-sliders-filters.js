@@ -11,10 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
 					nextEl: slider.querySelector('.gl-home-blog-slider__next') || '.gl-home-blog-slider__next',
 					prevEl: slider.querySelector('.gl-home-blog-slider__prev') || '.gl-home-blog-slider__prev',
 				},
-				pagination: {
-					el: slider.querySelector('.gl-home-blog-slider__pagination'),
-					clickable: true,
-				},
 				breakpoints: {
 					640: { slidesPerView: 2, spaceBetween: 18 },
 					992: { slidesPerView: 3, spaceBetween: 20 },
