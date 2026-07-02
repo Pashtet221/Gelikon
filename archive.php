@@ -13,6 +13,14 @@
                             <a class="gl-post-card__thumb" href="<?php the_permalink(); ?>"><?php the_post_thumbnail('gelikon-card'); ?></a>
                         <?php endif; ?>
                         <div class="gl-post-card__content">
+                            <?php $post_categories = get_the_category(); ?>
+                            <?php if (!empty($post_categories)) : ?>
+                                <div class="gl-post-card__categories">
+                                    <?php foreach ($post_categories as $post_category) : ?>
+                                        <a href="<?php echo esc_url(get_category_link($post_category->term_id)); ?>"><?php echo esc_html($post_category->name); ?></a>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
                             <h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
                             <p><?php echo esc_html(wp_trim_words(get_the_excerpt(), 20)); ?></p>
                         </div>

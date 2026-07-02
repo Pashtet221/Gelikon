@@ -69,3 +69,22 @@ Text Domain: gelikon
     float: none !important;
     width: 100% !important;
 }
+
+.gl-post-card__categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 10px;
+}
+
+.gl-post-card__categories a {
+    color: var(--gl-color-accent, #2f8f5b);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.35;
+    text-decoration: none;
+}
+
+.gl-post-card__categories a:hover {
+    text-decoration: underline;
+}
