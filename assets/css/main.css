@@ -74,7 +74,7 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .gl-header__inner { display: flex; flex-direction: column; }
 .gl-header__top {
-  display: grid; grid-template-columns: auto auto 1fr auto;
+  display: grid; grid-template-columns: auto auto minmax(0, 1fr) auto auto;
   align-items: center; gap: 24px; padding: 14px 0;
 }
 .gl-header__bottom { display: none; }
@@ -110,6 +110,13 @@ img { max-width: 100%; height: auto; display: block; }
 .gl-menu > li.current-menu-ancestor > a,
 .gl-menu > li.current_page_parent > a,
 .gl-menu > li.current_page_ancestor > a { color: var(--gl-color-text); }
+.gl-header-more { position: relative; display: none; flex: 0 0 auto; }
+.gl-header-more__toggle { display: inline-flex; align-items: center; justify-content: center; min-width: 0; min-height: 36px; padding: 0 4px; border: 0; background: transparent; color: var(--gl-color-helper); font-size: 15px; font-weight: 700; line-height: 1; cursor: pointer; }
+.gl-header-more__toggle::after { content: ""; width: 7px; height: 7px; margin-left: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+.gl-header-more__menu { position: absolute; top: calc(100% + 12px); left: 50%; z-index: 20; display: grid; min-width: 180px; padding: 10px; border: 1px solid var(--gl-color-line); border-radius: 16px; background: #fff; box-shadow: 0 18px 40px rgba(16, 22, 31, 0.14); opacity: 0; visibility: hidden; transform: translate(-50%, 8px); transition: opacity .18s ease, transform .18s ease, visibility .18s ease; }
+.gl-header-more:hover .gl-header-more__menu, .gl-header-more:focus-within .gl-header-more__menu, .gl-header-more.is-open .gl-header-more__menu { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+.gl-header-more__menu a { display: block; padding: 10px 12px; border-radius: 10px; color: var(--gl-color-text); font-size: 14px; font-weight: 700; line-height: 1.2; text-decoration: none; white-space: nowrap; }
+.gl-header-more__menu a:hover, .gl-header-more__menu a:focus { background: rgba(18, 212, 87, .1); color: var(--gl-color-text); }
 .gl-header__actions { display: flex; align-items: center; gap: 14px; flex: 0 0 auto; margin-left: auto; }
 .gl-header__phones { display: flex; flex-direction: column; gap: 2px; font-weight: 700; font-size: 14px; align-items: flex-start; }
 .gl-header__phones a:hover { color: var(--gl-color-accent-2); }
@@ -269,18 +276,22 @@ a.gl-product-card__button--disabled {
 .search-form input[type="search"] {
   width: 100%; min-height: 52px; border-radius: 16px; border: 1px solid var(--gl-color-line); background: #fff; padding: 0 16px;
 }
-@media (max-width: 1400px) {
-  .gl-header__top { grid-template-columns: auto auto 1fr auto; gap: 18px; }
+@media (max-width: 1399px) and (min-width: 1200px) {
+  .gl-header__top { grid-template-columns: auto auto minmax(0, 1fr) auto auto; gap: 18px; }
   .gl-logo img, .gl-logo svg, .gl-logo-block { max-width: 170px; }
   .gl-menu { gap: 12px; }
-  .gl-header__icon, .gl-header-search-trigger { width: 56px; height: 56px; }
+  .gl-menu > li:nth-child(n+3) { display: none; }
+  .gl-header-more { display: block; }
+  .gl-header__icon, .gl-header-search-trigger { width: 46px; height: 46px; }
 }
 
 @media (max-width: 1199px) and (min-width: 992px) {
-  .gl-header__top { grid-template-columns: auto auto 1fr auto; gap: 14px; }
+  .gl-header__top { grid-template-columns: auto auto minmax(0, 1fr) auto auto; gap: 14px; }
   .gl-logo img, .gl-logo svg, .gl-logo-block { max-width: 145px; }
   .gl-logo-slogan { font-size: clamp(7px, 0.7vw, 9px); }
   .gl-menu { gap: 10px; }
+  .gl-menu > li:nth-child(n+3) { display: none; }
+  .gl-header-more { display: block; }
   .gl-menu > li > a,
   .gl-header__phones-wrap a,
   .gl-header__phones-wrap .phone,
@@ -303,6 +314,7 @@ a.gl-product-card__button--disabled {
   .gl-logo-slogan, .gl-header__phones-wrap { display: none; }
   .gl-header__top .gl-header__catalog,
   .gl-header__top .gl-nav,
+  .gl-header-more,
   .gl-header__actions .gl-write-btn { display: none; }
   .gl-header__actions { gap: 8px; margin-left: auto; }
   .gl-header__search-icon--desktop { display: none; }
