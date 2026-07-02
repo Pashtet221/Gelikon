@@ -77,10 +77,12 @@ $details_pdf = gelikon_contacts_file_url(gelikon_contacts_get_field('company_det
 
 <main id="primary" class="site-main gl-contacts-page">
 	<div class="gl-container gl-page-single">
+		<?php /*
 		<section class="gl-card gl-contacts-hero">
 			<h1>Контакты</h1>
 			<p>Офис и служба поддержки в Москве</p>
 		</section>
+		*/ ?>
 
 		<section class="gl-card gl-contacts-block">
 			<h2>Основные контакты</h2>

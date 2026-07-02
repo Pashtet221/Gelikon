@@ -268,6 +268,16 @@ add_action('wp_enqueue_scripts', function () {
 		wp_get_theme()->get('Version'),
 		true
 	);
+
+	wp_enqueue_script(
+		'gelikon-blog-sliders-filters',
+		get_template_directory_uri() . '/assets/js/blog-sliders-filters.js',
+		['swiper'],
+		file_exists(get_template_directory() . '/assets/js/blog-sliders-filters.js')
+			? filemtime(get_template_directory() . '/assets/js/blog-sliders-filters.js')
+			: wp_get_theme()->get('Version'),
+		true
+	);
 }, 30);
 
 
