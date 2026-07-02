@@ -83,25 +83,25 @@ img { max-width: 100%; height: auto; display: block; }
   display: flex; flex-direction: column; align-items: flex-start;
   line-height: 1; min-width: 0; max-width: 220px;
 }
-.gl-logo img, .gl-logo svg { display: block; width: auto; height: auto; max-width: 220px; }
+.gl-logo img, .gl-logo svg { display: block; width: auto; height: auto; max-width: min(220px, 20vw); }
 .custom-logo { max-height: 42px; width: auto; }
 .gl-logo__text { font-size: 26px; font-weight: 800; letter-spacing: -.03em; }
 .gl-logo-slogan {
-  margin-top: 8px; font-size: clamp(8px, 0.85vw, 11px); line-height: 1.3; font-weight: 600;
-  color: var(--gl-color-subtitle); max-width: 100%; white-space: nowrap; display: block; overflow: hidden;
+  margin-top: 6px; font-size: clamp(7px, 0.72vw, 10px); line-height: 1.2; font-weight: 600;
+  color: var(--gl-color-subtitle); max-width: 100%; white-space: normal; display: block; overflow: visible;
 }
 .gl-header__catalog { min-width: 0; flex: 0 0 auto; }
 .gl-nav { min-width: 0; }
 .gl-menu {
   display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap;
-  gap: 22px; margin: 0; padding: 0; list-style: none; overflow-x: auto;
+  gap: clamp(10px, 1.1vw, 18px); margin: 0; padding: 0; list-style: none; overflow-x: auto;
   overflow-y: hidden; scrollbar-width: none;
 }
 .gl-menu::-webkit-scrollbar { display: none; }
 .gl-menu > li { margin: 0; flex: 0 0 auto; }
 .gl-menu > li > a {
   display: inline-flex; align-items: center; min-height: 36px; text-decoration: none;
-  color: var(--gl-color-helper); font-size: 15px; font-weight: 700; line-height: 1; white-space: nowrap;
+  color: var(--gl-color-helper); font-size: clamp(12px, 0.82vw, 14px); font-weight: 700; line-height: 1.1; white-space: nowrap;
 }
 .gl-menu a:hover,
 .gl-menu > li.current-menu-item > a,
@@ -116,7 +116,7 @@ img { max-width: 100%; height: auto; display: block; }
 .gl-header__phones-wrap { flex: 0 0 auto; text-align: right; order: 2; }
 .gl-header__phones-wrap, .gl-header__phones-wrap * { line-height: 1.25; }
 .gl-header__phones-wrap a, .gl-header__phones-wrap .phone, .gl-header__phones-wrap .gl-phone {
-  font-size: 15px; font-weight: 800; color: var(--gl-color-text); text-decoration: none; white-space: nowrap;
+  font-size: clamp(12px, 0.82vw, 14px); font-weight: 800; color: var(--gl-color-text); text-decoration: none; white-space: nowrap;
 }
 .gl-header__search-icon { order: 3; flex: 0 0 auto; }
 .gl-header__search-icon .gl-header-search-trigger-wrap, .gl-header__search-icon .gl-product-search {
@@ -271,16 +271,16 @@ a.gl-product-card__button--disabled {
 }
 @media (max-width: 1400px) {
   .gl-header__top { grid-template-columns: auto auto 1fr auto; gap: 18px; }
-  .gl-logo img, .gl-logo svg, .gl-logo-block { max-width: 190px; }
-  .gl-menu { gap: 18px; }
+  .gl-logo img, .gl-logo svg, .gl-logo-block { max-width: 170px; }
+  .gl-menu { gap: 12px; }
   .gl-header__icon, .gl-header-search-trigger { width: 56px; height: 56px; }
 }
 
 @media (max-width: 1199px) and (min-width: 992px) {
   .gl-header__top { grid-template-columns: auto auto 1fr auto; gap: 14px; }
-  .gl-logo img, .gl-logo svg, .gl-logo-block { max-width: 170px; }
-  .gl-logo-slogan { font-size: clamp(8px, 0.8vw, 10px); }
-  .gl-menu { gap: 14px; }
+  .gl-logo img, .gl-logo svg, .gl-logo-block { max-width: 145px; }
+  .gl-logo-slogan { font-size: clamp(7px, 0.7vw, 9px); }
+  .gl-menu { gap: 10px; }
   .gl-menu > li > a,
   .gl-header__phones-wrap a,
   .gl-header__phones-wrap .phone,
