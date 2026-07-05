@@ -45,8 +45,8 @@ function gelikon_theme_setup() {
         'footer'  => __('Меню в подвале', 'gelikon'),
     ]);
 
-    add_image_size('gelikon-card', 900, 700, true);
-    add_image_size('gelikon-hero', 1600, 900, true);
+    add_image_size('gelikon-card', 900, 700, false);
+    add_image_size('gelikon-hero', 1600, 900, false);
 }
 add_action('after_setup_theme', 'gelikon_theme_setup');
 
@@ -67,3 +67,19 @@ function gelikon_register_sidebars() {
     ]);
 }
 add_action('widgets_init', 'gelikon_register_sidebars');
+/**
+ * Keep WooCommerce product images uncropped so catalog cards and galleries use
+ * the proportions of the uploaded files instead of square/center-cropped copies.
+ */
+function gelikon_uncropped_woocommerce_image_sizes($size) {
+    if (!is_array($size)) {
+        $size = [];
+    }
+
+    $size['crop'] = 0;
+
+    return $size;
+}
+add_filter('woocommerce_get_image_size_thumbnail', 'gelikon_uncropped_woocommerce_image_sizes');
+add_filter('woocommerce_get_image_size_single', 'gelikon_uncropped_woocommerce_image_sizes');
+add_filter('woocommerce_get_image_size_gallery_thumbnail', 'gelikon_uncropped_woocommerce_image_sizes');

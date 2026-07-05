@@ -3294,7 +3294,7 @@ function gelikon_get_product_media_items($product_id) {
 
 	if ($featured_id > 0) {
 		$featured_full  = wp_get_attachment_image_url($featured_id, 'full');
-		$featured_thumb = wp_get_attachment_image_url($featured_id, 'woocommerce_thumbnail');
+		$featured_thumb = wp_get_attachment_image_url($featured_id, 'full');
 
 		if ($featured_full) {
 			$items[] = [
@@ -3326,7 +3326,7 @@ function gelikon_get_product_media_items($product_id) {
 			}
 
 			$image_full  = wp_get_attachment_image_url($image_id, 'full');
-			$image_thumb = wp_get_attachment_image_url($image_id, 'woocommerce_thumbnail');
+			$image_thumb = wp_get_attachment_image_url($image_id, 'full');
 
 			if (!$image_full) {
 				continue;
@@ -3524,7 +3524,7 @@ add_action('wp_head', function () {
 			display: block;
 			width: 100%;
 			height: 100%;
-			object-fit: cover;
+			object-fit: contain;
 		}
 
 		.gl-product-media-gallery__thumb-video-preview {
@@ -3945,9 +3945,9 @@ function gelikon_ajax_product_search() {
 				continue;
 			}
 
-			$image = get_the_post_thumbnail_url($product_id, 'woocommerce_thumbnail');
+			$image = get_the_post_thumbnail_url($product_id, 'full');
 			if (!$image) {
-				$image = wc_placeholder_img_src('woocommerce_thumbnail');
+				$image = wc_placeholder_img_src('full');
 			}
 
 			$items[] = [
