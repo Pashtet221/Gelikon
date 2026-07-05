@@ -19,10 +19,15 @@ $stock_label = $is_discontinued ? __('Снят с продажи', 'gelikon') : 
 $stock_class = $is_discontinued ? 'is-discontinued' : ($is_preorder ? 'is-preorder' : ($is_in_stock ? 'is-in-stock' : 'is-out-of-stock'));
 $product_type = $product->get_type();
 
-$image_html = $product->get_image('woocommerce_thumbnail', [
-	'class'   => 'gl-product-card__image',
-	'loading' => 'lazy',
-]);
+$image_html = '';
+$image_id = (int) $product->get_image_id();
+
+if ($image_id > 0) {
+	$image_html = wp_get_attachment_image($image_id, 'full', false, [
+		'class'   => 'gl-product-card__image',
+		'loading' => 'lazy',
+	]);
+}
 
 $add_to_cart_url  = $product->add_to_cart_url();
 $add_to_cart_desc = $product->add_to_cart_description();
