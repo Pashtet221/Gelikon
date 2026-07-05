@@ -7887,10 +7887,48 @@ add_action('admin_init', function () {
 }, 100);
 
 
+if (!function_exists('gelikon_get_archive_heading')) {
+	function gelikon_get_archive_heading() {
+		if (is_category() || is_tag() || is_tax()) {
+			return single_term_title('', false);
+		}
 
+		return get_the_archive_title();
+	}
+}
 
+if (!function_exists('gelikon_render_post_category_links')) {
+	function gelikon_render_post_category_links($categories = null) {
+		if ($categories === null) {
+			$categories = get_the_category();
+		}
 
+		if (empty($categories) || is_wp_error($categories)) {
+			return;
+		}
 
+		$current_term = is_category() ? get_queried_object() : null;
+		if ($current_term instanceof WP_Term) {
+			foreach ($categories as $category) {
+				if ((int) $category->term_id === (int) $current_term->term_id) {
+					$categories = [$category];
+					break;
+				}
+			}
+		}
+
+		$links = [];
+		foreach ($categories as $category) {
+			$links[] = sprintf(
+				'<a href="%s">%s</a>',
+				esc_url(get_category_link($category->term_id)),
+				esc_html($category->name)
+			);
+		}
+
+		echo wp_kses_post(implode('<span class="gl-post-card__category-separator">,</span> ', $links));
+	}
+}
 
 
 function gelikon_category_path($value) {

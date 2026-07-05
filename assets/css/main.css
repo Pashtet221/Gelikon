@@ -741,3 +741,22 @@ a.gl-product-card__button--disabled {
 }
 
 .gl-post-card[hidden] { display: none; }
+
+.gl-archive-head {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.gl-archive-head h1 {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 767px) {
+  .gl-archive-head h1 {
+    font-size: clamp(26px, 7vw, 34px);
+    line-height: 1.12;
+  }
+}
