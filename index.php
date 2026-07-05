@@ -36,9 +36,7 @@
                         <div class="gl-post-card__content">
                             <?php if (!empty($post_categories)) : ?>
                                 <div class="gl-post-card__categories">
-                                    <?php foreach ($post_categories as $post_category) : ?>
-                                        <a href="<?php echo esc_url(get_category_link($post_category->term_id)); ?>"><?php echo esc_html($post_category->name); ?></a>
-                                    <?php endforeach; ?>
+                                    <?php gelikon_render_post_category_links($post_categories); ?>
                                 </div>
                             <?php endif; ?>
                             <h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>

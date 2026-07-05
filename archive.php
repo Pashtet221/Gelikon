@@ -1,8 +1,8 @@
 <?php get_header(); ?>
 <main id="primary" class="site-main">
     <div class="gl-container gl-page">
-        <header class="gl-archive-head gl-card">
-            <h1><?php the_archive_title(); ?></h1>
+        <header class="gl-archive-head">
+            <h1><?php echo esc_html(gelikon_get_archive_heading()); ?></h1>
             <?php the_archive_description('<div class="gl-archive-desc">', '</div>'); ?>
         </header>
         <?php if (have_posts()) : ?>
@@ -16,9 +16,7 @@
                             <?php $post_categories = get_the_category(); ?>
                             <?php if (!empty($post_categories)) : ?>
                                 <div class="gl-post-card__categories">
-                                    <?php foreach ($post_categories as $post_category) : ?>
-                                        <a href="<?php echo esc_url(get_category_link($post_category->term_id)); ?>"><?php echo esc_html($post_category->name); ?></a>
-                                    <?php endforeach; ?>
+                                    <?php gelikon_render_post_category_links($post_categories); ?>
                                 </div>
                             <?php endif; ?>
                             <h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>

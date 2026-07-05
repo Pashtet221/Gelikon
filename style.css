@@ -88,3 +88,11 @@ Text Domain: gelikon
 .gl-post-card__categories a:hover {
     text-decoration: underline;
 }
+
+.gl-post-card__category-separator {
+    color: var(--gl-color-accent, #2f8f5b);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.35;
+    margin-left: -4px;
+}
