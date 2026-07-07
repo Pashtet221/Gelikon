@@ -218,6 +218,18 @@ function gelikon_enable_myaccount_registration_on_account_page($value) {
 add_filter('pre_option_woocommerce_enable_myaccount_registration', 'gelikon_enable_myaccount_registration_on_account_page');
 
 /**
+ * Rename the default WooCommerce dashboard menu item to a clearer label.
+ */
+function gelikon_rename_myaccount_dashboard_menu_item($items) {
+	if (isset($items['dashboard'])) {
+		$items['dashboard'] = __('Главная', 'gelikon');
+	}
+
+	return $items;
+}
+add_filter('woocommerce_account_menu_items', 'gelikon_rename_myaccount_dashboard_menu_item');
+
+/**
  * Make WooCommerce customer registration available during checkout.
  *
  * The checkout template already renders WooCommerce billing hooks, so enabling
