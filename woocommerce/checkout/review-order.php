@@ -180,7 +180,7 @@ if (! function_exists('gelikon_checkout_shipping_block_html')) {
 			</tr>
 		<?php endforeach; ?>
 
-		<?php if (wc_tax_enabled() && !WC()->cart->display_prices_including_tax()) : ?>
+		<?php if (wc_tax_enabled()) : ?>
 			<?php if ('itemized' === get_option('woocommerce_tax_total_display')) : ?>
 				<?php foreach (WC()->cart->get_tax_totals() as $code => $tax) : ?>
 					<tr class="tax-rate tax-rate-<?php echo esc_attr(sanitize_title($code)); ?>">
