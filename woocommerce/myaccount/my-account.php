@@ -185,6 +185,32 @@ do_action( 'woocommerce_account_navigation' ); ?>
 	color: #fff;
 }
 
+.woocommerce-MyAccount-content table .button,
+.woocommerce-MyAccount-content table button.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 38px;
+	padding: 9px 16px;
+	border-radius: 999px;
+	font-size: 14px;
+	line-height: 1.2;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.woocommerce-MyAccount-content .woocommerce-orders-table__cell-order-actions,
+.woocommerce-MyAccount-content .woocommerce-table--order-details tfoot td:last-child {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.woocommerce-MyAccount-content .woocommerce-orders-table__cell-order-actions .button + .button {
+	margin-left: 0;
+}
+
 /* Таблицы заказов */
 .woocommerce-MyAccount-content table {
 	width: 100%;
