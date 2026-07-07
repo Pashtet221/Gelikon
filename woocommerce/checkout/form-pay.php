@@ -52,6 +52,12 @@ $totals = $order->get_order_item_totals();
 			color: #6b7480;
 		}
 
+		.gl-order-pay .woocommerce-Price-currencySymbol {
+			font-size: .78em;
+			line-height: 1;
+			vertical-align: baseline;
+		}
+
 		.gl-order-pay__meta {
 			display: grid;
 			grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -223,6 +229,7 @@ $totals = $order->get_order_item_totals();
 		}
 
 		.gl-order-pay__payment #payment div.payment_box {
+			display: none;
 			margin: 14px 0 0;
 			padding: 14px 15px;
 			background: #f4f6f8;
@@ -230,6 +237,10 @@ $totals = $order->get_order_item_totals();
 			color: #5f6975;
 			font-size: 14px;
 			line-height: 1.45;
+		}
+
+		.gl-order-pay__payment #payment ul.payment_methods li:has(input.input-radio:checked) div.payment_box {
+			display: block;
 		}
 
 		.gl-order-pay__payment #payment div.payment_box::before,
@@ -311,7 +322,6 @@ $totals = $order->get_order_item_totals();
 
 	<div class="gl-order-pay__shell">
 		<section class="gl-order-pay__card">
-			<h1 class="gl-order-pay__title"><?php esc_html_e('Оплатить заказ', 'gelikon'); ?></h1>
 			<p class="gl-order-pay__desc"><?php esc_html_e('Проверьте состав заказа и выберите удобный способ оплаты.', 'gelikon'); ?></p>
 
 			<div class="gl-order-pay__meta" aria-label="<?php echo esc_attr__('Данные заказа', 'gelikon'); ?>">
@@ -400,4 +410,34 @@ $totals = $order->get_order_item_totals();
 			</div>
 		</aside>
 	</div>
+	<script>
+		jQuery(function($) {
+			var $payment = $('.gl-order-pay__payment #payment');
+
+			function togglePaymentBoxes(instant) {
+				$payment.find('ul.payment_methods li').each(function() {
+					var $item = $(this);
+					var $box = $item.children('div.payment_box');
+					var isChecked = $item.find('input.input-radio').is(':checked');
+
+					if (!$box.length) {
+						return;
+					}
+
+					if (instant) {
+						$box.toggle(isChecked);
+					} else if (isChecked) {
+						$box.stop(true, true).slideDown(220);
+					} else {
+						$box.stop(true, true).slideUp(180);
+					}
+				});
+			}
+
+			togglePaymentBoxes(true);
+			$payment.on('change', 'input[name="payment_method"]', function() {
+				togglePaymentBoxes(false);
+			});
+		});
+	</script>
 </form>
