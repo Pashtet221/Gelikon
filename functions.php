@@ -6995,7 +6995,7 @@ function gelikon_clean_includes_tax_text($html) {
 
 	$html = preg_replace(
 		'~<small\b([^>]*)>\(\s*включая\s*(.*?)\s*НДС\s*\)</small>~su',
-		'<small$1>$2 НДС</small>',
+		'<small$1>НДС: $2</small>',
 		$html
 	);
 
@@ -7037,7 +7037,7 @@ function gelikon_vat_notice_html($tax_amount) {
 
 	return ' <small class="includes_tax">' . sprintf(
 		/* translators: %s: formatted VAT amount */
-		esc_html__('включая %s НДС', 'gelikon'),
+		esc_html__('НДС: %s', 'gelikon'),
 		wp_kses_post(wc_price($tax_amount))
 	) . '</small>';
 }
