@@ -256,6 +256,14 @@ do_action( 'woocommerce_account_navigation' ); ?>
 .woocommerce-Price-currencySymbol{
  	font-size: 12px;
 }
+
+.woocommerce-MyAccount-content .includes_tax {
+	display: inline-block;
+	font-size: 13px;
+	line-height: 1.3;
+	font-weight: 500;
+	color: #68727f;
+}
 	
 	.woocommerce-info{
 		border-left-color: var(--gl-color-accent) !important;
