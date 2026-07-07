@@ -159,7 +159,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	min-height: 250px;
 	padding: 10px;
 	margin-bottom: 18px;
-	background: #f4f7f6;
+	background: #fff;
 	border-radius: 22px;
 	overflow: hidden;
 	flex-shrink: 0;
