@@ -7027,15 +7027,48 @@ function gelikon_clean_includes_tax_text($html) {
 	return $html;
 }
 
+
+function gelikon_vat_notice_html($tax_amount) {
+	$tax_amount = (float) $tax_amount;
+
+	if ($tax_amount <= 0) {
+		return '';
+	}
+
+	return ' <small class="includes_tax">' . sprintf(
+		/* translators: %s: formatted VAT amount */
+		esc_html__('включая %s НДС', 'gelikon'),
+		wp_kses_post(wc_price($tax_amount))
+	) . '</small>';
+}
+
+function gelikon_append_vat_notice($html, $tax_amount) {
+	if (!is_string($html) || stripos($html, 'НДС') !== false) {
+		return $html;
+	}
+
+	$notice = gelikon_vat_notice_html($tax_amount);
+
+	return $notice ? $html . $notice : $html;
+}
+
+function gelikon_cart_order_total_html($html) {
+	$tax_amount = (WC()->cart && method_exists(WC()->cart, 'get_taxes_total')) ? WC()->cart->get_taxes_total() : 0;
+
+	return gelikon_clean_includes_tax_text(gelikon_append_vat_notice($html, $tax_amount));
+}
+
 /**
  * Checkout / Cart total.
  */
-add_filter('woocommerce_cart_totals_order_total_html', 'gelikon_clean_includes_tax_text', 20);
+add_filter('woocommerce_cart_totals_order_total_html', 'gelikon_cart_order_total_html', 20);
 
 /**
  * Thank you page / My account / Emails totals.
  */
 add_filter('woocommerce_get_order_item_totals', function($total_rows, $order, $tax_display) {
+
+	unset($total_rows['cart_subtotal']);
 
 	foreach ($total_rows as $key => $row) {
 
@@ -7050,6 +7083,10 @@ add_filter('woocommerce_get_order_item_totals', function($total_rows, $order, $t
 		}
 
 		if (!empty($total_rows[$key]['value'])) {
+			if ($key === 'order_total' && $order instanceof WC_Order) {
+				$total_rows[$key]['value'] = gelikon_append_vat_notice($total_rows[$key]['value'], $order->get_total_tax());
+			}
+
 			$total_rows[$key]['value'] = gelikon_clean_includes_tax_text($total_rows[$key]['value']);
 		}
 	}
@@ -7061,7 +7098,13 @@ add_filter('woocommerce_get_order_item_totals', function($total_rows, $order, $t
 /**
  * Formatted order total.
  */
-add_filter('woocommerce_get_formatted_order_total', 'gelikon_clean_includes_tax_text', 20);
+add_filter('woocommerce_get_formatted_order_total', function($formatted_total, $order) {
+	if ($order instanceof WC_Order) {
+		$formatted_total = gelikon_append_vat_notice($formatted_total, $order->get_total_tax());
+	}
+
+	return gelikon_clean_includes_tax_text($formatted_total);
+}, 20, 2);
 
 /**
  * Email items table.

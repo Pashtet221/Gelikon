@@ -147,10 +147,6 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 						</tr>
 					<?php endforeach; ?>
 					<tr>
-						<td colspan="2" style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#374151;text-align:left;"><?php esc_html_e( 'Подытог:', 'gelikon' ); ?></td>
-						<td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;text-align:right;white-space:nowrap;"><?php echo wp_kses_post( $order->get_subtotal_to_display() ); ?></td>
-					</tr>
-					<tr>
 						<td colspan="2" style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#374151;text-align:left;"><?php esc_html_e( 'Доставка:', 'gelikon' ); ?></td>
 						<td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;text-align:right;word-break:normal;overflow-wrap:break-word;"><?php echo wp_kses_post( $order->get_shipping_to_display() ); ?></td>
 					</tr>
