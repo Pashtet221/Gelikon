@@ -155,8 +155,9 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	height: 250px;
 	min-height: 250px;
-	padding: 0;
+	padding: 10px;
 	margin-bottom: 18px;
 	background: #f4f7f6;
 	border-radius: 22px;
@@ -168,8 +169,8 @@ $primary_cta_text = __('В корзину', 'gelikon');
 .gl-product-card__media img {
 	display: block;
 	width: 100%;
-	height: 210px;
-	object-fit: contain;
+	height: 100%;
+	object-fit: cover;
 	object-position: center;
 	background: #fff;
 }
@@ -404,14 +405,15 @@ a.gl-product-card__button:hover {
 	}
 
 	.gl-product-card__media {
+		height: 190px;
 		min-height: 190px;
-		padding: 0;
+		padding: 8px;
 		border-radius: 18px;
 	}
 
 	.gl-product-card__image,
 	.gl-product-card__media img {
-		height: 160px;
+		height: 100%;
 	}
 
 	.gl-product-card__title {
