@@ -7878,6 +7878,18 @@ function gelikon_woocommerce_email_site_logo_attributes($attrs) {
 }
 add_filter('woocommerce_email_header_image_attributes', 'gelikon_woocommerce_email_site_logo_attributes');
 
+/**
+ * Keep address contact links in WooCommerce emails in the regular text color.
+ */
+function gelikon_woocommerce_email_address_link_styles($css) {
+	$css .= '
+#body_content_inner address a, #body_content_inner address a:link, #body_content_inner address a:visited, address a, address a:link, address a:visited { color: #1e1e1e !important; font-weight: normal !important; text-decoration: underline !important; }
+';
+
+	return $css;
+}
+add_filter('woocommerce_email_styles', 'gelikon_woocommerce_email_address_link_styles');
+
 
 
 /**
