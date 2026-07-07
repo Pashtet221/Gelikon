@@ -25,12 +25,12 @@ $header_image_attributes = apply_filters( 'woocommerce_email_header_image_attrib
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title><?php echo esc_html( $blog_name ); ?></title>
 </head>
-<body <?php echo is_rtl() ? 'rightmargin' : 'leftmargin'; ?>="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" style="padding:0;background:#f6f7f8;">
-	<div id="wrapper" dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>" style="background:#f6f7f8;margin:0;padding:32px 0;width:100%;">
+<body <?php echo is_rtl() ? 'rightmargin' : 'leftmargin'; ?>="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" style="padding:0;background:#ffffff;">
+	<div id="wrapper" dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>" style="background:#ffffff;margin:0;padding:32px 0;width:100%;text-align:center;">
 		<table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" role="presentation">
 			<tr>
 				<td align="center" valign="top">
-					<table border="0" cellpadding="0" cellspacing="0" width="600" id="template_container" role="presentation" style="background:#ffffff;border:0;border-radius:0;box-shadow:none;width:600px;max-width:100%;">
+					<table border="0" cellpadding="0" cellspacing="0" width="600" id="template_container" role="presentation" style="background:#ffffff;border:0;border-radius:0;box-shadow:none;margin:0 auto;width:600px;max-width:100%;">
 						<tr>
 							<td align="left" valign="top">
 								<table border="0" cellpadding="0" cellspacing="0" width="100%" id="template_header" role="presentation" style="background:#ffffff;border:0;color:#1A1A1A;">
