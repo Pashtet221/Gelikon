@@ -7878,6 +7878,30 @@ function gelikon_woocommerce_email_site_logo_attributes($attrs) {
 }
 add_filter('woocommerce_email_header_image_attributes', 'gelikon_woocommerce_email_site_logo_attributes');
 
+
+
+/**
+ * Remove default app-management copy from order emails.
+ *
+ * Some WooCommerce email settings can contain the customer-facing phrase about
+ * working with orders in the app. Keep the rest of the additional content intact.
+ */
+function gelikon_email_remove_app_order_management_copy($content) {
+	$content = preg_replace(
+		'/<p[^>]*>\s*Работать с заказами можно\s+в\s+<a[^>]*>\s*приложении\s*<\/a>\.?\s*<\/p>/iu',
+		'',
+		$content
+	);
+
+	$phrases = array(
+		'Работать с заказами можно в приложении.',
+		'Работать с заказами можно в приложении',
+	);
+
+	return trim(str_replace($phrases, '', $content));
+}
+add_filter('woocommerce_email_additional_content', 'gelikon_email_remove_app_order_management_copy');
+
 // Отключить предупреждения WooCommerce в админке
 add_filter('woocommerce_helper_suppress_admin_notices', '__return_true');
 

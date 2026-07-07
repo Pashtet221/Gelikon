@@ -152,7 +152,7 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 					</tr>
 					<tr>
 						<td colspan="2" style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#374151;text-align:left;"><?php esc_html_e( 'Доставка:', 'gelikon' ); ?></td>
-						<td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;text-align:right;white-space:nowrap;"><?php echo wp_kses_post( $order->get_shipping_to_display() ); ?></td>
+						<td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;text-align:right;word-break:normal;overflow-wrap:break-word;"><?php echo wp_kses_post( $order->get_shipping_to_display() ); ?></td>
 					</tr>
 					<tr>
 						<td colspan="2" style="padding:14px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.4;font-weight:700;color:#111827;text-align:left;"><?php esc_html_e( 'Итого:', 'gelikon' ); ?></td>
@@ -160,7 +160,7 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 					</tr>
 					<tr>
 						<td colspan="2" style="padding:12px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#374151;text-align:left;"><?php esc_html_e( 'Способ оплаты:', 'gelikon' ); ?></td>
-						<td style="padding:12px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;text-align:right;white-space:nowrap;"><?php echo esc_html( gelikon_email_get_payment_method_title( $order ) ); ?></td>
+						<td style="padding:12px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;text-align:right;word-break:normal;overflow-wrap:break-word;"><?php echo esc_html( gelikon_email_get_payment_method_title( $order ) ); ?></td>
 					</tr>
 				</tbody>
 			</table>
@@ -170,8 +170,8 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:100%;margin:0 0 18px 0;border-collapse:collapse;">
 	<tr>
-		<td style="padding:14px 16px;border:1px solid #bfdbfe;border-radius:8px;background:#eff6ff;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#111827;">
-			<span style="display:inline-block;width:26px;height:26px;margin:0 12px 0 0;vertical-align:middle;text-align:center;font-size:22px;line-height:26px;color:#2563eb;">▣</span>
+		<td style="padding:14px 16px;border:1px solid #a7f3c4;border-radius:8px;background:#effdf3;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#111827;">
+			<span style="display:inline-block;width:26px;height:26px;margin:0 12px 0 0;vertical-align:middle;text-align:center;font-size:22px;line-height:26px;color:#12D457;">▣</span>
 			<span style="vertical-align:middle;"><?php esc_html_e( 'Как только заказ будет передан службе доставки, мы пришлём вам трек-номер для отслеживания.', 'gelikon' ); ?></span>
 		</td>
 	</tr>
@@ -180,7 +180,7 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:100%;margin:0 0 12px 0;border-collapse:collapse;">
 	<tr>
 		<td width="42" style="width:42px;padding:0 12px 0 0;vertical-align:top;">
-			<span style="display:block;width:30px;height:30px;border-radius:50%;background:#2563eb;color:#ffffff;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:20px;line-height:30px;font-weight:700;">?</span>
+			<span style="display:block;width:30px;height:30px;border-radius:50%;background:#12D457;color:#ffffff;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:20px;line-height:30px;font-weight:700;">?</span>
 		</td>
 		<td style="padding:2px 0 0 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#111827;vertical-align:top;">
 			<?php esc_html_e( 'Если у вас возникли вопросы — мы всегда на связи!', 'gelikon' ); ?>
@@ -190,7 +190,7 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 
 <p style="margin:0 0 4px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#374151;"><?php esc_html_e( 'С уважением,', 'gelikon' ); ?></p>
 <p style="margin:0 0 20px 0;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#374151;">
-	<?php esc_html_e( 'команда', 'gelikon' ); ?> <strong style="color:#0f75a8;">GELIKON LINE</strong>
+	<?php esc_html_e( 'команда', 'gelikon' ); ?> <strong style="color:#1ea751;">GELIKON LINE</strong>
 </p>
 
 <?php do_action( 'woocommerce_email_after_order_table', $order, $sent_to_admin, $plain_text, $email ); ?>
