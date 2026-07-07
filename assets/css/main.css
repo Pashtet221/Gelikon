@@ -110,7 +110,8 @@ img { max-width: 100%; height: auto; display: block; }
 .gl-menu > li.current-menu-ancestor > a,
 .gl-menu > li.current_page_parent > a,
 .gl-menu > li.current_page_ancestor > a { color: var(--gl-color-text); }
-.gl-header-more { position: relative; display: none; flex: 0 0 auto; }
+.gl-header__top .gl-menu > li:nth-child(3), .gl-header__top .gl-menu > li:nth-child(5), .gl-header__top .gl-menu > li:nth-child(6) { display: none; }
+.gl-header-more { position: relative; display: block; flex: 0 0 auto; }
 .gl-header-more__toggle { display: inline-flex; align-items: center; justify-content: center; min-width: 0; min-height: 36px; padding: 0 4px; border: 0; background: transparent; color: var(--gl-color-helper); font-size: 15px; font-weight: 700; line-height: 1; cursor: pointer; }
 .gl-header-more__toggle::after { content: ""; width: 7px; height: 7px; margin-left: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); }
 .gl-header-more__menu { position: absolute; top: calc(100% + 12px); left: 50%; z-index: 20; display: grid; min-width: 180px; padding: 10px; border: 1px solid var(--gl-color-line); border-radius: 16px; background: #fff; box-shadow: 0 18px 40px rgba(16, 22, 31, 0.14); opacity: 0; visibility: hidden; transform: translate(-50%, 8px); transition: opacity .18s ease, transform .18s ease, visibility .18s ease; }
@@ -280,7 +281,7 @@ a.gl-product-card__button--disabled {
   .gl-header__top { grid-template-columns: auto auto minmax(0, 1fr) auto auto; gap: 18px; }
   .gl-logo img, .gl-logo svg, .gl-logo-block { max-width: 170px; }
   .gl-menu { gap: 12px; }
-  .gl-menu > li:nth-child(n+3) { display: none; }
+  .gl-menu > li:nth-child(3), .gl-menu > li:nth-child(5), .gl-menu > li:nth-child(6) { display: none; }
   .gl-header-more { display: block; }
   .gl-header__icon, .gl-header-search-trigger { width: 46px; height: 46px; }
 }
@@ -290,7 +291,7 @@ a.gl-product-card__button--disabled {
   .gl-logo img, .gl-logo svg, .gl-logo-block { max-width: 145px; }
   .gl-logo-slogan { font-size: clamp(7px, 0.7vw, 9px); }
   .gl-menu { gap: 10px; }
-  .gl-menu > li:nth-child(n+3) { display: none; }
+  .gl-menu > li:nth-child(3), .gl-menu > li:nth-child(5), .gl-menu > li:nth-child(6) { display: none; }
   .gl-header-more { display: block; }
   .gl-menu > li > a,
   .gl-header__phones-wrap a,
