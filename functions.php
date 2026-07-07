@@ -7070,6 +7070,39 @@ add_filter('woocommerce_get_order_item_totals', function($total_rows, $order, $t
 
 	unset($total_rows['cart_subtotal']);
 
+	if ($order instanceof WC_Order && wc_tax_enabled()) {
+		$tax_totals = $order->get_tax_totals();
+
+		if (!empty($tax_totals)) {
+			$tax_rows = array();
+
+			foreach ($tax_totals as $code => $tax) {
+				if (isset($total_rows['tax_' . $code])) {
+					continue;
+				}
+
+				$tax_rows['tax_' . $code] = array(
+					'label' => $tax->label . ':',
+					'value' => $tax->formatted_amount,
+				);
+			}
+
+			if (!empty($tax_rows)) {
+				$rebuilt_rows = array();
+
+				foreach ($total_rows as $key => $row) {
+					if ('order_total' === $key) {
+						$rebuilt_rows = array_merge($rebuilt_rows, $tax_rows);
+					}
+
+					$rebuilt_rows[$key] = $row;
+				}
+
+				$total_rows = $rebuilt_rows;
+			}
+		}
+	}
+
 	foreach ($total_rows as $key => $row) {
 
 		/**
