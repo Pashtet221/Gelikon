@@ -8,16 +8,16 @@ $gl_site_description = trim((string) get_bloginfo('description', 'display'));
 
 $gl_header_more_links = [
 	[
+		'label' => __('О компании', 'gelikon'),
+		'url'   => get_permalink(get_page_by_path('about')) ?: home_url('/about/'),
+	],
+	[
 		'label' => __('Блог', 'gelikon'),
 		'url'   => get_permalink(get_page_by_path('blog')) ?: home_url('/blog/'),
 	],
 	[
-		'label' => __('О компании', 'gelikon'),
-		'url'   => get_permalink(get_page_by_path('about-company')) ?: home_url('/about-company/'),
-	],
-	[
-		'label' => __('Контакты', 'gelikon'),
-		'url'   => get_permalink(get_page_by_path('contacts')) ?: home_url('/contacts/'),
+		'label' => __('Личный кабинет', 'gelikon'),
+		'url'   => function_exists('wc_get_page_permalink') ? wc_get_page_permalink('myaccount') : home_url('/my-account/'),
 	],
 ];
 
@@ -569,9 +569,15 @@ if (function_exists('get_field')) {
 }
 
 
+.gl-header__top .gl-menu > li:nth-child(3),
+.gl-header__top .gl-menu > li:nth-child(5),
+.gl-header__top .gl-menu > li:nth-child(6) {
+	display: none;
+}
+
 .gl-header-more {
 	position: relative;
-	display: none;
+	display: block;
 	flex: 0 0 auto;
 }
 
@@ -1151,7 +1157,9 @@ body.gl-modal-open {
 		gap: 18px;
 	}
 
-	.gl-menu > li:nth-child(n+3) {
+	.gl-menu > li:nth-child(3),
+	.gl-menu > li:nth-child(5),
+	.gl-menu > li:nth-child(6) {
 		display: none;
 	}
 
@@ -1189,7 +1197,9 @@ body.gl-modal-open {
 		gap: 14px;
 	}
 
-	.gl-menu > li:nth-child(n+3) {
+	.gl-menu > li:nth-child(3),
+	.gl-menu > li:nth-child(5),
+	.gl-menu > li:nth-child(6) {
 		display: none;
 	}
 
