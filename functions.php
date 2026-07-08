@@ -15,6 +15,19 @@ require_once GELIKON_DIR . '/inc/woocommerce.php';
 
 
 
+
+/**
+ * Сохраняет автоматически сгенерированный WooCommerce пароль,
+ * чтобы отправить его в письме о создании аккаунта вместо ссылки на установку пароля.
+ */
+add_action('woocommerce_created_customer', function ($customer_id, $new_customer_data = [], $password_generated = false) {
+	if (!$password_generated || empty($new_customer_data['user_pass'])) {
+		return;
+	}
+
+	update_user_meta($customer_id, '_gelikon_generated_customer_password', (string) $new_customer_data['user_pass']);
+}, 10, 3);
+
 /**
  * Возвращает URL страницы политики конфиденциальности.
  */
