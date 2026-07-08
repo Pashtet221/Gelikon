@@ -119,7 +119,7 @@ do_action( 'woocommerce_before_customer_login_form' ); ?>
 							<input type="password" class="woocommerce-Input woocommerce-Input--text input-text" name="password" id="reg_password" autocomplete="new-password" required aria-required="true" />
 						</p>
 					<?php else : ?>
-						<p class="gl-myaccount-auth__hint"><?php esc_html_e( 'Ссылка для установки пароля будет отправлена на ваш email.', 'woocommerce' ); ?></p>
+						<p class="gl-myaccount-auth__hint"><?php esc_html_e( 'Имя пользователя и сгенерированный пароль будут отправлены на ваш email.', 'woocommerce' ); ?></p>
 					<?php endif; ?>
 
 					<?php do_action( 'woocommerce_register_form' ); ?>
