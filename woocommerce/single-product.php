@@ -352,7 +352,6 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 		rgba(255, 255, 255, 0.6) 40%,
 		rgba(255, 255, 255, 1) 100%
 	);
-	transition: opacity 0.2s ease;
 }
 
 .gl-product-summary__excerpt.is-full::after {
@@ -414,9 +413,6 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	gap: 16px;
 }
 
-.gl-product-summary__excerpt-wrap:hover .gl-product-summary__excerpt::after {
-	opacity: 0.85;
-}
 
 	@media (max-width: 767px) {
 		.gl-product-summary__subtitle {

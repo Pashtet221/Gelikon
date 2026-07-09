@@ -5046,6 +5046,31 @@ add_filter('woocommerce_add_to_cart_validation', function ($passed, $product_id)
 }, 20, 2);
 
 /**
+ * Показывать покупателям только текстовый статус наличия без точного остатка.
+ */
+add_filter('woocommerce_get_availability_text', function ($availability, $product) {
+	if (!$product || !is_a($product, 'WC_Product')) {
+		return $availability;
+	}
+
+	$product_id = $product->get_id();
+
+	if (function_exists('gelikon_is_product_discontinued') && gelikon_is_product_discontinued($product_id)) {
+		return __('Снят с продажи', 'gelikon');
+	}
+
+	if ((function_exists('gelikon_is_product_preorder') && gelikon_is_product_preorder($product_id)) || $product->get_stock_status() === 'onbackorder') {
+		return __('Предзаказ', 'gelikon');
+	}
+
+	if ($product->is_in_stock()) {
+		return __('В наличии', 'gelikon');
+	}
+
+	return __('Нет в наличии', 'gelikon');
+}, 20, 2);
+
+/**
  * Рендер статуса наличия товара
  */
 function gelikon_get_stock_status_html($product_id = 0) {
