@@ -332,9 +332,14 @@ $products_query = new WP_Query($query_args);
 
 						<?php foreach ($available_filters as $filter_group) : ?>
 							<div class="gl-catalog-filter gl-catalog-filter--choices" data-filter-block>
-								<div class="gl-catalog-filter__heading">
+								<button type="button" class="gl-catalog-filter__heading gl-catalog-filter-heading" data-filter-toggle aria-expanded="true">
 									<span><?php echo esc_html($filter_group['label']); ?></span>
-								</div>
+									<span class="gl-catalog-filter__arrow" aria-hidden="true">
+										<svg viewBox="0 0 12 12" width="12" height="12">
+											<path d="M2.5 7.5L6 4L9.5 7.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+										</svg>
+									</span>
+								</button>
 
 								<div class="gl-catalog-filter__body" data-filter-body>
 									<div class="gl-catalog-filter__list">
@@ -765,7 +770,9 @@ $products_query = new WP_Query($query_args);
 	padding-top: 0;
 }
 
-.gl-catalog-filter__toggle {
+.gl-catalog-filter__toggle,
+.gl-catalog-filter__heading,
+.gl-catalog-filter-heading {
 	width: 100%;
 	display: flex;
 	align-items: center;
@@ -988,7 +995,9 @@ $products_query = new WP_Query($query_args);
 	padding-top: 0;
 }
 
-.gl-catalog-filter__toggle {
+.gl-catalog-filter__toggle,
+.gl-catalog-filter__heading,
+.gl-catalog-filter-heading {
 	width: 100%;
 	display: flex;
 	align-items: center;

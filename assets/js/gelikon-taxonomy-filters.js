@@ -62,13 +62,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
 			toggle.addEventListener('click', function () {
 				const block = toggle.closest('[data-filter-block]');
+				if (!block) return;
+
 				const body = block.querySelector('[data-filter-body]');
-				if (!block || !body) return;
+				if (!body) return;
 
 				const collapsed = block.classList.contains('is-collapsed');
+				const nextCollapsed = !collapsed;
 
-				block.classList.toggle('is-collapsed', !collapsed);
-				body.hidden = !collapsed;
+				block.classList.toggle('is-collapsed', nextCollapsed);
+				body.hidden = nextCollapsed;
+				toggle.setAttribute('aria-expanded', String(!nextCollapsed));
 			});
 		});
 	}
@@ -80,6 +84,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 			block.classList.remove('is-collapsed');
 			body.hidden = false;
+
+			const toggle = block.querySelector('[data-filter-toggle]');
+			if (toggle) {
+				toggle.setAttribute('aria-expanded', 'true');
+			}
 		});
 	}
 
