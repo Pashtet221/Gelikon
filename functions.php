@@ -4506,6 +4506,11 @@ JS;
 	font-weight: 700;
 }
 
+.gl-product-search__price .woocommerce-Price-currencySymbol {
+	font-size: 12px;
+	line-height: 1;
+}
+
 .gl-product-search__all {
 	display: flex;
 	align-items: center;
