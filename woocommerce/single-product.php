@@ -389,6 +389,28 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	border-radius: 16px;
 }
 
+.gl-product-summary__excerpt table,
+.gl-product-summary__description table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 16px 0;
+}
+
+.gl-product-summary__excerpt th,
+.gl-product-summary__excerpt td,
+.gl-product-summary__description th,
+.gl-product-summary__description td {
+	padding: 10px 12px;
+	border: 1px solid rgba(23, 29, 42, 0.14);
+	vertical-align: top;
+}
+
+.gl-product-summary__excerpt th,
+.gl-product-summary__description th {
+	font-weight: 700;
+	background: rgba(23, 29, 42, 0.04);
+}
+
 .gl-product-summary__more {
 	align-self: flex-start;
 	padding: 0;
