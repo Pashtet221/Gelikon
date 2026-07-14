@@ -5051,6 +5051,18 @@ add_filter('woocommerce_add_to_cart_validation', function ($passed, $product_id)
 }, 20, 2);
 
 /**
+ * Скрыть стандартный HTML-статус WooCommerce на странице товара.
+ * Кастомный статус выводится через gelikon_get_stock_status_html().
+ */
+add_filter('woocommerce_get_stock_html', function ($html, $product) {
+	if (function_exists('is_product') && is_product()) {
+		return '';
+	}
+
+	return $html;
+}, 20, 2);
+
+/**
  * Показывать покупателям только текстовый статус наличия без точного остатка.
  */
 add_filter('woocommerce_get_availability_text', function ($availability, $product) {
