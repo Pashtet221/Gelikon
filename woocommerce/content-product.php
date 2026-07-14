@@ -134,7 +134,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	padding: 18px;
+	padding: 16px;
 	background: #fff;
 	border: 1px solid #e5ebe7;
 	border-radius: 28px;
@@ -155,10 +155,11 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	height: clamp(340px, 27vw, 390px);
-	min-height: 340px;
-	padding: 8px;
-	margin-bottom: 18px;
+	aspect-ratio: 1 / 1;
+	height: auto;
+	min-height: 0;
+	padding: 0;
+	margin-bottom: 14px;
 	background: #fff;
 	border-radius: 22px;
 	overflow: hidden;
@@ -200,7 +201,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 }
 
 .gl-product-card__title {
-	margin: 0 0 14px;
+	margin: 0 0 10px;
 	font-size: 16px;
 	line-height: 1.22;
 	font-weight: 700;
@@ -255,7 +256,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
-	margin-top: 16px;
+	margin-top: 12px;
 	flex-wrap: nowrap;
 }
 
@@ -400,14 +401,16 @@ a.gl-product-card__button:hover {
 
 @media (max-width: 767px) {
 	.gl-product-card__inner {
-		padding: 14px;
+		padding: 12px;
 		border-radius: 22px;
 	}
 
 	.gl-product-card__media {
-		height: clamp(260px, 58vw, 340px);
-		min-height: 260px;
-		padding: 6px;
+		aspect-ratio: 1 / 1;
+		height: auto;
+		min-height: 0;
+		padding: 0;
+		margin-bottom: 12px;
 		border-radius: 18px;
 	}
 
