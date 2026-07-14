@@ -639,7 +639,7 @@ $products_query = new WP_Query($query_args);
 
 .gl-catalog-products__grid {
 	display: grid !important;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-columns: repeat(3, minmax(240px, 1fr));
 	gap: 20px;
 	margin: 0;
 	padding: 0;
@@ -709,7 +709,7 @@ $products_query = new WP_Query($query_args);
 	}
 
 	.gl-catalog-products__grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-columns: repeat(2, minmax(240px, 1fr));
 	}
 }
 
@@ -729,7 +729,7 @@ $products_query = new WP_Query($query_args);
 	}
 
 	.gl-catalog-products__grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-columns: repeat(2, minmax(240px, 1fr));
 	}
 }
 
@@ -1167,7 +1167,7 @@ $products_query = new WP_Query($query_args);
 
 .gl-catalog-products__grid {
 	display: grid !important;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-columns: repeat(3, minmax(240px, 1fr));
 	gap: 20px;
 	margin: 0;
 	padding: 0;
@@ -1229,7 +1229,7 @@ $products_query = new WP_Query($query_args);
 	}
 
 	.gl-catalog-products__grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-columns: repeat(2, minmax(240px, 1fr));
 	}
 }
 
@@ -1249,7 +1249,7 @@ $products_query = new WP_Query($query_args);
 	}
 
 	.gl-catalog-products__grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-template-columns: repeat(2, minmax(240px, 1fr));
 	}
 }
 
