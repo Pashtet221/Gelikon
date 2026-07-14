@@ -74,9 +74,9 @@ if ( ! function_exists( 'gelikon_email_item_thumbnail' ) ) {
 do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plain_text, $email );
 ?>
 
-<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:100%;border:1px solid #e5e7eb;border-radius:14px;border-collapse:separate;overflow:hidden;margin:24px 0 20px 0;background:#ffffff;">
+<table class="gelikon-email-card" role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:100%;border:1px solid #e5e7eb;border-radius:14px;border-collapse:separate;overflow:hidden;margin:24px 0 20px 0;background:#ffffff;">
 	<tr>
-		<td style="padding:18px 20px 14px 20px;">
+		<td class="gelikon-email-card__header" style="padding:18px 20px 14px 20px;">
 			<h2 style="margin:0 0 6px 0;font-family:Arial,Helvetica,sans-serif;font-size:20px;line-height:1.25;font-weight:700;color:#111827;">
 				<?php esc_html_e( 'Детали заказа', 'gelikon' ); ?>
 			</h2>
@@ -94,7 +94,7 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 	</tr>
 	<tr>
 		<td style="padding:0;">
-			<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:100%;border-collapse:collapse;table-layout:fixed;">
+			<table class="gelikon-email-order-table" role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:100%;border-collapse:collapse;table-layout:fixed;">
 				<colgroup>
 					<col style="width:58%;">
 					<col style="width:18%;">
@@ -120,12 +120,12 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 						$product_name = $product ? $product->get_name() : $item->get_name();
 						$thumbnail    = gelikon_email_item_thumbnail( $item );
 						?>
-						<tr>
-							<td style="padding:16px;border-bottom:1px solid #e5e7eb;text-align:<?php echo esc_attr( $text_align ); ?>;vertical-align:middle;">
-								<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:100%;border-collapse:collapse;">
+						<tr class="gelikon-email-item">
+							<td class="gelikon-email-item__product" style="padding:16px;border-bottom:1px solid #e5e7eb;text-align:<?php echo esc_attr( $text_align ); ?>;vertical-align:middle;">
+								<table class="gelikon-email-product-table" role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:100%;border-collapse:collapse;">
 									<tr>
 										<?php if ( $thumbnail ) : ?>
-											<td width="84" style="width:84px;padding:0 12px 0 0;vertical-align:middle;">
+											<td class="gelikon-email-product-thumb" width="84" style="width:84px;padding:0 12px 0 0;vertical-align:middle;">
 												<?php echo wp_kses_post( $thumbnail ); ?>
 											</td>
 										<?php endif; ?>
@@ -138,25 +138,25 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 									</tr>
 								</table>
 							</td>
-							<td style="padding:16px 10px;border-bottom:1px solid #e5e7eb;text-align:center;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;white-space:nowrap;">
+							<td class="gelikon-email-item__qty" style="padding:16px 10px;border-bottom:1px solid #e5e7eb;text-align:center;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;white-space:nowrap;">
 								<?php echo esc_html( $item->get_quantity() ); ?> <?php esc_html_e( 'шт.', 'gelikon' ); ?>
 							</td>
-							<td style="padding:16px 16px 16px 10px;border-bottom:1px solid #e5e7eb;text-align:right;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;white-space:nowrap;">
+							<td class="gelikon-email-item__price" style="padding:16px 16px 16px 10px;border-bottom:1px solid #e5e7eb;text-align:right;vertical-align:middle;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;white-space:nowrap;">
 								<?php echo wp_kses_post( $order->get_formatted_line_subtotal( $item ) ); ?>
 							</td>
 						</tr>
 					<?php endforeach; ?>
 					<tr>
-						<td colspan="2" style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#374151;text-align:left;"><?php esc_html_e( 'Доставка:', 'gelikon' ); ?></td>
-						<td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;text-align:right;word-break:normal;overflow-wrap:break-word;"><?php echo wp_kses_post( $order->get_shipping_to_display() ); ?></td>
+						<td class="gelikon-email-summary-label" colspan="2" style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#374151;text-align:left;"><?php esc_html_e( 'Доставка:', 'gelikon' ); ?></td>
+						<td class="gelikon-email-summary-value" style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;text-align:right;word-break:normal;overflow-wrap:break-word;"><?php echo wp_kses_post( $order->get_shipping_to_display() ); ?></td>
 					</tr>
 					<tr>
-						<td colspan="2" style="padding:14px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.4;font-weight:700;color:#111827;text-align:left;"><?php esc_html_e( 'Итого:', 'gelikon' ); ?></td>
-						<td style="padding:14px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:18px;line-height:1.3;font-weight:700;color:#111827;text-align:right;white-space:nowrap;"><?php echo wp_kses_post( $order->get_formatted_order_total() ); ?></td>
+						<td class="gelikon-email-summary-label" colspan="2" style="padding:14px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.4;font-weight:700;color:#111827;text-align:left;"><?php esc_html_e( 'Итого:', 'gelikon' ); ?></td>
+						<td class="gelikon-email-summary-value" style="padding:14px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:18px;line-height:1.3;font-weight:700;color:#111827;text-align:right;white-space:nowrap;"><?php echo wp_kses_post( $order->get_formatted_order_total() ); ?></td>
 					</tr>
 					<tr>
-						<td colspan="2" style="padding:12px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#374151;text-align:left;"><?php esc_html_e( 'Способ оплаты:', 'gelikon' ); ?></td>
-						<td style="padding:12px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;text-align:right;word-break:normal;overflow-wrap:break-word;"><?php echo esc_html( gelikon_email_get_payment_method_title( $order ) ); ?></td>
+						<td class="gelikon-email-summary-label" colspan="2" style="padding:12px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#374151;text-align:left;"><?php esc_html_e( 'Способ оплаты:', 'gelikon' ); ?></td>
+						<td class="gelikon-email-summary-value" style="padding:12px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#111827;text-align:right;word-break:normal;overflow-wrap:break-word;"><?php echo esc_html( gelikon_email_get_payment_method_title( $order ) ); ?></td>
 					</tr>
 				</tbody>
 			</table>
@@ -164,7 +164,7 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 	</tr>
 </table>
 
-<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:100%;margin:0 0 18px 0;border-collapse:collapse;">
+<table class="gelikon-email-note" role="presentation" cellspacing="0" cellpadding="0" border="0" style="width:100%;margin:0 0 18px 0;border-collapse:collapse;">
 	<tr>
 		<td style="padding:14px 16px;border:1px solid #a7f3c4;border-radius:8px;background:#effdf3;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#111827;">
 			<span style="display:inline-block;width:26px;height:26px;margin:0 12px 0 0;vertical-align:middle;text-align:center;font-size:22px;line-height:26px;color:#12D457;">▣</span>

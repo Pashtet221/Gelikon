@@ -24,6 +24,34 @@ $header_image_attributes = apply_filters( 'woocommerce_email_header_image_attrib
 	<meta http-equiv="Content-Type" content="text/html; charset=<?php bloginfo( 'charset' ); ?>" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title><?php echo esc_html( $blog_name ); ?></title>
+	<style type="text/css">
+		@media only screen and (max-width: 480px) {
+			body { width: 100% !important; min-width: 100% !important; }
+			#wrapper { padding: 18px 0 !important; }
+			#template_container { width: 100% !important; max-width: 100% !important; }
+			#header_wrapper { padding: 0 16px 16px 16px !important; }
+			#header_wrapper h1 { font-size: 24px !important; line-height: 1.25 !important; }
+			#body_content_inner_wrap { padding: 0 16px 24px 16px !important; }
+			.gelikon-email-card { margin: 18px 0 18px 0 !important; border-radius: 12px !important; }
+			.gelikon-email-card__header { padding: 16px 14px 12px 14px !important; }
+			.gelikon-email-order-table, .gelikon-email-order-table tbody, .gelikon-email-order-table tr, .gelikon-email-order-table td { display: block !important; width: 100% !important; box-sizing: border-box !important; }
+			.gelikon-email-order-table thead { display: none !important; }
+			.gelikon-email-order-table colgroup { display: none !important; }
+			.gelikon-email-item { border-bottom: 1px solid #e5e7eb !important; }
+			.gelikon-email-item__product { padding: 14px 14px 8px 14px !important; border-bottom: 0 !important; }
+			.gelikon-email-product-table, .gelikon-email-product-table tbody, .gelikon-email-product-table tr { display: table !important; width: 100% !important; table-layout: fixed !important; }
+			.gelikon-email-product-table td { display: table-cell !important; width: auto !important; box-sizing: border-box !important; }
+			.gelikon-email-product-thumb { width: 64px !important; padding-right: 10px !important; }
+			.gelikon-email-product-thumb img { width: 56px !important; max-width: 56px !important; }
+			.gelikon-email-item__qty, .gelikon-email-item__price { display: inline-block !important; width: 50% !important; padding: 0 14px 14px 14px !important; border-bottom: 0 !important; text-align: left !important; white-space: normal !important; }
+			.gelikon-email-item__qty:before { content: 'Количество: '; color: #6b7280; font-weight: 400; }
+			.gelikon-email-item__price:before { content: 'Цена: '; color: #6b7280; font-weight: 400; }
+			.gelikon-email-summary-label, .gelikon-email-summary-value { display: block !important; width: 100% !important; box-sizing: border-box !important; text-align: left !important; }
+			.gelikon-email-summary-label { padding: 12px 14px 4px 14px !important; border-bottom: 0 !important; }
+			.gelikon-email-summary-value { padding: 0 14px 12px 14px !important; white-space: normal !important; overflow-wrap: anywhere !important; }
+			.gelikon-email-note td { padding: 12px 14px !important; }
+		}
+	</style>
 </head>
 <body <?php echo is_rtl() ? 'rightmargin' : 'leftmargin'; ?>="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" style="padding:0;background:#ffffff;">
 	<div id="wrapper" dir="<?php echo is_rtl() ? 'rtl' : 'ltr'; ?>" style="background:#ffffff;margin:0;padding:32px 0;width:100%;text-align:center;">
@@ -60,5 +88,5 @@ $header_image_attributes = apply_filters( 'woocommerce_email_header_image_attrib
 										<td valign="top" id="body_content" style="background:#ffffff;">
 											<table border="0" cellpadding="20" cellspacing="0" width="100%" role="presentation">
 												<tr>
-													<td valign="top" style="padding:0 32px 32px 32px;">
+													<td valign="top" id="body_content_inner_wrap" style="padding:0 32px 32px 32px;">
 														<div id="body_content_inner" style="color:#1A1A1A;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;text-align:left;">
