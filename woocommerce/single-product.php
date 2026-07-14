@@ -513,7 +513,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 								<div class="gl-product-buybox__button-wrap">
 									<div class="gl-product-buybox__button">
-										<?php woocommerce_template_single_add_to_cart(); ?>
+										<?php
+										add_filter('woocommerce_get_stock_html', '__return_empty_string', 20);
+										woocommerce_template_single_add_to_cart();
+										remove_filter('woocommerce_get_stock_html', '__return_empty_string', 20);
+										?>
 									</div>
 
 									<?php echo wp_kses_post($purchase_note_html); ?>
