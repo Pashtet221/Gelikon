@@ -252,17 +252,15 @@ $primary_cta_text = __('В корзину', 'gelikon');
 }
 
 .gl-product-card__purchase {
-	display: flex;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
 	align-items: center;
-	justify-content: space-between;
 	gap: 12px;
 	margin-top: 12px;
-	flex-wrap: nowrap;
 }
 
 .gl-product-card__price {
 	margin-bottom: 0;
-	flex: 1 1 auto;
 	min-width: 0;
 	line-height: 1.1;
 	color: #171d2a;
@@ -280,6 +278,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	font-weight: 700;
 	letter-spacing: -0.03em;
 	color: #171d2a;
+	white-space: nowrap;
 }
 
 .gl-product-card__price del {
@@ -320,6 +319,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	font-weight: 700 !important;
 	letter-spacing: -0.03em;
 	color: #171d2a !important;
+	white-space: nowrap;
 }
 	
 .gl-product-card__price del .woocommerce-Price-currencySymbol{
@@ -389,6 +389,31 @@ a.gl-product-card__button:hover {
 	border-color: #cfd6d1 !important;
 	color: #fff !important;
 	pointer-events: none;
+}
+
+
+@media (min-width: 1024px) and (max-width: 1280px) {
+	.gl-catalog-products .gl-product-card__purchase {
+		gap: 8px;
+	}
+
+	.gl-catalog-products .gl-product-card__price > .amount,
+	.gl-catalog-products .gl-product-card__price > bdi,
+	.gl-catalog-products .gl-product-card__price .price > .amount,
+	.gl-catalog-products .gl-product-card__price .price > bdi,
+	.gl-catalog-products .gl-product-card__price ins .amount,
+	.gl-catalog-products .gl-product-card__price ins bdi,
+	.gl-catalog-products .gl-product-card__price ins .woocommerce-Price-amount {
+		font-size: clamp(20px, 1.9vw, 24px) !important;
+		letter-spacing: -0.04em;
+	}
+
+	.gl-catalog-products .gl-product-card__button,
+	.gl-catalog-products a.gl-product-card__button {
+		min-width: 106px;
+		padding-right: 14px;
+		padding-left: 14px;
+	}
 }
 
 .woocommerce ul.products li.product .button {
