@@ -280,8 +280,8 @@ do_action( 'woocommerce_account_navigation' ); ?>
 	
 
 
-/* Мобилка */
-@media (max-width: 768px) {
+/* Планшеты и мобилка: переносим навигацию над контентом, чтобы таблица заказов не выходила за блок на ширинах 769–991px. */
+@media (max-width: 991px) {
 	.gl-entry .woocommerce {
 		grid-template-columns: 1fr;
 		gap: 16px;
