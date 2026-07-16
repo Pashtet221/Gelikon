@@ -134,7 +134,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	padding: 20px;
+	padding: 0;
 	background: #fff;
 	border: 1px solid #e5ebe7;
 	border-radius: 28px;
@@ -401,7 +401,7 @@ a.gl-product-card__button:hover {
 
 @media (max-width: 767px) {
 	.gl-product-card__inner {
-		padding: 20px;
+		padding: 0;
 		border-radius: 22px;
 	}
 
