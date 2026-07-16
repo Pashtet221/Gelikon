@@ -514,14 +514,15 @@ if (function_exists('get_field')) {
 
 .gl-logo-slogan {
 	margin-top: 8px;
-	font-size: clamp(8px, 0.85vw, 11px);
-	line-height: 1.3;
+	font-size: clamp(7px, 0.72vw, 10px);
+	line-height: 1.35;
+	min-height: 1.35em;
 	font-weight: 600;
 	color: var(--gl-color-subtitle);
-	max-width: 100%;
+	max-width: none;
 	white-space: nowrap;
 	display: block;
-	overflow: hidden;
+	overflow: visible;
 }
 
 .gl-header__catalog {
@@ -1190,7 +1191,9 @@ body.gl-modal-open {
 	}
 
 	.gl-logo-slogan {
-		font-size: clamp(8px, 0.8vw, 10px);
+		font-size: clamp(7px, 0.7vw, 9px);
+		line-height: 1.4;
+		min-height: 1.4em;
 	}
 
 	.gl-menu {
@@ -1247,7 +1250,13 @@ body.gl-modal-open {
 		max-width: 145px;
 	}
 
-	.gl-logo-slogan,
+	.gl-logo-slogan {
+		font-size: clamp(6px, 1.8vw, 8px);
+		line-height: 1.45;
+		min-height: 1.45em;
+		margin-top: 5px;
+	}
+
 	.gl-header__phones-wrap {
 		display: none;
 	}
