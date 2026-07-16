@@ -198,6 +198,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	flex-direction: column;
 	flex: 1 1 auto;
 	min-height: 0;
+	padding: 18px 18px 0;
 }
 
 .gl-product-card__title {
@@ -252,17 +253,16 @@ $primary_cta_text = __('В корзину', 'gelikon');
 }
 
 .gl-product-card__purchase {
-	display: flex;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
 	align-items: center;
-	justify-content: space-between;
 	gap: 12px;
 	margin-top: 12px;
-	flex-wrap: nowrap;
+	padding: 0 18px 18px;
 }
 
 .gl-product-card__price {
 	margin-bottom: 0;
-	flex: 1 1 auto;
 	min-width: 0;
 	line-height: 1.1;
 	color: #171d2a;
@@ -280,6 +280,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	font-weight: 700;
 	letter-spacing: -0.03em;
 	color: #171d2a;
+	white-space: nowrap;
 }
 
 .gl-product-card__price del {
@@ -320,6 +321,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	font-weight: 700 !important;
 	letter-spacing: -0.03em;
 	color: #171d2a !important;
+	white-space: nowrap;
 }
 	
 .gl-product-card__price del .woocommerce-Price-currencySymbol{
@@ -391,6 +393,39 @@ a.gl-product-card__button:hover {
 	pointer-events: none;
 }
 
+
+@media (min-width: 1024px) and (max-width: 1280px) {
+	.gl-catalog-products .gl-product-card__purchase {
+		gap: 8px;
+	}
+
+	.gl-catalog-products .gl-product-card__price > .amount,
+	.gl-catalog-products .gl-product-card__price > bdi,
+	.gl-catalog-products .gl-product-card__price .price > .amount,
+	.gl-catalog-products .gl-product-card__price .price > bdi,
+	.gl-catalog-products .gl-product-card__price ins .amount,
+	.gl-catalog-products .gl-product-card__price ins bdi,
+	.gl-catalog-products .gl-product-card__price ins .woocommerce-Price-amount {
+		font-size: clamp(18px, 1.65vw, 22px) !important;
+		letter-spacing: -0.04em;
+	}
+
+	.gl-catalog-products .gl-product-card__price > .amount .woocommerce-Price-currencySymbol,
+	.gl-catalog-products .gl-product-card__price > bdi .woocommerce-Price-currencySymbol,
+	.gl-catalog-products .gl-product-card__price .price > .amount .woocommerce-Price-currencySymbol,
+	.gl-catalog-products .gl-product-card__price .price > bdi .woocommerce-Price-currencySymbol,
+	.gl-catalog-products .gl-product-card__price ins .woocommerce-Price-currencySymbol {
+		font-size: clamp(18px, 1.65vw, 22px) !important;
+	}
+
+	.gl-catalog-products .gl-product-card__button,
+	.gl-catalog-products a.gl-product-card__button {
+		min-width: 106px;
+		padding-right: 14px;
+		padding-left: 14px;
+	}
+}
+
 .woocommerce ul.products li.product .button {
 	display: inline-flex;
 }
@@ -419,6 +454,10 @@ a.gl-product-card__button:hover {
 		height: 100%;
 	}
 
+	.gl-product-card__content {
+		padding: 14px 14px 0;
+	}
+
 	.gl-product-card__title {
 		font-size: 14px;
 		line-height: 1.25;
@@ -428,6 +467,7 @@ a.gl-product-card__button:hover {
 	.gl-product-card__purchase {
 		align-items: stretch;
 		gap: 10px;
+		padding: 0 14px 14px;
 	}
 
 	.gl-product-card__price > .amount,

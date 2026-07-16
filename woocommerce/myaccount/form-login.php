@@ -136,4 +136,14 @@ do_action( 'woocommerce_before_customer_login_form' ); ?>
 	</div>
 </div>
 
+<style>
+	.woocommerce-form__label.woocommerce-form__label-for-checkbox.woocommerce-form-login__rememberme {
+   display: flex;
+}
+	
+.gl-myaccount-auth .woocommerce-form-login__rememberme .woocommerce-form__input-checkbox:checked::after{
+	width: 4px;
+}
+</style>
+
 <?php do_action( 'woocommerce_after_customer_login_form' ); ?>

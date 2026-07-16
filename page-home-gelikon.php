@@ -1211,6 +1211,9 @@ a.gl-prefooter__button:hover {
     a.gl-prefooter__button {
         width: 100%;
     }
+	.gl-section-link{
+		display: none;
+	}
 }
 </style>
 		
