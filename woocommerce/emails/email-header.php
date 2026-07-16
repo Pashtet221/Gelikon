@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
 $blog_name               = get_bloginfo( 'name', 'display' );
 $header_image            = get_option( 'woocommerce_email_header_image' );
 $header_image            = apply_filters( 'woocommerce_email_header_image', $header_image, $email );
+$hide_header_brand       = $email instanceof WC_Email && 'customer_new_account' === $email->id;
 $header_image_attributes = array(
 	'alt'   => $blog_name ? $blog_name : __( 'Site logo', 'gelikon' ),
 	'style' => 'display:block;border:0;outline:none;text-decoration:none;height:auto;max-width:220px;width:auto;',
@@ -68,7 +69,7 @@ $header_image_attributes = apply_filters( 'woocommerce_email_header_image_attrib
 												<p style="margin:0 0 20px 0;">
 													<img src="<?php echo esc_url( $header_image ); ?>" <?php echo wc_implode_html_attributes( $header_image_attributes ); ?> />
 												</p>
-											<?php else : ?>
+											<?php elseif ( ! $hide_header_brand ) : ?>
 												<p style="margin:0 0 20px 0;font-family:Arial,Helvetica,sans-serif;font-size:18px;line-height:1.35;font-weight:700;color:#12D457;">
 													<?php echo esc_html( $blog_name ); ?>
 												</p>
