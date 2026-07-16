@@ -7997,7 +7997,15 @@ function gelikon_woocommerce_email_is_supported_logo($image_url, $attachment_id 
 	return 'image/svg+xml' !== $mime_type;
 }
 
-function gelikon_woocommerce_email_site_logo($image) {
+function gelikon_woocommerce_email_is_customer_new_account($email) {
+	return $email instanceof WC_Email && 'customer_new_account' === $email->id;
+}
+
+function gelikon_woocommerce_email_site_logo($image, $email = null) {
+	if (gelikon_woocommerce_email_is_customer_new_account($email)) {
+		return '';
+	}
+
 	$custom_logo_id = get_theme_mod('custom_logo');
 	$custom_logo_url = $custom_logo_id ? wp_get_attachment_image_url($custom_logo_id, 'full') : '';
 
@@ -8011,7 +8019,7 @@ function gelikon_woocommerce_email_site_logo($image) {
 
 	return '';
 }
-add_filter('woocommerce_email_header_image', 'gelikon_woocommerce_email_site_logo');
+add_filter('woocommerce_email_header_image', 'gelikon_woocommerce_email_site_logo', 10, 2);
 
 function gelikon_woocommerce_email_site_logo_attributes($attrs) {
 	$custom_logo_id = get_theme_mod('custom_logo');
