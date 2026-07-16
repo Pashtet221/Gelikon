@@ -122,6 +122,15 @@ defined( 'ABSPATH' ) || exit;
 	color: #15191f;
 }
 
+.woocommerce-order-overview li strong .includes_tax {
+	display: inline-block;
+	margin-left: 4px;
+	font-size: 13px;
+	line-height: 1.3;
+	font-weight: 500;
+	color: #68727f;
+}
+
 .woocommerce-order > p:not(.woocommerce-thankyou-order-received) {
 	font-size: 15px;
 	line-height: 1.45;

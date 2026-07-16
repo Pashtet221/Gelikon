@@ -211,7 +211,7 @@ if (function_exists('wc_get_products')) {
 
 $blog_query = new WP_Query([
     'post_type'           => 'post',
-    'posts_per_page'      => 3,
+    'posts_per_page'      => 8,
     'ignore_sticky_posts' => true,
 ]);
 ?>
@@ -793,33 +793,66 @@ a.gl-card:hover .gl-home-banner__action{
         <?php if ($blog_query->have_posts()) : ?>
             <section class="gl-home-blog gl-home-section">
                 <div class="gl-section-head gl-section-head--between">
-                    <h2><?php echo esc_html($blog_title); ?></h2>
-                    
-					
-					<a class="gl-section-link" href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>">
-	<?php esc_html_e( 'Все статьи', 'gelikon' ); ?>
-</a>
-					
-					
+                    <h2><a class="gl-home-blog__title-link" href="<?php echo esc_url(get_permalink(get_option('page_for_posts'))); ?>"><?php echo esc_html($blog_title); ?></a></h2>
+
+					<div class="gl-home-blog__head-actions">
+						<a class="gl-section-link" href="<?php echo esc_url(get_permalink(get_option('page_for_posts'))); ?>">
+							<?php esc_html_e('Все статьи', 'gelikon'); ?>
+						</a>
+
+						<div class="gl-home-blog-slider__nav" aria-label="<?php esc_attr_e('Навигация по статьям', 'gelikon'); ?>">
+							<button type="button" class="gl-home-blog-slider__prev" aria-label="<?php esc_attr_e('Предыдущие статьи', 'gelikon'); ?>">‹</button>
+							<button type="button" class="gl-home-blog-slider__next" aria-label="<?php esc_attr_e('Следующие статьи', 'gelikon'); ?>">›</button>
+						</div>
+					</div>
                 </div>
-                <div class="gl-posts-grid">
+                <div class="gl-home-blog-slider swiper">
+                    <div class="swiper-wrapper">
                     <?php while ($blog_query->have_posts()) : $blog_query->the_post(); ?>
-                        <article <?php post_class('gl-card gl-post-card'); ?>>
-                            <?php if (has_post_thumbnail()) : ?>
-                                <a class="gl-post-card__thumb" href="<?php the_permalink(); ?>">
-                                    <?php the_post_thumbnail('gelikon-card'); ?>
-                                </a>
-                            <?php endif; ?>
-                            <div class="gl-post-card__content">
-                                <div class="gl-post-card__meta"><?php echo esc_html(get_the_date()); ?></div>
-                                <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-                                <p><?php echo esc_html(wp_trim_words(get_the_excerpt(), 20)); ?></p>
-                            </div>
-                        </article>
+                        <div class="swiper-slide">
+                            <article <?php post_class('gl-card gl-post-card'); ?>>
+                                <?php if (has_post_thumbnail()) : ?>
+                                    <a class="gl-post-card__thumb" href="<?php the_permalink(); ?>">
+                                        <?php the_post_thumbnail('gelikon-card'); ?>
+                                    </a>
+                                <?php endif; ?>
+                                <div class="gl-post-card__content">
+                                    <?php $home_post_categories = get_the_category(); ?>
+                                    <div class="gl-post-card__meta gl-post-card__meta--blog">
+                                        <?php if (!empty($home_post_categories)) : ?>
+                                            <span class="gl-post-card__category"><?php echo esc_html($home_post_categories[0]->name); ?></span>
+                                            <span class="gl-post-card__dot">•</span>
+                                        <?php endif; ?>
+                                        <span><?php echo esc_html(get_the_date()); ?></span>
+                                    </div>
+                                    <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+                                    <p><?php echo esc_html(wp_trim_words(get_the_excerpt(), 20)); ?></p>
+                                </div>
+                            </article>
+                        </div>
                     <?php endwhile; wp_reset_postdata(); ?>
+                    </div>
                 </div>
             </section>
         <?php endif; ?>
+
+<style>
+.gl-home-blog__title-link { color: inherit; text-decoration: none; }
+.gl-home-blog__title-link:hover { color: var(--gl-color-accent, #2f8f5b); }
+.gl-home-blog__head-actions { display: flex; align-items: center; gap: 16px; }
+.gl-home-blog-slider { overflow: hidden; }
+.gl-home-blog-slider .swiper-slide { height: auto; }
+.gl-home-blog-slider .gl-post-card { height: 100%; }
+.gl-home-blog-slider__nav { display: flex; align-items: center; gap: 12px; }
+.gl-home-blog-slider__prev,
+.gl-home-blog-slider__next { width: 44px; height: 44px; border: 1px solid #dbe2dd; border-radius: 999px; background: #fff; cursor: pointer; font-size: 22px; line-height: 1; transition: .2s ease; }
+.gl-home-blog-slider__prev:hover,
+.gl-home-blog-slider__next:hover { background: var(--gl-color-accent); border-color: var(--gl-color-accent); color: #fff; }
+.gl-home-blog-slider .gl-post-card__meta--blog { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.gl-home-blog-slider .gl-post-card__category { color: var(--gl-color-accent, #2f8f5b); font-weight: 800; }
+.gl-home-blog-slider .gl-post-card__dot { color: #c4cac3; }
+@media (max-width: 767px) { .gl-home-blog__head-actions { align-items: flex-end; flex-direction: column; gap: 10px; } }
+</style>
 
         
 		

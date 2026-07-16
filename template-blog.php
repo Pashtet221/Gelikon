@@ -17,6 +17,11 @@ if (!function_exists('gelikon_blog_trim_excerpt')) {
 	}
 }
 
+$blog_categories = get_categories([
+	'taxonomy'   => 'category',
+	'hide_empty' => true,
+]);
+
 $blog_query = new WP_Query([
 	'post_type'           => 'post',
 	'post_status'         => 'publish',
@@ -38,10 +43,24 @@ $blog_query = new WP_Query([
 			</p>
 		</header>
 
+		<?php if (!empty($blog_categories)) : ?>
+			<div class="gl-blog-categories" data-gl-blog-filter aria-label="<?php esc_attr_e('Рубрики блога', 'gelikon'); ?>">
+				<button type="button" class="gl-blog-category is-active" data-category="all" aria-pressed="true">
+					<?php esc_html_e('Все', 'gelikon'); ?>
+				</button>
+				<?php foreach ($blog_categories as $blog_category) : ?>
+					<button type="button" class="gl-blog-category" data-category="<?php echo esc_attr($blog_category->slug); ?>" aria-pressed="false">
+						<?php echo esc_html($blog_category->name); ?>
+					</button>
+				<?php endforeach; ?>
+			</div>
+		<?php endif; ?>
+
 		<?php if ($blog_query->have_posts()) : ?>
 			<div class="gl-blog-grid">
 				<?php while ($blog_query->have_posts()) : $blog_query->the_post(); ?>
-					<article <?php post_class('gl-blog-card'); ?>>
+					<?php $card_category_slugs = wp_list_pluck(get_the_category(), 'slug'); ?>
+					<article <?php post_class('gl-blog-card'); ?> data-gl-blog-card data-categories="<?php echo esc_attr(implode(' ', $card_category_slugs)); ?>">
 
 						<a class="gl-blog-card__image" href="<?php the_permalink(); ?>">
 							<?php if (has_post_thumbnail()) : ?>
@@ -146,6 +165,36 @@ $blog_query = new WP_Query([
 	color: #646b73;
 	font-size: 17px;
 	line-height: 1.65;
+}
+
+.gl-blog-categories {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin: -10px 0 28px;
+}
+
+.gl-blog-category {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 42px;
+	padding: 0 18px;
+	border: 1px solid #e2e6e1;
+	border-radius: 999px;
+	background: #fff;
+	color: #171d2a;
+	font-size: 14px;
+	font-weight: 800;
+	cursor: pointer;
+	transition: .2s ease;
+}
+
+.gl-blog-category:hover,
+.gl-blog-category.is-active {
+	border-color: var(--gl-color-accent, #2f8f5b);
+	background: var(--gl-color-accent, #2f8f5b);
+	color: #fff;
 }
 
 .gl-blog-grid {

@@ -15,6 +15,19 @@ require_once GELIKON_DIR . '/inc/woocommerce.php';
 
 
 
+
+/**
+ * Сохраняет автоматически сгенерированный WooCommerce пароль,
+ * чтобы отправить его в письме о создании аккаунта вместо ссылки на установку пароля.
+ */
+add_action('woocommerce_created_customer', function ($customer_id, $new_customer_data = [], $password_generated = false) {
+	if (!$password_generated || empty($new_customer_data['user_pass'])) {
+		return;
+	}
+
+	update_user_meta($customer_id, '_gelikon_generated_customer_password', (string) $new_customer_data['user_pass']);
+}, 10, 3);
+
 /**
  * Возвращает URL страницы политики конфиденциальности.
  */
@@ -266,6 +279,16 @@ add_action('wp_enqueue_scripts', function () {
 		get_template_directory_uri() . '/assets/js/reviews-slider.js',
 		['swiper'],
 		wp_get_theme()->get('Version'),
+		true
+	);
+
+	wp_enqueue_script(
+		'gelikon-blog-sliders-filters',
+		get_template_directory_uri() . '/assets/js/blog-sliders-filters.js',
+		['swiper'],
+		file_exists(get_template_directory() . '/assets/js/blog-sliders-filters.js')
+			? filemtime(get_template_directory() . '/assets/js/blog-sliders-filters.js')
+			: wp_get_theme()->get('Version'),
 		true
 	);
 }, 30);
@@ -3284,7 +3307,7 @@ function gelikon_get_product_media_items($product_id) {
 
 	if ($featured_id > 0) {
 		$featured_full  = wp_get_attachment_image_url($featured_id, 'full');
-		$featured_thumb = wp_get_attachment_image_url($featured_id, 'woocommerce_thumbnail');
+		$featured_thumb = wp_get_attachment_image_url($featured_id, 'full');
 
 		if ($featured_full) {
 			$items[] = [
@@ -3316,7 +3339,7 @@ function gelikon_get_product_media_items($product_id) {
 			}
 
 			$image_full  = wp_get_attachment_image_url($image_id, 'full');
-			$image_thumb = wp_get_attachment_image_url($image_id, 'woocommerce_thumbnail');
+			$image_thumb = wp_get_attachment_image_url($image_id, 'full');
 
 			if (!$image_full) {
 				continue;
@@ -3514,7 +3537,7 @@ add_action('wp_head', function () {
 			display: block;
 			width: 100%;
 			height: 100%;
-			object-fit: cover;
+			object-fit: contain;
 		}
 
 		.gl-product-media-gallery__thumb-video-preview {
@@ -3935,9 +3958,9 @@ function gelikon_ajax_product_search() {
 				continue;
 			}
 
-			$image = get_the_post_thumbnail_url($product_id, 'woocommerce_thumbnail');
+			$image = get_the_post_thumbnail_url($product_id, 'full');
 			if (!$image) {
-				$image = wc_placeholder_img_src('woocommerce_thumbnail');
+				$image = wc_placeholder_img_src('full');
 			}
 
 			$items[] = [
@@ -4483,6 +4506,11 @@ JS;
 	font-weight: 700;
 }
 
+.gl-product-search__price .woocommerce-Price-currencySymbol {
+	font-size: 12px;
+	line-height: 1;
+}
+
 .gl-product-search__all {
 	display: flex;
 	align-items: center;
@@ -5020,6 +5048,31 @@ add_filter('woocommerce_add_to_cart_validation', function ($passed, $product_id)
 	}
 
 	return $passed;
+}, 20, 2);
+
+/**
+ * Показывать покупателям только текстовый статус наличия без точного остатка.
+ */
+add_filter('woocommerce_get_availability_text', function ($availability, $product) {
+	if (!$product || !is_a($product, 'WC_Product')) {
+		return $availability;
+	}
+
+	$product_id = $product->get_id();
+
+	if (function_exists('gelikon_is_product_discontinued') && gelikon_is_product_discontinued($product_id)) {
+		return __('Снят с продажи', 'gelikon');
+	}
+
+	if ((function_exists('gelikon_is_product_preorder') && gelikon_is_product_preorder($product_id)) || $product->get_stock_status() === 'onbackorder') {
+		return __('Предзаказ', 'gelikon');
+	}
+
+	if ($product->is_in_stock()) {
+		return __('В наличии', 'gelikon');
+	}
+
+	return __('Нет в наличии', 'gelikon');
 }, 20, 2);
 
 /**
@@ -6789,11 +6842,30 @@ function gelikon_clean_product_description_html($content) {
 		'b'      => [],
 		'em'     => [],
 		'i'      => [],
-		'ul'     => [],
-		'ol'     => [],
-		'li'     => [],
-		'h2'     => [],
-		'h3'     => [],
+		'ul'       => [],
+		'ol'       => [],
+		'li'       => [],
+		'h2'       => [],
+		'h3'       => [],
+		'table'    => [],
+		'thead'    => [],
+		'tbody'    => [],
+		'tfoot'    => [],
+		'tr'       => [],
+		'th'       => [
+			'colspan' => [],
+			'rowspan' => [],
+			'scope'   => [],
+		],
+		'td'       => [
+			'colspan' => [],
+			'rowspan' => [],
+		],
+		'caption'  => [],
+		'colgroup' => [],
+		'col'      => [
+			'span' => [],
+		],
 		'a'      => [
 			'href'   => [],
 			'title'  => [],
@@ -6985,7 +7057,7 @@ function gelikon_clean_includes_tax_text($html) {
 
 	$html = preg_replace(
 		'~<small\b([^>]*)>\(\s*включая\s*(.*?)\s*НДС\s*\)</small>~su',
-		'<small$1>$2 НДС</small>',
+		'<small$1>НДС: $2</small>',
 		$html
 	);
 
@@ -7017,15 +7089,81 @@ function gelikon_clean_includes_tax_text($html) {
 	return $html;
 }
 
+
+function gelikon_vat_notice_html($tax_amount) {
+	$tax_amount = (float) $tax_amount;
+
+	if ($tax_amount <= 0) {
+		return '';
+	}
+
+	return ' <small class="includes_tax">' . sprintf(
+		/* translators: %s: formatted VAT amount */
+		esc_html__('НДС: %s', 'gelikon'),
+		wp_kses_post(wc_price($tax_amount))
+	) . '</small>';
+}
+
+function gelikon_append_vat_notice($html, $tax_amount) {
+	if (!is_string($html) || stripos($html, 'НДС') !== false) {
+		return $html;
+	}
+
+	$notice = gelikon_vat_notice_html($tax_amount);
+
+	return $notice ? $html . $notice : $html;
+}
+
+function gelikon_cart_order_total_html($html) {
+	$tax_amount = (WC()->cart && method_exists(WC()->cart, 'get_taxes_total')) ? WC()->cart->get_taxes_total() : 0;
+
+	return gelikon_clean_includes_tax_text(gelikon_append_vat_notice($html, $tax_amount));
+}
+
 /**
  * Checkout / Cart total.
  */
-add_filter('woocommerce_cart_totals_order_total_html', 'gelikon_clean_includes_tax_text', 20);
+add_filter('woocommerce_cart_totals_order_total_html', 'gelikon_cart_order_total_html', 20);
 
 /**
  * Thank you page / My account / Emails totals.
  */
 add_filter('woocommerce_get_order_item_totals', function($total_rows, $order, $tax_display) {
+
+	unset($total_rows['cart_subtotal']);
+
+	if ($order instanceof WC_Order && wc_tax_enabled()) {
+		$tax_totals = $order->get_tax_totals();
+
+		if (!empty($tax_totals)) {
+			$tax_rows = array();
+
+			foreach ($tax_totals as $code => $tax) {
+				if (isset($total_rows['tax_' . $code])) {
+					continue;
+				}
+
+				$tax_rows['tax_' . $code] = array(
+					'label' => $tax->label . ':',
+					'value' => $tax->formatted_amount,
+				);
+			}
+
+			if (!empty($tax_rows)) {
+				$rebuilt_rows = array();
+
+				foreach ($total_rows as $key => $row) {
+					if ('order_total' === $key) {
+						$rebuilt_rows = array_merge($rebuilt_rows, $tax_rows);
+					}
+
+					$rebuilt_rows[$key] = $row;
+				}
+
+				$total_rows = $rebuilt_rows;
+			}
+		}
+	}
 
 	foreach ($total_rows as $key => $row) {
 
@@ -7040,6 +7178,10 @@ add_filter('woocommerce_get_order_item_totals', function($total_rows, $order, $t
 		}
 
 		if (!empty($total_rows[$key]['value'])) {
+			if ($key === 'order_total' && $order instanceof WC_Order) {
+				$total_rows[$key]['value'] = gelikon_append_vat_notice($total_rows[$key]['value'], $order->get_total_tax());
+			}
+
 			$total_rows[$key]['value'] = gelikon_clean_includes_tax_text($total_rows[$key]['value']);
 		}
 	}
@@ -7051,7 +7193,13 @@ add_filter('woocommerce_get_order_item_totals', function($total_rows, $order, $t
 /**
  * Formatted order total.
  */
-add_filter('woocommerce_get_formatted_order_total', 'gelikon_clean_includes_tax_text', 20);
+add_filter('woocommerce_get_formatted_order_total', function($formatted_total, $order) {
+	if ($order instanceof WC_Order) {
+		$formatted_total = gelikon_append_vat_notice($formatted_total, $order->get_total_tax());
+	}
+
+	return gelikon_clean_includes_tax_text($formatted_total);
+}, 20, 2);
 
 /**
  * Email items table.
@@ -7868,6 +8016,42 @@ function gelikon_woocommerce_email_site_logo_attributes($attrs) {
 }
 add_filter('woocommerce_email_header_image_attributes', 'gelikon_woocommerce_email_site_logo_attributes');
 
+/**
+ * Keep address contact links in WooCommerce emails in the regular text color.
+ */
+function gelikon_woocommerce_email_address_link_styles($css) {
+	$css .= '
+#body_content_inner address a, #body_content_inner address a:link, #body_content_inner address a:visited, address a, address a:link, address a:visited { color: #1e1e1e !important; font-weight: normal !important; text-decoration: underline !important; }
+';
+
+	return $css;
+}
+add_filter('woocommerce_email_styles', 'gelikon_woocommerce_email_address_link_styles');
+
+
+
+/**
+ * Remove default app-management copy from order emails.
+ *
+ * Some WooCommerce email settings can contain the customer-facing phrase about
+ * working with orders in the app. Keep the rest of the additional content intact.
+ */
+function gelikon_email_remove_app_order_management_copy($content) {
+	$content = preg_replace(
+		'/<p[^>]*>\s*Работать с заказами можно\s+в\s+<a[^>]*>\s*приложении\s*<\/a>\.?\s*<\/p>/iu',
+		'',
+		$content
+	);
+
+	$phrases = array(
+		'Работать с заказами можно в приложении.',
+		'Работать с заказами можно в приложении',
+	);
+
+	return trim(str_replace($phrases, '', $content));
+}
+add_filter('woocommerce_email_additional_content', 'gelikon_email_remove_app_order_management_copy');
+
 // Отключить предупреждения WooCommerce в админке
 add_filter('woocommerce_helper_suppress_admin_notices', '__return_true');
 
@@ -7877,10 +8061,48 @@ add_action('admin_init', function () {
 }, 100);
 
 
+if (!function_exists('gelikon_get_archive_heading')) {
+	function gelikon_get_archive_heading() {
+		if (is_category() || is_tag() || is_tax()) {
+			return single_term_title('', false);
+		}
 
+		return get_the_archive_title();
+	}
+}
 
+if (!function_exists('gelikon_render_post_category_links')) {
+	function gelikon_render_post_category_links($categories = null) {
+		if ($categories === null) {
+			$categories = get_the_category();
+		}
 
+		if (empty($categories) || is_wp_error($categories)) {
+			return;
+		}
 
+		$current_term = is_category() ? get_queried_object() : null;
+		if ($current_term instanceof WP_Term) {
+			foreach ($categories as $category) {
+				if ((int) $category->term_id === (int) $current_term->term_id) {
+					$categories = [$category];
+					break;
+				}
+			}
+		}
+
+		$links = [];
+		foreach ($categories as $category) {
+			$links[] = sprintf(
+				'<a href="%s">%s</a>',
+				esc_url(get_category_link($category->term_id)),
+				esc_html($category->name)
+			);
+		}
+
+		echo wp_kses_post(implode('<span class="gl-post-card__category-separator">,</span> ', $links));
+	}
+}
 
 
 function gelikon_category_path($value) {

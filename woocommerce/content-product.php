@@ -19,10 +19,15 @@ $stock_label = $is_discontinued ? __('Снят с продажи', 'gelikon') : 
 $stock_class = $is_discontinued ? 'is-discontinued' : ($is_preorder ? 'is-preorder' : ($is_in_stock ? 'is-in-stock' : 'is-out-of-stock'));
 $product_type = $product->get_type();
 
-$image_html = $product->get_image('woocommerce_thumbnail', [
-	'class'   => 'gl-product-card__image',
-	'loading' => 'lazy',
-]);
+$image_html = '';
+$image_id = (int) $product->get_image_id();
+
+if ($image_id > 0) {
+	$image_html = wp_get_attachment_image($image_id, 'full', false, [
+		'class'   => 'gl-product-card__image',
+		'loading' => 'lazy',
+	]);
+}
 
 $add_to_cart_url  = $product->add_to_cart_url();
 $add_to_cart_desc = $product->add_to_cart_description();
@@ -129,7 +134,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	padding: 18px;
+	padding: 20px;
 	background: #fff;
 	border: 1px solid #e5ebe7;
 	border-radius: 28px;
@@ -150,11 +155,13 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 250px;
+	aspect-ratio: 1.35 / 1;
+	height: auto;
+	min-height: 0;
 	padding: 0;
-	margin-bottom: 18px;
-	background: #f4f7f6;
-	border-radius: 22px;
+	margin-bottom: 0;
+	background: #fff;
+	border-radius: 28px 28px 0 0;
 	overflow: hidden;
 	flex-shrink: 0;
 }
@@ -163,7 +170,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 .gl-product-card__media img {
 	display: block;
 	width: 100%;
-	height: 210px;
+	height: 100%;
 	object-fit: contain;
 	object-position: center;
 	background: #fff;
@@ -194,7 +201,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 }
 
 .gl-product-card__title {
-	margin: 0 0 14px;
+	margin: 0 0 10px;
 	font-size: 16px;
 	line-height: 1.22;
 	font-weight: 700;
@@ -249,7 +256,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
-	margin-top: 16px;
+	margin-top: 12px;
 	flex-wrap: nowrap;
 }
 
@@ -394,19 +401,22 @@ a.gl-product-card__button:hover {
 
 @media (max-width: 767px) {
 	.gl-product-card__inner {
-		padding: 14px;
+		padding: 20px;
 		border-radius: 22px;
 	}
 
 	.gl-product-card__media {
-		min-height: 190px;
+		aspect-ratio: 1.35 / 1;
+		height: auto;
+		min-height: 0;
 		padding: 0;
-		border-radius: 18px;
+		margin-bottom: 0;
+		border-radius: 22px 22px 0 0;
 	}
 
 	.gl-product-card__image,
 	.gl-product-card__media img {
-		height: 160px;
+		height: 100%;
 	}
 
 	.gl-product-card__title {

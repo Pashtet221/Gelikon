@@ -1,8 +1,8 @@
 <?php get_header(); ?>
 <main id="primary" class="site-main">
     <div class="gl-container gl-page">
-        <header class="gl-archive-head gl-card">
-            <h1><?php the_archive_title(); ?></h1>
+        <header class="gl-archive-head">
+            <h1><?php echo esc_html(gelikon_get_archive_heading()); ?></h1>
             <?php the_archive_description('<div class="gl-archive-desc">', '</div>'); ?>
         </header>
         <?php if (have_posts()) : ?>
@@ -13,6 +13,12 @@
                             <a class="gl-post-card__thumb" href="<?php the_permalink(); ?>"><?php the_post_thumbnail('gelikon-card'); ?></a>
                         <?php endif; ?>
                         <div class="gl-post-card__content">
+                            <?php $post_categories = get_the_category(); ?>
+                            <?php if (!empty($post_categories)) : ?>
+                                <div class="gl-post-card__categories">
+                                    <?php gelikon_render_post_category_links($post_categories); ?>
+                                </div>
+                            <?php endif; ?>
                             <h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
                             <p><?php echo esc_html(wp_trim_words(get_the_excerpt(), 20)); ?></p>
                         </div>

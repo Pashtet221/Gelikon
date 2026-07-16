@@ -352,7 +352,6 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 		rgba(255, 255, 255, 0.6) 40%,
 		rgba(255, 255, 255, 1) 100%
 	);
-	transition: opacity 0.2s ease;
 }
 
 .gl-product-summary__excerpt.is-full::after {
@@ -390,6 +389,28 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	border-radius: 16px;
 }
 
+.gl-product-summary__excerpt table,
+.gl-product-summary__description table {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 16px 0;
+}
+
+.gl-product-summary__excerpt th,
+.gl-product-summary__excerpt td,
+.gl-product-summary__description th,
+.gl-product-summary__description td {
+	padding: 10px 12px;
+	border: 1px solid rgba(23, 29, 42, 0.14);
+	vertical-align: top;
+}
+
+.gl-product-summary__excerpt th,
+.gl-product-summary__description th {
+	font-weight: 700;
+	background: rgba(23, 29, 42, 0.04);
+}
+
 .gl-product-summary__more {
 	align-self: flex-start;
 	padding: 0;
@@ -414,9 +435,6 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 	gap: 16px;
 }
 
-.gl-product-summary__excerpt-wrap:hover .gl-product-summary__excerpt::after {
-	opacity: 0.85;
-}
 
 	@media (max-width: 767px) {
 		.gl-product-summary__subtitle {
@@ -495,7 +513,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 								<div class="gl-product-buybox__button-wrap">
 									<div class="gl-product-buybox__button">
-										<?php woocommerce_template_single_add_to_cart(); ?>
+										<?php
+										add_filter('woocommerce_get_stock_html', '__return_empty_string', 20);
+										woocommerce_template_single_add_to_cart();
+										remove_filter('woocommerce_get_stock_html', '__return_empty_string', 20);
+										?>
 									</div>
 
 									<?php echo wp_kses_post($purchase_note_html); ?>

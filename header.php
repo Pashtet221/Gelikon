@@ -6,6 +6,21 @@ if (!defined('ABSPATH')) {
 $gl_address = '';
 $gl_site_description = trim((string) get_bloginfo('description', 'display'));
 
+$gl_header_more_links = [
+	[
+		'label' => __('О компании', 'gelikon'),
+		'url'   => get_permalink(get_page_by_path('about')) ?: home_url('/about/'),
+	],
+	[
+		'label' => __('Блог', 'gelikon'),
+		'url'   => get_permalink(get_page_by_path('blog')) ?: home_url('/blog/'),
+	],
+	[
+		'label' => __('Личный кабинет', 'gelikon'),
+		'url'   => function_exists('wc_get_page_permalink') ? wc_get_page_permalink('myaccount') : home_url('/my-account/'),
+	],
+];
+
 if (function_exists('get_field')) {
 	$gl_address = get_field('address', 'option');
 
@@ -66,6 +81,18 @@ if (function_exists('get_field')) {
 					]);
 					?>
 				</nav>
+
+				<div class="gl-header-more">
+					<button class="gl-header-more__toggle" type="button" aria-expanded="false" aria-label="<?php esc_attr_e('Показать дополнительные разделы', 'gelikon'); ?>">
+						<?php esc_html_e('Ещё', 'gelikon'); ?>
+					</button>
+
+					<div class="gl-header-more__menu" role="menu">
+						<?php foreach ($gl_header_more_links as $gl_more_link) : ?>
+							<a href="<?php echo esc_url($gl_more_link['url']); ?>" role="menuitem"><?php echo esc_html($gl_more_link['label']); ?></a>
+						<?php endforeach; ?>
+					</div>
+				</div>
 
 				<div class="gl-header__actions">
 					
@@ -451,7 +478,7 @@ if (function_exists('get_field')) {
 
 .gl-header__top {
 	display: grid;
-	grid-template-columns: auto auto 1fr auto;
+	grid-template-columns: auto auto minmax(0, 1fr) auto auto;
 	align-items: center;
 	gap: 24px;
 	padding: 14px 0;
@@ -539,6 +566,89 @@ if (function_exists('get_field')) {
 	font-weight: 700;
 	line-height: 1;
 	white-space: nowrap;
+}
+
+
+.gl-header__top .gl-menu > li:nth-child(3),
+.gl-header__top .gl-menu > li:nth-child(5),
+.gl-header__top .gl-menu > li:nth-child(6) {
+	display: none;
+}
+
+.gl-header-more {
+	position: relative;
+	display: block;
+	flex: 0 0 auto;
+}
+
+.gl-header-more__toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 0;
+	min-height: 36px;
+	padding: 0 4px;
+	border: 0;
+	background: transparent;
+	color: var(--gl-color-helper);
+	font-size: 15px;
+	font-weight: 700;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.gl-header-more__toggle::after {
+	content: '';
+	width: 7px;
+	height: 7px;
+	margin-left: 8px;
+	border-right: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	transform: rotate(45deg) translateY(-2px);
+}
+
+.gl-header-more__menu {
+	position: absolute;
+	top: calc(100% + 12px);
+	left: 50%;
+	z-index: 20;
+	display: grid;
+	min-width: 180px;
+	padding: 10px;
+	border: 1px solid var(--gl-color-line);
+	border-radius: 16px;
+	background: #fff;
+	box-shadow: 0 18px 40px rgba(16, 22, 31, 0.14);
+	opacity: 0;
+	visibility: hidden;
+	transform: translate(-50%, 8px);
+	transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+}
+
+.gl-header-more:hover .gl-header-more__menu,
+.gl-header-more:focus-within .gl-header-more__menu,
+.gl-header-more.is-open .gl-header-more__menu {
+	opacity: 1;
+	visibility: visible;
+	transform: translate(-50%, 0);
+}
+
+.gl-header-more__menu a {
+	display: block;
+	padding: 10px 12px;
+	border-radius: 10px;
+	color: var(--gl-color-text);
+	font-size: 14px;
+	font-weight: 700;
+	line-height: 1.2;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.gl-header-more__menu a:hover,
+.gl-header-more__menu a:focus {
+	background: rgba(18, 212, 87, .1);
+	color: var(--gl-color-text);
 }
 
 .gl-header__actions {
@@ -1028,9 +1138,9 @@ body.gl-modal-open {
 	max-width: 50px !important;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1399px) and (min-width: 1200px) {
 	.gl-header__top {
-		grid-template-columns: auto auto 1fr auto;
+		grid-template-columns: auto auto minmax(0, 1fr) auto auto;
 		gap: 18px;
 	}
 
@@ -1047,16 +1157,26 @@ body.gl-modal-open {
 		gap: 18px;
 	}
 
+	.gl-menu > li:nth-child(3),
+	.gl-menu > li:nth-child(5),
+	.gl-menu > li:nth-child(6) {
+		display: none;
+	}
+
+	.gl-header-more {
+		display: block;
+	}
+
 	.gl-header__icon,
 	.gl-header-search-trigger {
-		width: 56px;
-		height: 56px;
+		width: 46px;
+		height: 46px;
 	}
 }
 
 @media (max-width: 1199px) and (min-width: 992px) {
 	.gl-header__top {
-		grid-template-columns: auto auto 1fr auto;
+		grid-template-columns: auto auto minmax(0, 1fr) auto auto;
 		gap: 14px;
 	}
 
@@ -1075,6 +1195,16 @@ body.gl-modal-open {
 
 	.gl-menu {
 		gap: 14px;
+	}
+
+	.gl-menu > li:nth-child(3),
+	.gl-menu > li:nth-child(5),
+	.gl-menu > li:nth-child(6) {
+		display: none;
+	}
+
+	.gl-header-more {
+		display: block;
 	}
 
 	.gl-menu > li > a {
@@ -1124,6 +1254,7 @@ body.gl-modal-open {
 
 	.gl-header__top .gl-header__catalog,
 	.gl-header__top .gl-nav,
+	.gl-header-more,
 	.gl-header__actions .gl-write-btn {
 		display: none;
 	}
@@ -1411,6 +1542,32 @@ document.addEventListener('DOMContentLoaded', function () {
 	var openMobileButtons = document.querySelectorAll('[data-gl-open-mobile-contacts]');
 	var closeMobileButtons = document.querySelectorAll('[data-gl-close-mobile-contacts]');
 	var copyButtons = document.querySelectorAll('[data-copy-email]');
+	var moreDropdown = document.querySelector('.gl-header-more');
+	var moreToggle = moreDropdown ? moreDropdown.querySelector('.gl-header-more__toggle') : null;
+
+
+	if (moreDropdown && moreToggle) {
+		moreToggle.addEventListener('click', function (event) {
+			event.stopPropagation();
+
+			var isOpen = moreDropdown.classList.toggle('is-open');
+			moreToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+		});
+
+		document.addEventListener('click', function (event) {
+			if (!moreDropdown.contains(event.target)) {
+				moreDropdown.classList.remove('is-open');
+				moreToggle.setAttribute('aria-expanded', 'false');
+			}
+		});
+
+		document.addEventListener('keydown', function (event) {
+			if (event.key === 'Escape') {
+				moreDropdown.classList.remove('is-open');
+				moreToggle.setAttribute('aria-expanded', 'false');
+			}
+		});
+	}
 
 	if (burger && bottom) {
 		burger.addEventListener('click', function () {

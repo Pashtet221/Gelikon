@@ -41,4 +41,33 @@ document.addEventListener('DOMContentLoaded', function () {
       activateAuthTab('register');
     }
   }
+
+  const postCategoryTabs = document.querySelector('[data-gl-post-category-tabs]');
+  const postsGrid = document.querySelector('[data-gl-posts-grid]');
+
+  if (postCategoryTabs && postsGrid) {
+    const categoryTabs = postCategoryTabs.querySelectorAll('[data-gl-post-category-tab]');
+    const postCards = postsGrid.querySelectorAll('[data-gl-post-categories]');
+
+    const activatePostCategory = function (targetCategory) {
+      categoryTabs.forEach(function (tab) {
+        const isActive = tab.dataset.glPostCategoryTab === targetCategory;
+        tab.classList.toggle('is-active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      postCards.forEach(function (card) {
+        const categories = card.dataset.glPostCategories.split(' ').filter(Boolean);
+        const isVisible = targetCategory === 'all' || categories.includes(targetCategory);
+        card.hidden = !isVisible;
+      });
+    };
+
+    categoryTabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        activatePostCategory(tab.dataset.glPostCategoryTab);
+      });
+    });
+  }
+
 });
