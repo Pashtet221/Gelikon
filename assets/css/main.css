@@ -87,8 +87,8 @@ img { max-width: 100%; height: auto; display: block; }
 .custom-logo { max-height: 42px; width: auto; }
 .gl-logo__text { font-size: 26px; font-weight: 800; letter-spacing: -.03em; }
 .gl-logo-slogan {
-  margin-top: 6px; font-size: clamp(7px, 0.72vw, 10px); line-height: 1.2; font-weight: 600;
-  color: var(--gl-color-subtitle); max-width: 100%; white-space: normal; display: block; overflow: visible;
+  margin-top: 6px; font-size: clamp(7px, 0.72vw, 10px); line-height: 1.35; min-height: 1.35em; font-weight: 600;
+  color: var(--gl-color-subtitle); max-width: none; white-space: nowrap; display: block; overflow: visible;
 }
 .gl-header__catalog { min-width: 0; flex: 0 0 auto; }
 .gl-nav { min-width: 0; }
@@ -289,7 +289,7 @@ a.gl-product-card__button--disabled {
 @media (max-width: 1199px) and (min-width: 992px) {
   .gl-header__top { grid-template-columns: auto auto minmax(0, 1fr) auto auto; gap: 14px; }
   .gl-logo img, .gl-logo svg, .gl-logo-block { max-width: 145px; }
-  .gl-logo-slogan { font-size: clamp(7px, 0.7vw, 9px); }
+  .gl-logo-slogan { font-size: clamp(7px, 0.7vw, 9px); line-height: 1.4; min-height: 1.4em; }
   .gl-menu { gap: 10px; }
   .gl-menu > li:nth-child(3), .gl-menu > li:nth-child(5), .gl-menu > li:nth-child(6) { display: none; }
   .gl-header-more { display: block; }
@@ -312,7 +312,8 @@ a.gl-product-card__button--disabled {
   .gl-header__brand { gap: 10px; min-width: 0; }
   .gl-burger { display: inline-flex; }
   .gl-logo img, .gl-logo svg { max-width: 145px; }
-  .gl-logo-slogan, .gl-header__phones-wrap { display: none; }
+  .gl-logo-slogan { font-size: clamp(6px, 1.8vw, 8px); line-height: 1.45; min-height: 1.45em; margin-top: 5px; }
+  .gl-header__phones-wrap { display: none; }
   .gl-header__top .gl-header__catalog,
   .gl-header__top .gl-nav,
   .gl-header-more,
