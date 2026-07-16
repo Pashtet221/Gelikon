@@ -410,6 +410,14 @@ a.gl-product-card__button:hover {
 		letter-spacing: -0.04em;
 	}
 
+	.gl-catalog-products .gl-product-card__price > .amount .woocommerce-Price-currencySymbol,
+	.gl-catalog-products .gl-product-card__price > bdi .woocommerce-Price-currencySymbol,
+	.gl-catalog-products .gl-product-card__price .price > .amount .woocommerce-Price-currencySymbol,
+	.gl-catalog-products .gl-product-card__price .price > bdi .woocommerce-Price-currencySymbol,
+	.gl-catalog-products .gl-product-card__price ins .woocommerce-Price-currencySymbol {
+		font-size: clamp(18px, 1.65vw, 22px) !important;
+	}
+
 	.gl-catalog-products .gl-product-card__button,
 	.gl-catalog-products a.gl-product-card__button {
 		min-width: 106px;
