@@ -744,12 +744,18 @@ if (!empty($products_to_show)) :
 
 			<div class="gl-product-mobile-bar__button">
 				<div class="gl-product-mobile-bar__action">
+					<?php if ($product->is_type('variable')) : ?>
+						<button type="button" class="button alt single_add_to_cart_button disabled gl-variable-sticky-add-to-cart" disabled>
+							<?php echo esc_html($mobile_button_text); ?>
+						</button>
+					<?php else : ?>
 					<form class="cart" method="post" enctype="multipart/form-data">
 						<input type="hidden" name="add-to-cart" value="<?php echo esc_attr($product_id); ?>">
 						<button type="submit" class="button alt single_add_to_cart_button">
 							<?php echo esc_html($mobile_button_text); ?>
 						</button>
 					</form>
+					<?php endif; ?>
 
 					<?php echo wp_kses_post($purchase_note_html); ?>
 				</div>
@@ -773,12 +779,18 @@ if (!empty($products_to_show)) :
 				</div>
 				
 				<div class="gl-product-desktop-bar__action">
+					<?php if ($product->is_type('variable')) : ?>
+						<button type="button" class="button alt single_add_to_cart_button disabled gl-variable-sticky-add-to-cart" disabled>
+							<?php echo esc_html($mobile_button_text); ?>
+						</button>
+					<?php else : ?>
 					<form class="cart" method="post" enctype="multipart/form-data">
 						<input type="hidden" name="add-to-cart" value="<?php echo esc_attr($product_id); ?>">
 						<button type="submit" class="button alt single_add_to_cart_button">
 							<?php echo esc_html($mobile_button_text); ?>
 						</button>
 					</form>
+					<?php endif; ?>
 
 					<?php echo wp_kses_post($purchase_note_html); ?>
 				</div>
@@ -1039,15 +1051,32 @@ if (!empty($products_to_show)) :
 document.addEventListener('DOMContentLoaded', function () {
 	if (!window.jQuery) return;
 
-	window.jQuery('.gl-product-buybox--variable form.variations_form')
+	const $variationForm = window.jQuery('.gl-product-buybox--variable form.variations_form').first();
+	const $stickyButtons = window.jQuery('.gl-variable-sticky-add-to-cart');
+
+	if (!$variationForm.length) return;
+
+	$variationForm
 		.on('found_variation', function (_event, variation) {
 			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
 			if (price && variation && variation.price_html) price.innerHTML = variation.price_html;
+
+			const canPurchase = variation && variation.is_purchasable && variation.is_in_stock;
+			$stickyButtons.prop('disabled', !canPurchase).toggleClass('disabled', !canPurchase);
 		})
 		.on('reset_data hide_variation', function () {
 			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
 			if (price) price.textContent = '<?php echo esc_js(__('Выберите вариант', 'gelikon')); ?>';
+			$stickyButtons.prop('disabled', true).addClass('disabled');
 		});
+
+	$stickyButtons.on('click', function () {
+		const $mainButton = $variationForm.find('.single_add_to_cart_button').first();
+
+		if ($mainButton.length && !$mainButton.hasClass('disabled')) {
+			$variationForm.trigger('submit');
+		}
+	});
 });
 </script>
 		
