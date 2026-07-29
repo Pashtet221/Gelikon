@@ -501,14 +501,19 @@ document.addEventListener('DOMContentLoaded', function () {
 						
 
 							<div class="gl-product-summary__cta-block">
-								<div class="gl-card gl-product-buybox">
+								<div class="gl-card gl-product-buybox<?php echo $product->is_type('variable') ? ' gl-product-buybox--variable' : ''; ?>">
 							
 <!-- 							Статус наличия -->
 							<?php echo gelikon_get_stock_status_html(); ?>
 
 							<div class="gl-product-buybox__row">
 								<div class="gl-product-buybox__price">
-									<?php woocommerce_template_single_price(); ?>
+									<?php if ($product->is_type('variable')) : ?>
+										<span class="gl-product-buybox__price-label"><?php esc_html_e('Цена', 'gelikon'); ?></span>
+										<span class="gl-product-buybox__variable-price" aria-live="polite"><?php esc_html_e('Выберите вариант', 'gelikon'); ?></span>
+									<?php else : ?>
+										<?php woocommerce_template_single_price(); ?>
+									<?php endif; ?>
 								</div>
 
 								<div class="gl-product-buybox__button-wrap">
@@ -1029,6 +1034,22 @@ if (!empty($products_to_show)) :
 	}
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+	if (!window.jQuery) return;
+
+	window.jQuery('.gl-product-buybox--variable form.variations_form')
+		.on('found_variation', function (_event, variation) {
+			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
+			if (price && variation && variation.price_html) price.innerHTML = variation.price_html;
+		})
+		.on('reset_data hide_variation', function () {
+			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
+			if (price) price.textContent = '<?php echo esc_js(__('Выберите вариант', 'gelikon')); ?>';
+		});
+});
+</script>
 		
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -1228,6 +1249,133 @@ transition: transform .2s ease, filter .2s ease;
 .gl-product-buybox button.single_add_to_cart_button.button.alt:hover {
 	transform: translateY(-1px);
 	filter: brightness(.96);
+}
+
+/* Variable product: one calm row instead of WooCommerce's price-range layout. */
+.gl-product-buybox--variable .gl-product-buybox__price {
+	flex: 0 0 185px;
+}
+
+.gl-product-buybox__price-label {
+	display: block;
+	margin-bottom: 7px;
+	color: #7b817e;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+}
+
+.gl-product-buybox__variable-price {
+	display: block;
+	color: var(--gl-color-heading);
+	font-size: 20px;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.gl-product-buybox__variable-price .amount,
+.gl-product-buybox__variable-price bdi {
+	font-size: 30px;
+}
+
+.gl-product-buybox--variable .gl-product-buybox__button-wrap,
+.gl-product-buybox--variable .gl-product-buybox__button {
+	flex: 1 1 auto;
+}
+
+.gl-product-buybox--variable form.variations_form.cart {
+	display: grid;
+	grid-template-columns: minmax(210px, 1fr) auto;
+	gap: 18px;
+	width: 100%;
+}
+
+.gl-product-buybox--variable table.variations,
+.gl-product-buybox--variable table.variations tbody,
+.gl-product-buybox--variable table.variations tr {
+	display: block;
+	width: 100%;
+	margin: 0;
+}
+
+.gl-product-buybox--variable table.variations th,
+.gl-product-buybox--variable table.variations td {
+	display: block;
+	padding: 0;
+	border: 0;
+	text-align: left;
+}
+
+.gl-product-buybox--variable table.variations th.label {
+	margin-bottom: 7px;
+	color: #7b817e;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1;
+}
+
+.gl-product-buybox--variable table.variations tr + tr {
+	margin-top: 12px;
+}
+
+.gl-product-buybox--variable table.variations select {
+	width: 100%;
+	min-height: 48px;
+	margin: 0;
+	padding: 0 42px 0 15px;
+	border: 1px solid #dfe3e0;
+	border-radius: 12px;
+	background-color: #f8f9f8;
+	color: var(--gl-color-heading);
+	font: inherit;
+	font-size: 15px;
+	font-weight: 600;
+	box-shadow: none;
+}
+
+.gl-product-buybox--variable table.variations select:focus {
+	border-color: var(--gl-color-accent);
+	outline: 3px solid rgba(18, 212, 87, .14);
+}
+
+.gl-product-buybox--variable .reset_variations {
+	display: inline-block;
+	margin-top: 6px;
+	color: #7b817e;
+	font-size: 12px;
+	line-height: 1;
+	text-decoration: none;
+}
+
+.gl-product-buybox--variable .single_variation_wrap,
+.gl-product-buybox--variable .woocommerce-variation-add-to-cart {
+	display: flex;
+	align-items: flex-end;
+	margin: 0;
+}
+
+.gl-product-buybox--variable .woocommerce-variation-price,
+.gl-product-buybox--variable .woocommerce-variation-description {
+	display: none !important;
+}
+
+.gl-product-buybox--variable .single_add_to_cart_button.disabled {
+	opacity: .45;
+	cursor: not-allowed;
+	transform: none;
+}
+
+@media (max-width: 1100px) {
+	.gl-product-buybox--variable .gl-product-buybox__row {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.gl-product-buybox--variable .gl-product-buybox__price {
+		flex-basis: auto;
+	}
 }
 
 .gl-product-benefits {
