@@ -4,8 +4,6 @@ if (!defined('ABSPATH')) {
 }
 
 $gl_address = '';
-$gl_site_description = trim((string) get_bloginfo('description', 'display'));
-
 $gl_header_more_links = [
 	[
 		'label' => __('О компании', 'gelikon'),
@@ -58,12 +56,6 @@ if (function_exists('get_field')) {
 						<div class="gl-logo">
 							<?php gelikon_site_logo(); ?>
 						</div>
-
-						<?php if ($gl_site_description !== '') : ?>
-							<div class="gl-logo-slogan">
-								<?php echo esc_html($gl_site_description); ?>
-							</div>
-						<?php endif; ?>
 					</div>
 				</div>
 
