@@ -1053,6 +1053,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	const $variationForm = window.jQuery('.gl-product-buybox--variable form.variations_form').first();
 	const $stickyButtons = window.jQuery('.gl-variable-sticky-add-to-cart');
+	const $stickyPrices = window.jQuery('.gl-product-mobile-bar__price, .gl-product-desktop-bar__price');
+	const defaultStickyPrice = $stickyPrices.first().html();
 
 	if (!$variationForm.length) return;
 
@@ -1060,6 +1062,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		.on('found_variation', function (_event, variation) {
 			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
 			if (price && variation && variation.price_html) price.innerHTML = variation.price_html;
+			if (variation && variation.price_html) $stickyPrices.html(variation.price_html);
 
 			const canPurchase = variation && variation.is_purchasable && variation.is_in_stock;
 			$stickyButtons.prop('disabled', !canPurchase).toggleClass('disabled', !canPurchase);
@@ -1067,6 +1070,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		.on('reset_data hide_variation', function () {
 			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
 			if (price) price.textContent = '<?php echo esc_js(__('Выберите вариант', 'gelikon')); ?>';
+			$stickyPrices.html(defaultStickyPrice);
 			$stickyButtons.prop('disabled', true).addClass('disabled');
 		});
 
