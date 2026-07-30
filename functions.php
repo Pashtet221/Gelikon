@@ -7752,6 +7752,15 @@ add_action('wp_footer', function () {
 			data.product_id = data.product_id || productId;
 			data.quantity = data.quantity || $form.find('input.qty').val() || 1;
 
+			// WooCommerce's AJAX endpoint expects the selected variation as the
+			// product being added. Sending only the variable parent returns an error
+			// response and redirects back to the product page without adding it.
+			const variationId = parseInt(data.variation_id, 10);
+
+			if (variationId > 0) {
+				data.product_id = variationId;
+			}
+
 			// The sticky product bars use a hidden add-to-cart input for non-JS fallback.
 			// When sent to the WooCommerce AJAX endpoint, that field can also trigger
 			// the regular form handler and add the same product a second time.
