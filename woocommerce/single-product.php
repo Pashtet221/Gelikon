@@ -1174,7 +1174,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	display: block;
 	width: 100%;
 	height: 550px;
-	object-fit: cover;
+	object-fit: contain;
 }
 
 .gl-product-summary {
@@ -1585,7 +1585,6 @@ transition: transform .2s ease, filter .2s ease;
 
 
 @media (max-width: 1199px) {
-	.gl-product-hero__grid,
 	.gl-product-info-block,
 	.gl-product-health-block {
 		grid-template-columns: 1fr;
@@ -1616,6 +1615,7 @@ transition: transform .2s ease, filter .2s ease;
 	}
 
 	.gl-product-hero__grid {
+		grid-template-columns: 1fr;
 		gap: 18px;
 	}
 
