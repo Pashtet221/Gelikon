@@ -1640,9 +1640,11 @@ transition: transform .2s ease, filter .2s ease;
 
 	.gl-product-buybox {
 		display: block;
+		width: 100%;
 		padding: 16px;
 		margin-bottom: 16px;
 		border-radius: 18px;
+		box-sizing: border-box;
 	}
 
 	.gl-product-buybox__row {
@@ -1653,6 +1655,11 @@ transition: transform .2s ease, filter .2s ease;
 
 	.gl-product-buybox--variable .gl-product-buybox__price {
 		flex-basis: auto;
+		width: 100%;
+	}
+
+	.gl-product-buybox--variable .gl-product-buybox__price-label {
+		display: none;
 	}
 
 	.gl-product-buybox--variable form.variations_form.cart {
