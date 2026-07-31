@@ -504,18 +504,12 @@ if (function_exists('get_field')) {
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
-	flex-wrap: nowrap;
+	flex-wrap: wrap;
 	gap: 22px;
 	margin: 0;
 	padding: 0;
 	list-style: none;
-	overflow-x: auto;
-	overflow-y: hidden;
-	scrollbar-width: none;
-}
-
-.gl-menu::-webkit-scrollbar {
-	display: none;
+	overflow: visible;
 }
 
 .gl-menu > li {

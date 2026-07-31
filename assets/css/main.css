@@ -93,11 +93,9 @@ img { max-width: 100%; height: auto; display: block; }
 .gl-header__catalog { min-width: 0; flex: 0 0 auto; }
 .gl-nav { min-width: 0; }
 .gl-menu {
-  display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap;
-  gap: clamp(10px, 1.1vw, 18px); margin: 0; padding: 0; list-style: none; overflow-x: auto;
-  overflow-y: hidden; scrollbar-width: none;
+  display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap;
+  gap: clamp(10px, 1.1vw, 18px); margin: 0; padding: 0; list-style: none; overflow: visible;
 }
-.gl-menu::-webkit-scrollbar { display: none; }
 .gl-menu > li { margin: 0; flex: 0 0 auto; }
 .gl-menu > li > a {
   display: inline-flex; align-items: center; min-height: 36px; text-decoration: none;
