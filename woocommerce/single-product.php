@@ -1210,6 +1210,7 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 
 .gl-product-buybox {
+	container-type: inline-size;
 	padding: 18px 18px 18px 20px;
 	margin-bottom: 18px;
 	background: #ffffff;
@@ -1400,7 +1401,10 @@ transition: transform .2s ease, filter .2s ease;
 	transform: none;
 }
 
-@media (max-width: 1100px) {
+/* Keep the variable-product controls inside the card, regardless of the
+ * surrounding page layout. The product column can become narrow before the
+ * viewport reaches the mobile breakpoint. */
+@container (max-width: 650px) {
 	.gl-product-buybox--variable .gl-product-buybox__row {
 		align-items: stretch;
 		flex-direction: column;
@@ -1408,6 +1412,23 @@ transition: transform .2s ease, filter .2s ease;
 
 	.gl-product-buybox--variable .gl-product-buybox__price {
 		flex-basis: auto;
+	}
+}
+
+@container (max-width: 470px) {
+	.gl-product-buybox--variable form.variations_form.cart {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 14px;
+	}
+
+	.gl-product-buybox--variable .single_variation_wrap,
+	.gl-product-buybox--variable .woocommerce-variation-add-to-cart,
+	.gl-product-buybox--variable .single_add_to_cart_button,
+	.gl-product-buybox--variable button.single_add_to_cart_button.button.alt {
+		width: 100%;
+		min-width: 0;
 	}
 }
 
