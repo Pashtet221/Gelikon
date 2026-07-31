@@ -1639,12 +1639,38 @@ transition: transform .2s ease, filter .2s ease;
 	}
 
 	.gl-product-buybox {
-		display: none;
+		display: block;
+		padding: 16px;
+		margin-bottom: 16px;
+		border-radius: 18px;
 	}
 
 	.gl-product-buybox__row {
 		flex-direction: column;
 		align-items: stretch;
+		gap: 14px;
+	}
+
+	.gl-product-buybox--variable .gl-product-buybox__price {
+		flex-basis: auto;
+	}
+
+	.gl-product-buybox--variable form.variations_form.cart {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: 14px;
+	}
+
+	.gl-product-buybox--variable .single_variation_wrap,
+	.gl-product-buybox--variable .woocommerce-variation-add-to-cart {
+		width: 100%;
+	}
+
+	.gl-product-buybox .single_add_to_cart_button,
+	.gl-product-buybox button.single_add_to_cart_button.button.alt {
+		width: 100%;
+		min-width: 0;
 	}
 
 	.gl-product-benefits,
