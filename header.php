@@ -352,7 +352,7 @@ if (function_exists('get_field')) {
 	display: none !important;
 }
 
-@media (max-width: 991px) {
+@media (max-width: 1140px) {
 	.mobile {
 		display: inline-flex !important;
 	}
@@ -363,7 +363,7 @@ if (function_exists('get_field')) {
 	display: inline-flex !important;
 }
 
-@media (max-width: 991px) {
+@media (max-width: 1140px) {
 	.desktop {
 		display: none !important;
 	}
@@ -1043,7 +1043,7 @@ body.gl-modal-open {
 	}
 }
 
-@media (max-width: 1199px) and (min-width: 992px) {
+@media (max-width: 1199px) and (min-width: 1141px) {
 	.gl-header__top {
 		grid-template-columns: auto auto minmax(0, 1fr) auto;
 		gap: 14px;
@@ -1085,7 +1085,7 @@ body.gl-modal-open {
 	}
 }
 
-@media (max-width: 991px) {
+@media (max-width: 1140px) {
 	.gl-header__top {
 		display: grid;
 		grid-template-columns: auto 1fr auto;
@@ -1388,7 +1388,7 @@ body.gl-modal-open {
 	}
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1141px) {
 	.gl-mobile-contacts-modal {
 		display: none !important;
 	}
