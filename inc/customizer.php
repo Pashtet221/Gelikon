@@ -3,6 +3,71 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (class_exists('WP_Customize_Control')) {
+    /**
+     * Product picker with an explicitly ordered list for the catalog default sort.
+     */
+    class Gelikon_Catalog_Order_Control extends WP_Customize_Control {
+        public $type = 'gelikon_catalog_order';
+
+        public function render_content() {
+            $product_ids = function_exists('gelikon_get_manual_catalog_product_ids') ? gelikon_get_manual_catalog_product_ids() : [];
+            $products    = get_posts([
+                'post_type'              => 'product',
+                'post_status'            => 'publish',
+                'posts_per_page'         => -1,
+                'orderby'                => 'title',
+                'order'                  => 'ASC',
+                'update_post_meta_cache' => false,
+                'update_post_term_cache' => false,
+            ]);
+            $product_titles = [];
+
+            foreach ($products as $product) {
+                $product_titles[$product->ID] = $product->post_title;
+            }
+            ?>
+            <span class="customize-control-title"><?php echo esc_html($this->label); ?></span>
+            <?php if ($this->description) : ?>
+                <span class="description customize-control-description"><?php echo esc_html($this->description); ?></span>
+            <?php endif; ?>
+
+            <div class="gelikon-catalog-order">
+                <label>
+                    <span class="screen-reader-text"><?php esc_html_e('Добавить товар', 'gelikon'); ?></span>
+                    <select class="gelikon-catalog-order__picker">
+                        <option value=""><?php esc_html_e('Выберите товар…', 'gelikon'); ?></option>
+                        <?php foreach ($products as $product) : ?>
+                            <option value="<?php echo esc_attr($product->ID); ?>">
+                                <?php echo esc_html($product->post_title . ' — #' . $product->ID); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
+                <button type="button" class="button gelikon-catalog-order__add"><?php esc_html_e('Добавить', 'gelikon'); ?></button>
+
+                <ol class="gelikon-catalog-order__list">
+                    <?php foreach ($product_ids as $product_id) : ?>
+                        <?php $title = isset($product_titles[$product_id]) ? $product_titles[$product_id] : sprintf(__('Товар #%d', 'gelikon'), $product_id); ?>
+                        <li data-product-id="<?php echo esc_attr($product_id); ?>">
+                            <span class="gelikon-catalog-order__name"><?php echo esc_html($title . ' — #' . $product_id); ?></span>
+                            <span class="gelikon-catalog-order__actions">
+                                <button type="button" class="button-link" data-move="up" aria-label="<?php esc_attr_e('Поднять товар', 'gelikon'); ?>">↑</button>
+                                <button type="button" class="button-link" data-move="down" aria-label="<?php esc_attr_e('Опустить товар', 'gelikon'); ?>">↓</button>
+                                <button type="button" class="button-link-delete" data-remove aria-label="<?php esc_attr_e('Удалить товар из порядка', 'gelikon'); ?>">×</button>
+                            </span>
+                        </li>
+                    <?php endforeach; ?>
+                </ol>
+
+                <textarea class="gelikon-catalog-order__value" <?php $this->link(); ?>><?php echo esc_textarea($this->value()); ?></textarea>
+                <p class="gelikon-catalog-order__empty"><?php esc_html_e('Список пока пуст — товары будут отсортированы по позиции WooCommerce и названию.', 'gelikon'); ?></p>
+            </div>
+            <?php
+        }
+    }
+}
+
 function gelikon_customize_register($wp_customize) {
     $wp_customize->add_panel('gelikon_theme_options', [
         'title'       => __('Gelikon — параметры темы', 'gelikon'),
@@ -96,12 +161,11 @@ function gelikon_customize_register($wp_customize) {
         'transport'         => 'refresh',
     ]);
 
-    $wp_customize->add_control('gelikon_catalog_manual_product_ids', [
-        'label'       => __('ID товаров для ручного порядка', 'gelikon'),
-        'description' => __('Введите ID товаров в нужном порядке через запятую, например: 125, 18, 304. Эти товары будут показаны первыми при сортировке «По умолчанию», остальные — после них по позиции WooCommerce и названию.', 'gelikon'),
+    $wp_customize->add_control(new Gelikon_Catalog_Order_Control($wp_customize, 'gelikon_catalog_manual_product_ids', [
+        'label'       => __('Ручной порядок товаров', 'gelikon'),
+        'description' => __('Добавьте товары и расположите их стрелками в нужном порядке. Они будут показаны первыми при сортировке «По умолчанию», остальные — после них по позиции WooCommerce и названию.', 'gelikon'),
         'section'     => 'gelikon_catalog',
-        'type'        => 'textarea',
-    ]);
+    ]));
 
 
     $wp_customize->add_section('gelikon_legal_texts', [
@@ -125,6 +189,23 @@ function gelikon_customize_register($wp_customize) {
     ]);
 }
 add_action('customize_register', 'gelikon_customize_register');
+
+function gelikon_customize_catalog_order_assets() {
+    wp_enqueue_style(
+        'gelikon-customizer-catalog-order',
+        GELIKON_URI . '/assets/css/customizer-catalog-order.css',
+        [],
+        GELIKON_VERSION
+    );
+    wp_enqueue_script(
+        'gelikon-customizer-catalog-order',
+        GELIKON_URI . '/assets/js/customizer-catalog-order.js',
+        ['jquery', 'customize-controls'],
+        GELIKON_VERSION,
+        true
+    );
+}
+add_action('customize_controls_enqueue_scripts', 'gelikon_customize_catalog_order_assets');
 
 function gelikon_sanitize_legal_text($value) {
     return wp_kses($value, [
