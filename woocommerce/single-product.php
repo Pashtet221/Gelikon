@@ -1097,6 +1097,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	$variationForm.on('change', 'select', clearVariationError);
 
+	$variationForm.on('click.glVariationValidation', '.single_add_to_cart_button', function (event) {
+		const hasEmptyOptions = $variationForm.find('table.variations select').filter(function () {
+			return !this.value;
+		}).length > 0;
+
+		if (hasEmptyOptions || window.jQuery(this).hasClass('disabled')) {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			showVariationError();
+		}
+	});
+
 	$variationForm
 		.on('found_variation', function (_event, variation) {
 			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
@@ -1331,6 +1343,11 @@ transition: transform .2s ease, filter .2s ease;
 /* Variable product: one calm row instead of WooCommerce's price-range layout. */
 .gl-product-buybox--variable .gl-product-buybox__price {
 	flex: 0 0 185px;
+	margin-top: 20px;
+}
+
+.gl-product-buybox--variable .gl-product-buybox__row {
+	align-items: flex-start;
 }
 
 .gl-product-buybox__price-label {
@@ -1429,7 +1446,8 @@ transition: transform .2s ease, filter .2s ease;
 
 .gl-variation-selection-notice {
 	display: none;
-	grid-column: 1 / -1;
+	grid-column: 1;
+	grid-row: 2;
 	margin: 10px 0 0;
 	padding: 10px 12px;
 	border: 1px solid #fecaca;
@@ -1483,6 +1501,7 @@ transition: transform .2s ease, filter .2s ease;
 
 	.gl-product-buybox--variable .gl-product-buybox__price {
 		flex-basis: auto;
+		margin-top: 0;
 	}
 }
 
