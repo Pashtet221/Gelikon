@@ -1,0 +1,51 @@
+.gelikon-catalog-order__picker {
+	width: calc(100% - 82px);
+}
+
+.gelikon-catalog-order__add {
+	float: right;
+}
+
+.gelikon-catalog-order__list {
+	clear: both;
+	margin: 12px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.gelikon-catalog-order__list li {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin: 0 0 6px;
+	padding: 8px 10px;
+	border: 1px solid #dcdcde;
+	background: #fff;
+}
+
+.gelikon-catalog-order__name {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.gelikon-catalog-order__actions {
+	display: flex;
+	flex: 0 0 auto;
+	gap: 9px;
+	font-size: 18px;
+}
+
+.gelikon-catalog-order__value {
+	display: none;
+}
+
+.gelikon-catalog-order__empty {
+	display: none;
+	margin-bottom: 0;
+	color: #646970;
+}
+
+.gelikon-catalog-order.is-empty .gelikon-catalog-order__empty {
+	display: block;
+}
