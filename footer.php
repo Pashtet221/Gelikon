@@ -59,6 +59,9 @@ $account_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink(
                     <div class="gl-footer__brand">
                         <?php gelikon_site_logo(); ?>
                     </div>
+                    <?php if (get_bloginfo('description')) : ?>
+                        <div class="gl-footer__brand-slogan"><?php echo esc_html(get_bloginfo('description')); ?></div>
+                    <?php endif; ?>
 
                     <div class="gl-footer__phones">
                         <a class="gl-footer__phone-main" href="tel:88004446867">8 (800) 444-68-67</a>
@@ -243,6 +246,17 @@ $account_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink(
     width: 180px;
     max-width: 180px;
     height: auto;
+}
+
+.gl-footer__brand-slogan {
+    width: 180px;
+    margin-top: 6px;
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    text-align: center;
+    white-space: nowrap;
 }
 
 .gl-footer__phones {
