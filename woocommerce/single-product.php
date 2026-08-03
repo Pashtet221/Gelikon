@@ -745,7 +745,7 @@ if (!empty($products_to_show)) :
 			<div class="gl-product-mobile-bar__button">
 				<div class="gl-product-mobile-bar__action">
 					<?php if ($product->is_type('variable')) : ?>
-						<button type="button" class="button alt single_add_to_cart_button disabled gl-variable-sticky-add-to-cart" disabled>
+						<button type="button" class="button alt single_add_to_cart_button gl-variable-sticky-add-to-cart" aria-disabled="true" aria-describedby="glVariationSelectionNotice">
 							<?php echo esc_html($mobile_button_text); ?>
 						</button>
 					<?php else : ?>
@@ -780,7 +780,7 @@ if (!empty($products_to_show)) :
 				
 				<div class="gl-product-desktop-bar__action">
 					<?php if ($product->is_type('variable')) : ?>
-						<button type="button" class="button alt single_add_to_cart_button disabled gl-variable-sticky-add-to-cart" disabled>
+						<button type="button" class="button alt single_add_to_cart_button gl-variable-sticky-add-to-cart" aria-disabled="true" aria-describedby="glVariationSelectionNotice">
 							<?php echo esc_html($mobile_button_text); ?>
 						</button>
 					<?php else : ?>
@@ -1058,6 +1058,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	if (!$variationForm.length) return;
 
+	const $variationRows = $variationForm.find('table.variations tr');
+	const $notice = window.jQuery(
+		'<p id="glVariationSelectionNotice" class="gl-variation-selection-notice" role="alert" aria-live="assertive"><?php echo esc_js(__('Выберите вариацию', 'gelikon')); ?></p>'
+	).insertAfter($variationForm.find('table.variations'));
+
+	function clearVariationError() {
+		$variationForm.removeClass('has-variation-error');
+		$variationRows.removeClass('has-variation-error');
+		$notice.removeClass('is-visible');
+	}
+
+	function showVariationError() {
+		const $emptySelects = $variationForm.find('table.variations select').filter(function () {
+			return !this.value;
+		});
+		const $invalidRows = $emptySelects.length ? $emptySelects.closest('tr') : $variationRows;
+
+		clearVariationError();
+		$variationForm.addClass('has-variation-error');
+		$invalidRows.addClass('has-variation-error');
+		$notice.addClass('is-visible');
+
+		const target = $invalidRows.first().get(0) || $variationForm.find('table.variations').get(0);
+		if (target) {
+			const stickyOffset = window.innerWidth > 767 ? 120 : 24;
+			window.scrollTo({
+				top: target.getBoundingClientRect().top + window.pageYOffset - stickyOffset,
+				behavior: 'smooth'
+			});
+		}
+
+		window.setTimeout(function () {
+			const firstEmptySelect = $emptySelects.get(0);
+			if (firstEmptySelect) firstEmptySelect.focus({ preventScroll: true });
+		}, 450);
+	}
+
+	$variationForm.on('change', 'select', clearVariationError);
+
 	$variationForm
 		.on('found_variation', function (_event, variation) {
 			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
@@ -1065,20 +1104,24 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (variation && variation.price_html) $stickyPrices.html(variation.price_html);
 
 			const canPurchase = variation && variation.is_purchasable && variation.is_in_stock;
-			$stickyButtons.prop('disabled', !canPurchase).toggleClass('disabled', !canPurchase);
+			$stickyButtons.attr('aria-disabled', canPurchase ? 'false' : 'true');
+			if (canPurchase) clearVariationError();
 		})
 		.on('reset_data hide_variation', function () {
 			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
 			if (price) price.textContent = '<?php echo esc_js(__('Выберите вариант', 'gelikon')); ?>';
 			$stickyPrices.html(defaultStickyPrice);
-			$stickyButtons.prop('disabled', true).addClass('disabled');
+			$stickyButtons.attr('aria-disabled', 'true');
 		});
 
 	$stickyButtons.on('click', function () {
 		const $mainButton = $variationForm.find('.single_add_to_cart_button').first();
 
 		if ($mainButton.length && !$mainButton.hasClass('disabled')) {
+			clearVariationError();
 			$variationForm.trigger('submit');
+		} else {
+			showVariationError();
 		}
 	});
 });
@@ -1372,6 +1415,34 @@ transition: transform .2s ease, filter .2s ease;
 .gl-product-buybox--variable table.variations select:focus {
 	border-color: var(--gl-color-accent);
 	outline: 3px solid rgba(18, 212, 87, .14);
+}
+
+.gl-product-buybox--variable table.variations tr.has-variation-error select {
+	border-color: #dc2626;
+	background-color: #fff7f7;
+	box-shadow: 0 0 0 3px rgba(220, 38, 38, .12);
+}
+
+.gl-product-buybox--variable table.variations tr.has-variation-error th.label {
+	color: #b91c1c;
+}
+
+.gl-variation-selection-notice {
+	display: none;
+	grid-column: 1 / -1;
+	margin: 10px 0 0;
+	padding: 10px 12px;
+	border: 1px solid #fecaca;
+	border-radius: 10px;
+	background: #fef2f2;
+	color: #b91c1c;
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1.35;
+}
+
+.gl-variation-selection-notice.is-visible {
+	display: block;
 }
 
 .gl-product-buybox--variable .reset_variations {
