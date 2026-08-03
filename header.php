@@ -491,7 +491,7 @@ if (function_exists('get_field')) {
 .gl-logo-slogan {
 	width: 170px;
 	margin-top: 6px;
-	font-size: 10px;
+	font-size: 9.5px;
 	line-height: 1.35;
 	font-weight: 600;
 	color: var(--gl-color-subtitle);
