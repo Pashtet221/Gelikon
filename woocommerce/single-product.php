@@ -839,7 +839,7 @@ if (!empty($products_to_show)) :
 
 .gl-product-mobile-bar__price .amount,
 .gl-product-mobile-bar__price bdi {
-	font-size: 22px;
+	font-size: 20px;
 	font-weight: 700;
 	line-height: 1;
 	letter-spacing: -0.03em;
