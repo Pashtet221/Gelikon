@@ -42,6 +42,9 @@ if (function_exists('get_field')) {
 						<div class="gl-logo">
 							<?php gelikon_site_logo(); ?>
 						</div>
+						<?php if (get_bloginfo('description')) : ?>
+							<div class="gl-logo-slogan"><?php echo esc_html(get_bloginfo('description')); ?></div>
+						<?php endif; ?>
 					</div>
 				</div>
 
@@ -466,29 +469,36 @@ if (function_exists('get_field')) {
 	flex-direction: column;
 	align-items: flex-start;
 	line-height: 1;
-	min-width: 0;
-	max-width: 220px;
+	width: 170px;
+	min-width: 170px;
+	max-width: 170px;
+}
+
+.gl-logo,
+.gl-logo .custom-logo-link {
+	display: block;
+	width: 170px;
 }
 
 .gl-logo img,
 .gl-logo svg {
 	display: block;
-	width: auto;
+	width: 170px;
 	height: auto;
-	max-width: 220px;
+	max-width: 170px;
 }
 
 .gl-logo-slogan {
-	margin-top: 8px;
-	font-size: clamp(7px, 0.72vw, 10px);
+	width: 170px;
+	margin-top: 6px;
+	font-size: 10px;
 	line-height: 1.35;
-	min-height: 1.35em;
 	font-weight: 600;
 	color: var(--gl-color-subtitle);
-	max-width: none;
 	white-space: nowrap;
-	display: block;
-	overflow: visible;
+	overflow: hidden;
+	text-align: center;
+	text-overflow: clip;
 }
 
 .gl-header__catalog {
@@ -1023,15 +1033,6 @@ body.gl-modal-open {
 		gap: 18px;
 	}
 
-	.gl-logo img,
-	.gl-logo svg {
-		max-width: 190px;
-	}
-
-	.gl-logo-block {
-		max-width: 190px;
-	}
-
 	.gl-menu {
 		gap: 18px;
 	}
@@ -1047,21 +1048,6 @@ body.gl-modal-open {
 	.gl-header__top {
 		grid-template-columns: auto auto minmax(0, 1fr) auto;
 		gap: 14px;
-	}
-
-	.gl-logo img,
-	.gl-logo svg {
-		max-width: 170px;
-	}
-
-	.gl-logo-block {
-		max-width: 170px;
-	}
-
-	.gl-logo-slogan {
-		font-size: clamp(7px, 0.7vw, 9px);
-		line-height: 1.4;
-		min-height: 1.4em;
 	}
 
 	.gl-menu {
@@ -1101,18 +1087,6 @@ body.gl-modal-open {
 
 	.gl-burger {
 		display: inline-flex;
-	}
-
-	.gl-logo img,
-	.gl-logo svg {
-		max-width: 145px;
-	}
-
-	.gl-logo-slogan {
-		font-size: clamp(6px, 1.8vw, 8px);
-		line-height: 1.45;
-		min-height: 1.45em;
-		margin-top: 5px;
 	}
 
 	.gl-header__phones-wrap {
@@ -1351,9 +1325,8 @@ body.gl-modal-open {
 }
 
 @media (max-width: 767px) {
-	.gl-logo img,
-	.gl-logo svg {
-		max-width: 170px;
+	.gl-logo-slogan {
+		display: none;
 	}
 
 	.gl-contact-modal__dialog {
