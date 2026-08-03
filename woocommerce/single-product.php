@@ -507,10 +507,10 @@ document.addEventListener('DOMContentLoaded', function () {
 							<?php echo gelikon_get_stock_status_html(); ?>
 
 							<div class="gl-product-buybox__row">
-								<div class="gl-product-buybox__price">
+								<div class="gl-product-buybox__price<?php echo $product->is_type('variable') ? ' is-awaiting-variation' : ''; ?>">
 									<?php if ($product->is_type('variable')) : ?>
 										<span class="gl-product-buybox__price-label"><?php esc_html_e('Цена', 'gelikon'); ?></span>
-										<span class="gl-product-buybox__variable-price" aria-live="polite"><?php esc_html_e('Выберите вариант', 'gelikon'); ?></span>
+										<span class="gl-product-buybox__variable-price" aria-live="polite"></span>
 									<?php else : ?>
 										<?php woocommerce_template_single_price(); ?>
 									<?php endif; ?>
@@ -745,7 +745,7 @@ if (!empty($products_to_show)) :
 			<div class="gl-product-mobile-bar__button">
 				<div class="gl-product-mobile-bar__action">
 					<?php if ($product->is_type('variable')) : ?>
-						<button type="button" class="button alt single_add_to_cart_button gl-variable-sticky-add-to-cart" aria-disabled="true" aria-describedby="glVariationSelectionNotice">
+						<button type="button" class="button alt single_add_to_cart_button gl-variable-sticky-add-to-cart" aria-disabled="false" aria-describedby="glVariationSelectionNotice">
 							<?php echo esc_html($mobile_button_text); ?>
 						</button>
 					<?php else : ?>
@@ -780,7 +780,7 @@ if (!empty($products_to_show)) :
 				
 				<div class="gl-product-desktop-bar__action">
 					<?php if ($product->is_type('variable')) : ?>
-						<button type="button" class="button alt single_add_to_cart_button gl-variable-sticky-add-to-cart" aria-disabled="true" aria-describedby="glVariationSelectionNotice">
+						<button type="button" class="button alt single_add_to_cart_button gl-variable-sticky-add-to-cart" aria-disabled="false" aria-describedby="glVariationSelectionNotice">
 							<?php echo esc_html($mobile_button_text); ?>
 						</button>
 					<?php else : ?>
@@ -1059,8 +1059,10 @@ document.addEventListener('DOMContentLoaded', function () {
 	if (!$variationForm.length) return;
 
 	const $variationRows = $variationForm.find('table.variations tr');
+	const $variablePrice = window.jQuery('.gl-product-buybox__variable-price');
+	const $variablePriceBox = $variablePrice.closest('.gl-product-buybox__price').addClass('is-awaiting-variation');
 	const $notice = window.jQuery(
-		'<p id="glVariationSelectionNotice" class="gl-variation-selection-notice" role="alert" aria-live="assertive"><?php echo esc_js(__('Выберите вариацию', 'gelikon')); ?></p>'
+		'<p id="glVariationSelectionNotice" class="gl-variation-selection-notice" role="alert" aria-live="assertive"><?php echo esc_js(__('Выберите опцию', 'gelikon')); ?></p>'
 	).insertAfter($variationForm.find('table.variations'));
 
 	function clearVariationError() {
@@ -1112,7 +1114,10 @@ document.addEventListener('DOMContentLoaded', function () {
 	$variationForm
 		.on('found_variation', function (_event, variation) {
 			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
-			if (price && variation && variation.price_html) price.innerHTML = variation.price_html;
+			if (price && variation && variation.price_html) {
+				price.innerHTML = variation.price_html;
+				$variablePriceBox.removeClass('is-awaiting-variation');
+			}
 			if (variation && variation.price_html) $stickyPrices.html(variation.price_html);
 
 			const canPurchase = variation && variation.is_purchasable && variation.is_in_stock;
@@ -1121,9 +1126,10 @@ document.addEventListener('DOMContentLoaded', function () {
 		})
 		.on('reset_data hide_variation', function () {
 			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
-			if (price) price.textContent = '<?php echo esc_js(__('Выберите вариант', 'gelikon')); ?>';
+			if (price) price.textContent = '';
+			$variablePriceBox.addClass('is-awaiting-variation');
 			$stickyPrices.html(defaultStickyPrice);
-			$stickyButtons.attr('aria-disabled', 'true');
+			$stickyButtons.attr('aria-disabled', 'false');
 		});
 
 	$stickyButtons.on('click', function () {
@@ -1346,6 +1352,10 @@ transition: transform .2s ease, filter .2s ease;
 	margin-top: 20px;
 }
 
+.gl-product-buybox--variable .gl-product-buybox__price.is-awaiting-variation {
+	display: none;
+}
+
 .gl-product-buybox--variable .gl-product-buybox__row {
 	align-items: flex-start;
 }
@@ -1485,8 +1495,8 @@ transition: transform .2s ease, filter .2s ease;
 }
 
 .gl-product-buybox--variable .single_add_to_cart_button.disabled {
-	opacity: .45;
-	cursor: not-allowed;
+	opacity: 1;
+	cursor: pointer;
 	transform: none;
 }
 
