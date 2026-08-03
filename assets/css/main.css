@@ -81,14 +81,15 @@ img { max-width: 100%; height: auto; display: block; }
 .gl-header__brand { display: flex; align-items: center; gap: 16px; min-width: 0; }
 .gl-logo-block {
   display: flex; flex-direction: column; align-items: flex-start;
-  line-height: 1; min-width: 0; max-width: 220px;
+  line-height: 1; width: 170px; min-width: 170px; max-width: 170px;
 }
-.gl-logo img, .gl-logo svg { display: block; width: auto; height: auto; max-width: min(220px, 20vw); }
+.gl-logo, .gl-logo .custom-logo-link { display: block; width: 170px; }
+.gl-logo img, .gl-logo svg { display: block; width: 170px; height: auto; max-width: 170px; }
 .custom-logo { max-height: 42px; width: auto; }
 .gl-logo__text { font-size: 26px; font-weight: 800; letter-spacing: -.03em; }
 .gl-logo-slogan {
-  margin-top: 6px; font-size: clamp(7px, 0.72vw, 10px); line-height: 1.35; min-height: 1.35em; font-weight: 600;
-  color: var(--gl-color-subtitle); max-width: none; white-space: nowrap; display: block; overflow: visible;
+  width: 170px; margin-top: 6px; font-size: 10px; line-height: 1.35; font-weight: 600;
+  color: var(--gl-color-subtitle); white-space: nowrap; overflow: hidden; text-align: center; text-overflow: clip;
 }
 .gl-header__catalog { min-width: 0; flex: 0 0 auto; }
 .gl-nav { min-width: 0; }
@@ -269,15 +270,12 @@ a.gl-product-card__button--disabled {
 }
 @media (max-width: 1399px) and (min-width: 1200px) {
   .gl-header__top { grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 18px; }
-  .gl-logo img, .gl-logo svg, .gl-logo-block { max-width: 170px; }
   .gl-menu { gap: 12px; }
   .gl-header__icon, .gl-header-search-trigger { width: 46px; height: 46px; }
 }
 
 @media (max-width: 1199px) and (min-width: 1141px) {
   .gl-header__top { grid-template-columns: auto auto minmax(0, 1fr) auto; gap: 14px; }
-  .gl-logo img, .gl-logo svg, .gl-logo-block { max-width: 145px; }
-  .gl-logo-slogan { font-size: clamp(7px, 0.7vw, 9px); line-height: 1.4; min-height: 1.4em; }
   .gl-menu { gap: 10px; }
   .gl-menu > li > a,
   .gl-header__phones-wrap a,
@@ -297,8 +295,6 @@ a.gl-product-card__button--disabled {
   .gl-header__top { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 10px 0; }
   .gl-header__brand { gap: 10px; min-width: 0; }
   .gl-burger { display: inline-flex; }
-  .gl-logo img, .gl-logo svg { max-width: 145px; }
-  .gl-logo-slogan { font-size: clamp(6px, 1.8vw, 8px); line-height: 1.45; min-height: 1.45em; margin-top: 5px; }
   .gl-header__phones-wrap { display: none; }
   .gl-header__top .gl-header__catalog,
   .gl-header__top .gl-nav,
@@ -322,6 +318,7 @@ a.gl-product-card__button--disabled {
 
 @media (max-width: 767px) {
   .gl-container { width: min(100% - 20px, var(--gl-container)); }
+  .gl-logo-slogan { display: none; }
   .gl-header__actions { gap: 10px; }
   .gl-header__phones { display: none; }
   .site-main { padding: 18px 0 56px; }
