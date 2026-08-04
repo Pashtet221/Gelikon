@@ -56,7 +56,8 @@ $add_to_cart_desc = $product->add_to_cart_description();
  * и похожие условные теги могут не работать, потому что запрос идет через admin-ajax.php.
  * Поэтому текст кнопки фиксируем напрямую.
  */
-$primary_cta_text = __('В корзину', 'gelikon');
+$primary_cta_text  = __('В корзину', 'gelikon');
+$variable_cta_text = __('Выбрать вариант', 'gelikon');
 ?>
 
 <li <?php wc_product_class('gl-product-card', $product); ?>>
@@ -115,9 +116,13 @@ $primary_cta_text = __('В корзину', 'gelikon');
 						>
 							<?php echo esc_html($primary_cta_text); ?>
 						</a>
+					<?php elseif ($is_variable) : ?>
+						<a href="<?php echo esc_url($product_url); ?>" class="gl-product-card__button">
+							<?php echo esc_html($variable_cta_text); ?>
+						</a>
 					<?php else : ?>
 						<a href="<?php echo esc_url($product_url); ?>" class="gl-product-card__button">
-							<?php echo esc_html($primary_cta_text); ?>
+							<?php esc_html_e('Подробнее', 'gelikon'); ?>
 						</a>
 					<?php endif; ?>
 
@@ -293,7 +298,9 @@ $primary_cta_text = __('В корзину', 'gelikon');
 .gl-product-card__price--variable {
 	flex-direction: row;
 	align-items: baseline;
+	justify-self: start;
 	gap: 6px;
+	text-align: left;
 	white-space: nowrap;
 }
 
