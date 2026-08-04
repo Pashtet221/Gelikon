@@ -262,6 +262,9 @@ a.gl-product-card__button--disabled {
 .woocommerce-account .woocommerce-MyAccount-content {
   background: var(--gl-color-surface); border: 1px solid var(--gl-color-line); border-radius: var(--gl-radius); box-shadow: var(--gl-shadow);
 }
+.woocommerce-account .woocommerce-privacy-policy-text {
+  display: none;
+}
 .woocommerce form .form-row input.input-text,
 .woocommerce form .form-row textarea,
 .woocommerce form .form-row select,
