@@ -57,7 +57,7 @@ $add_to_cart_desc = $product->add_to_cart_description();
  * Поэтому текст кнопки фиксируем напрямую.
  */
 $primary_cta_text  = __('В корзину', 'gelikon');
-$variable_cta_text = __('Выбрать вариант', 'gelikon');
+$variable_cta_text = __('Выбрать', 'gelikon');
 ?>
 
 <li <?php wc_product_class('gl-product-card', $product); ?>>
@@ -522,7 +522,7 @@ a.gl-product-card__button:hover {
 	}
 
 	.gl-product-card__purchase {
-		align-items: stretch;
+		align-items: center;
 		gap: 10px;
 		padding: 0 14px 14px;
 	}
