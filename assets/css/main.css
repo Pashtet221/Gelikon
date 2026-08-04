@@ -182,7 +182,7 @@ img { max-width: 100%; height: auto; display: block; }
 .gl-product-card { padding: 18px; position: relative; overflow: hidden; }
 .gl-product-card__image {
   background: linear-gradient(180deg, #f8faf8 0%, #eef3ef 100%);
-  border-radius: calc(var(--gl-radius) - 8px); padding: 0px; min-height: 190px; display: flex; align-items: center; justify-content: center;
+  border-radius: calc(var(--gl-radius) - 8px); padding: 12px !important; min-height: 190px; display: flex; align-items: center; justify-content: center;
 }
 .gl-product-card__body { padding: 20px 6px 10px; }
 .gl-product-card .woocommerce-loop-product__title { margin: 0 0 10px; font-size: 26px; line-height: 1.12; letter-spacing: -.03em; }
