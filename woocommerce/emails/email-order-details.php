@@ -152,7 +152,7 @@ do_action( 'woocommerce_email_before_order_table', $order, $sent_to_admin, $plai
 					</tr>
 					<tr>
 						<td class="gelikon-email-summary-label" colspan="2" style="padding:14px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.4;font-weight:700;color:#111827;text-align:left;"><?php esc_html_e( 'Итого:', 'gelikon' ); ?></td>
-						<td class="gelikon-email-summary-value" style="padding:14px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:18px;line-height:1.3;font-weight:700;color:#111827;text-align:right;white-space:nowrap;"><?php echo wp_kses_post( $order->get_formatted_order_total() ); ?></td>
+						<td class="gelikon-email-summary-value" style="padding:14px 16px;border-bottom:1px solid #e5e7eb;font-family:Arial,Helvetica,sans-serif;font-size:18px;line-height:1.3;font-weight:700;color:#111827;text-align:right;white-space:normal;word-break:normal;overflow-wrap:break-word;"><?php echo wp_kses_post( $order->get_formatted_order_total() ); ?></td>
 					</tr>
 					<tr>
 						<td class="gelikon-email-summary-label" colspan="2" style="padding:12px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;color:#374151;text-align:left;"><?php esc_html_e( 'Способ оплаты:', 'gelikon' ); ?></td>
