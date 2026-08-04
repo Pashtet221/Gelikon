@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('GELIKON_VERSION', '1.0.2');
+define('GELIKON_VERSION', '1.0.3');
 define('GELIKON_DIR', get_template_directory());
 define('GELIKON_URI', get_template_directory_uri());
 
@@ -124,6 +124,12 @@ add_action('woocommerce_after_checkout_validation', function ($data, $errors) {
 add_action('woocommerce_register_form', function () {
 	echo gelikon_personal_data_consent_markup('gelikon_register_personal_data_consent', 'gelikon_personal_data_consent', 'gl-personal-data-consent gl-personal-data-consent--register'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }, 20);
+
+/**
+ * Убирает стандартное пояснение WooCommerce о политике конфиденциальности:
+ * обязательный кастомный чекбокс ниже уже содержит ссылки на политику и оферту.
+ */
+add_filter('woocommerce_registration_privacy_policy_text', '__return_empty_string');
 
 add_filter('woocommerce_registration_errors', function ($errors) {
 	if (!gelikon_is_personal_data_consent_given()) {
