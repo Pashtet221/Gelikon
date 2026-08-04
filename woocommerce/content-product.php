@@ -11,6 +11,24 @@ $product_id   = $product->get_id();
 $product_url  = get_permalink($product_id);
 $product_name = $product->get_name();
 $price_html   = $product->get_price_html();
+$is_variable  = $product->is_type('variable');
+$has_compact_variable_price = false;
+
+// A full variation price range is too wide for a catalog card. Show the
+// lowest available price instead; the product page still contains all prices.
+if ($is_variable) {
+	$minimum_price = (float) $product->get_variation_price('min', true);
+	$maximum_price = (float) $product->get_variation_price('max', true);
+
+	if ($minimum_price < $maximum_price) {
+		$has_compact_variable_price = true;
+		$price_html = sprintf(
+			'<span class="gl-product-card__price-prefix">%s</span><span class="gl-product-card__variable-price">%s</span>',
+			esc_html__('от', 'gelikon'),
+			wc_price($minimum_price)
+		);
+	}
+}
 $is_in_stock  = $product->is_in_stock();
 $is_preorder  = (function_exists('gelikon_is_product_preorder') && gelikon_is_product_preorder($product_id)) || $product->get_stock_status() === 'onbackorder';
 $is_discontinued = function_exists('gelikon_is_product_discontinued') && gelikon_is_product_discontinued($product_id);
@@ -77,7 +95,7 @@ $primary_cta_text = __('В корзину', 'gelikon');
 
 		<div class="gl-product-card__purchase">
 			<?php if (!empty($price_html)) : ?>
-				<div class="gl-product-card__price">
+				<div class="gl-product-card__price<?php echo $has_compact_variable_price ? ' gl-product-card__price--variable' : ''; ?>">
 					<?php echo wp_kses_post($price_html); ?>
 				</div>
 			<?php endif; ?>
@@ -272,6 +290,31 @@ $primary_cta_text = __('В корзину', 'gelikon');
 	gap: 4px;
 }
 
+.gl-product-card__price--variable {
+	flex-direction: row;
+	align-items: baseline;
+	gap: 6px;
+	white-space: nowrap;
+}
+
+.gl-product-card__price-prefix {
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 1;
+	color: #6f7883;
+}
+
+.gl-product-card__variable-price,
+.gl-product-card__variable-price .amount,
+.gl-product-card__variable-price bdi {
+	font-size: 24px;
+	font-weight: 700;
+	letter-spacing: -0.03em;
+	line-height: 1.1;
+	color: #171d2a;
+	white-space: nowrap;
+}
+
 .gl-product-card__price > .amount,
 .gl-product-card__price > bdi,
 .gl-product-card__price .price > .amount,
@@ -410,6 +453,13 @@ a.gl-product-card__button:hover {
 		letter-spacing: -0.04em;
 	}
 
+	.gl-catalog-products .gl-product-card__variable-price,
+	.gl-catalog-products .gl-product-card__variable-price .amount,
+	.gl-catalog-products .gl-product-card__variable-price bdi {
+		font-size: clamp(18px, 1.65vw, 22px) !important;
+		letter-spacing: -0.04em;
+	}
+
 	.gl-catalog-products .gl-product-card__price > .amount .woocommerce-Price-currencySymbol,
 	.gl-catalog-products .gl-product-card__price > bdi .woocommerce-Price-currencySymbol,
 	.gl-catalog-products .gl-product-card__price .price > .amount .woocommerce-Price-currencySymbol,
@@ -477,6 +527,12 @@ a.gl-product-card__button:hover {
 	.gl-product-card__price ins .amount,
 	.gl-product-card__price ins bdi,
 	.gl-product-card__price ins .woocommerce-Price-amount {
+		font-size: 22px !important;
+	}
+
+	.gl-product-card__variable-price,
+	.gl-product-card__variable-price .amount,
+	.gl-product-card__variable-price bdi {
 		font-size: 22px !important;
 	}
 
