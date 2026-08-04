@@ -638,6 +638,7 @@ a.gl-product-card__button--disabled {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  border-radius: 18px;
 }
 .gl-myaccount-auth form.woocommerce-form > p {
   margin: 0;
