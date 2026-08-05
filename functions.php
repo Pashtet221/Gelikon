@@ -6549,6 +6549,40 @@ add_filter('woocommerce_checkout_fields', function ($fields) {
 }, 20);
 
 
+
+/**
+ * Default checkout destination used only for shipping-rate calculation.
+ *
+ * The checkout city field can stay empty, but CDEK/WooCommerce still need a
+ * destination to return courier, pickup-point, and office pickup methods.
+ */
+function gelikon_checkout_default_shipping_city() {
+	return 'Москва';
+}
+
+add_filter('woocommerce_cart_shipping_packages', function ($packages) {
+	foreach ($packages as &$package) {
+		if (empty($package['destination']) || ! is_array($package['destination'])) {
+			$package['destination'] = array();
+		}
+
+		if (empty($package['destination']['country'])) {
+			$package['destination']['country'] = 'RU';
+		}
+
+		if (empty($package['destination']['city'])) {
+			$package['destination']['city'] = gelikon_checkout_default_shipping_city();
+		}
+
+		if (empty($package['destination']['state'])) {
+			$package['destination']['state'] = $package['destination']['city'];
+		}
+	}
+	unset($package);
+
+	return $packages;
+}, 20);
+
 /**
  * During WooCommerce AJAX checkout update:
  * copy shipping city/address into billing customer data for CDEK.
@@ -6558,16 +6592,14 @@ add_action('woocommerce_checkout_update_order_review', function ($post_data) {
 
 	$city    = !empty($data['shipping_city']) ? wc_clean(wp_unslash($data['shipping_city'])) : '';
 	$address = !empty($data['shipping_address_1']) ? wc_clean(wp_unslash($data['shipping_address_1'])) : '';
+	$shipping_city_for_rates = $city ?: gelikon_checkout_default_shipping_city();
 
 	WC()->customer->set_billing_country('RU');
 	WC()->customer->set_shipping_country('RU');
-
-	if ($city) {
-		WC()->customer->set_billing_city($city);
-		WC()->customer->set_shipping_city($city);
-		WC()->customer->set_billing_state($city);
-		WC()->customer->set_shipping_state($city);
-	}
+	WC()->customer->set_billing_city($shipping_city_for_rates);
+	WC()->customer->set_shipping_city($shipping_city_for_rates);
+	WC()->customer->set_billing_state($shipping_city_for_rates);
+	WC()->customer->set_shipping_state($shipping_city_for_rates);
 
 	if ($address) {
 		WC()->customer->set_billing_address_1($address);
