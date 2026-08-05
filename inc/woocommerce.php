@@ -17,9 +17,9 @@ remove_action('woocommerce_before_main_content', 'woocommerce_output_content_wra
 remove_action('woocommerce_after_main_content', 'woocommerce_output_content_wrapper_end', 10);
 
 function gelikon_woocommerce_enqueue_fragments() {
-    if (class_exists('WooCommerce')) {
-        wp_enqueue_script('wc-cart-fragments');
-    }
+	// Do not force WooCommerce cart fragments on every page. The theme refreshes
+	// the mini cart on demand, and the native fragments script can add an extra
+	// slow get_refreshed_fragments request after add-to-cart.
 }
 add_action('wp_enqueue_scripts', 'gelikon_woocommerce_enqueue_fragments');
 

@@ -5553,6 +5553,7 @@ add_action('wp_footer', function () {
 
 	$checkout_url = wc_get_checkout_url();
 	$ajax_url     = admin_url('admin-ajax.php');
+	$wc_ajax_url  = WC_AJAX::get_endpoint('%%endpoint%%');
 	?>
 	<style id="gelikon-mini-cart-style">
 		.gl-product-card__actions .added_to_cart.wc-forward {
@@ -5866,6 +5867,7 @@ add_action('wp_footer', function () {
 		const MINI_CART_ID = 'gl-full-mini-cart';
 		const checkoutUrl = <?php echo wp_json_encode($checkout_url); ?>;
 		const ajaxUrl = <?php echo wp_json_encode($ajax_url); ?>;
+		const wcAjaxUrl = <?php echo wp_json_encode($wc_ajax_url); ?>;
 
 		let lastCartTrigger = null;
 		let refreshRequest = null;
@@ -6140,7 +6142,7 @@ add_action('wp_footer', function () {
 		}
 
 		function refreshMiniCartAjax(callback, options) {
-			if (!window.wc_cart_fragments_params || !window.jQuery) return;
+			if (!window.jQuery || !wcAjaxUrl) return;
 
 			const settings = options || {};
 			const sequence = ++refreshSequence;
@@ -6154,7 +6156,7 @@ add_action('wp_footer', function () {
 			}
 
 			refreshRequest = window.jQuery.ajax({
-				url: window.wc_cart_fragments_params.wc_ajax_url.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
+				url: wcAjaxUrl.toString().replace('%%endpoint%%', 'get_refreshed_fragments'),
 				type: 'POST',
 				success: function(data) {
 					if (sequence !== refreshSequence) {
@@ -6409,7 +6411,6 @@ add_action('wp_footer', function () {
 				}
 
 				showMiniCart();
-				refreshMiniCartAjax(null, { showLoading: false });
 			});
 		}
 
@@ -7843,7 +7844,6 @@ add_action('wp_footer', function () {
 add_action('wp_enqueue_scripts', function () {
 	if (is_product()) {
 		wp_enqueue_script('wc-add-to-cart');
-		wp_enqueue_script('wc-cart-fragments');
 	}
 });
 
