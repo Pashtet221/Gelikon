@@ -9,6 +9,11 @@ function gelikon_enqueue_assets() {
 
     wp_enqueue_script('gelikon-navigation', GELIKON_URI . '/assets/js/main.js', [], GELIKON_VERSION, true);
 
+    if (is_page_template('page-home-gelikon.php')) {
+        wp_enqueue_style('gelikon-home-animations', GELIKON_URI . '/assets/css/animations.css', ['gelikon-main'], GELIKON_VERSION);
+        wp_enqueue_script('gelikon-home-animations', GELIKON_URI . '/assets/js/scroll-reveal.js', [], GELIKON_VERSION, true);
+    }
+
     wp_localize_script('gelikon-navigation', 'gelikonVars', [
         'menuLabelOpen'  => __('Открыть меню', 'gelikon'),
         'menuLabelClose' => __('Закрыть меню', 'gelikon'),
