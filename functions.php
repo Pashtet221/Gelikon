@@ -722,6 +722,7 @@ add_action('wp_head', function () {
 			font-weight: 500;
 			line-height: 1;
 			box-shadow: none;
+			transition: background-color .24s ease, color .24s ease;
 		}
 
 		.gl-catalog-dropdown__toggle:hover {
@@ -773,6 +774,21 @@ add_action('wp_head', function () {
 			border-radius: 18px;
 			box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
 			overflow: hidden;
+			opacity: 0;
+			visibility: hidden;
+			pointer-events: none;
+			transform: translateY(-8px) scale(.985);
+			transform-origin: top left;
+			transition: opacity .28s ease, transform .28s ease, visibility 0s linear .28s;
+			will-change: opacity, transform;
+		}
+
+		.gl-catalog-dropdown.is-open .gl-catalog-dropdown__panel {
+			opacity: 1;
+			visibility: visible;
+			pointer-events: auto;
+			transform: translateY(0) scale(1);
+			transition-delay: 0s;
 		}
 
 		.gl-catalog-dropdown__grid {
@@ -1060,6 +1076,14 @@ add_action('wp_head', function () {
 				text-decoration: none;
 			}
 		}
+
+		@media (prefers-reduced-motion: reduce) {
+			.gl-catalog-dropdown__toggle,
+			.gl-catalog-dropdown__toggle-arrow,
+			.gl-catalog-dropdown__panel {
+				transition-duration: 0.01ms;
+			}
+		}
 	</style>
 
 <script id="gelikon-catalog-dropdown-script">
@@ -1079,16 +1103,28 @@ add_action('wp_head', function () {
 
 			if (!toggle || !panel) return;
 
+			let closeTimer;
+
 			function closeDropdown() {
+				if (panel.hidden) return;
+
+				window.clearTimeout(closeTimer);
 				dropdown.classList.remove('is-open', 'is-mobile-submenu');
 				toggle.setAttribute('aria-expanded', 'false');
-				panel.hidden = true;
+
+				closeTimer = window.setTimeout(function () {
+					if (!dropdown.classList.contains('is-open')) {
+						panel.hidden = true;
+					}
+				}, 280);
 			}
 
 			function openDropdown() {
+				window.clearTimeout(closeTimer);
+				panel.hidden = false;
+				void panel.offsetWidth;
 				dropdown.classList.add('is-open');
 				toggle.setAttribute('aria-expanded', 'true');
-				panel.hidden = false;
 			}
 
 			function setActivePanel(target) {
