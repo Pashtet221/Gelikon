@@ -537,6 +537,13 @@ if (function_exists('get_field')) {
 	font-weight: 700;
 	line-height: 1;
 	white-space: nowrap;
+	transition: color .25s ease, opacity .25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.gl-menu > li > a {
+		transition-duration: 0.01ms;
+	}
 }
 
 
