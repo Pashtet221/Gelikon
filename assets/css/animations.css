@@ -12,11 +12,18 @@
     will-change: opacity, transform;
 }
 
-.gl-animations-ready .gl-reveal--scale {
-    transform: translate3d(0, 16px, 0) scale(0.985);
+.gl-animations-ready .gl-reveal-item {
+    opacity: 0;
+    transform: translate3d(-34px, 0, 0) scale(0.985);
+    transition:
+        opacity 650ms cubic-bezier(0.22, 1, 0.36, 1),
+        transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--gl-reveal-delay, 0ms);
+    will-change: opacity, transform;
 }
 
-.gl-animations-ready .gl-reveal.is-visible {
+.gl-animations-ready .gl-reveal.is-visible,
+.gl-animations-ready .gl-reveal-item.is-visible {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
     will-change: auto;
@@ -24,7 +31,7 @@
 
 @media (prefers-reduced-motion: reduce) {
     .gl-animations-ready .gl-reveal,
-    .gl-animations-ready .gl-reveal--scale {
+    .gl-animations-ready .gl-reveal-item {
         opacity: 1;
         transform: none;
         transition: none;
