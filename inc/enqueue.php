@@ -9,7 +9,15 @@ function gelikon_enqueue_assets() {
 
     wp_enqueue_script('gelikon-navigation', GELIKON_URI . '/assets/js/main.js', [], GELIKON_VERSION, true);
 
-    if (is_page_template('page-home-gelikon.php')) {
+    $animated_page_templates = [
+        'page-home-gelikon.php',
+        'page-warranty-returns.php',
+        'page-delivery-payment.php',
+        'page-about-company.php',
+        'page-contacts.php',
+    ];
+
+    if (is_page_template($animated_page_templates)) {
         wp_enqueue_style('gelikon-home-animations', GELIKON_URI . '/assets/css/animations.css', ['gelikon-main'], GELIKON_VERSION);
         wp_enqueue_script('gelikon-home-animations', GELIKON_URI . '/assets/js/scroll-reveal.js', [], GELIKON_VERSION, true);
     }
