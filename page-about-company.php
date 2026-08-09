@@ -117,7 +117,7 @@ $brand_text = gelikon_about_get_field('brand_text', 'В 2022 году был з�
 			</div>
 			<div class="gl-about-media">
 				<?php if (!empty($history_image_url)) : ?>
-					<img src="<?php echo esc_url($history_image_url); ?>" alt="<?php echo esc_attr($history_title); ?>">
+					<img src="<?php echo esc_url($history_image_url); ?>" alt="<?php echo esc_attr($history_title); ?>" loading="lazy" decoding="async">
 				<?php else : ?>
 					<div class="gl-about-placeholder">История компании</div>
 				<?php endif; ?>
@@ -137,7 +137,7 @@ $brand_text = gelikon_about_get_field('brand_text', 'В 2022 году был з�
 		<a class="gl-about-approach__item" href="<?php echo esc_url(home_url('/user-agreement/')); ?>">
 			<div class="gl-about-approach__icon">
 				<?php if ($icon_url) : ?>
-					<img src="<?php echo esc_url($icon_url); ?>" alt="">
+					<img src="<?php echo esc_url($icon_url); ?>" alt="" loading="lazy" decoding="async">
 				<?php else : ?>
 					<span>•</span>
 				<?php endif; ?>
@@ -155,7 +155,7 @@ $brand_text = gelikon_about_get_field('brand_text', 'В 2022 году был з�
 		<section class="gl-card gl-about-split">
 			<div class="gl-about-media">
 				<?php if (!empty($production_image_url)) : ?>
-					<img src="<?php echo esc_url($production_image_url); ?>" alt="Производство Gelikon Line">
+					<img src="<?php echo esc_url($production_image_url); ?>" alt="Производство Gelikon Line" loading="lazy" decoding="async">
 				<?php else : ?>
 					<div class="gl-about-placeholder">Производство и фабрики</div>
 				<?php endif; ?>
@@ -175,7 +175,7 @@ $brand_text = gelikon_about_get_field('brand_text', 'В 2022 году был з�
 						$logo_url = gelikon_about_media_url($logo, 'medium');
 						if (empty($logo_url)) { continue; }
 					?>
-						<div class="gl-about-logos__item"><img src="<?php echo esc_url($logo_url); ?>" alt="Логотип клиента"></div>
+						<div class="gl-about-logos__item"><img src="<?php echo esc_url($logo_url); ?>" alt="Логотип клиента" loading="lazy" decoding="async"></div>
 					<?php endforeach; ?>
 				<?php else : ?>
 					<div class="gl-about-logos__empty">Логотипы клиентов появятся здесь</div>

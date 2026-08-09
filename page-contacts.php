@@ -117,7 +117,7 @@ $details_pdf = gelikon_contacts_file_url(gelikon_contacts_get_field('company_det
 				</div>
 				<div class="gl-contacts-map-card">
 					<?php if (!empty($location_image_url)) : ?>
-						<img src="<?php echo esc_url($location_image_url); ?>" alt="Схема проезда">
+						<img src="<?php echo esc_url($location_image_url); ?>" alt="Схема проезда" loading="lazy" decoding="async">
 					<?php else : ?>
 						<iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A3b927b54a49f02ef6c60565720048d4ad22b8b47d1ca0323e832e66478a5300f&amp;source=constructor" width="100%" height="400" frameborder="0"></iframe>
 					<?php endif; ?>
