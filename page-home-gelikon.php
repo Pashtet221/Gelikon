@@ -260,7 +260,7 @@ $home_banners = function_exists('get_field') ? get_field('home_banners', $page_i
 
 			<div class="gl-home-banner__media">
 				<?php if ($image_url) : ?>
-					<img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr(wp_strip_all_tags($title)); ?>">
+					<img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr(wp_strip_all_tags($title)); ?>" loading="lazy" decoding="async">
 				<?php else : ?>
 					<div class="gl-home-banner__placeholder"></div>
 				<?php endif; ?>
@@ -647,16 +647,16 @@ a.gl-card:hover .gl-home-banner__action{
 
 		<div class="gl-trust-payments__list" aria-label="<?php esc_attr_e('Поддерживаемые способы оплаты', 'gelikon'); ?>">
 			<div class="gl-trust-payments__logo">
-				<img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/mir.png'); ?>" alt="МИР">
+				<img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/mir.png'); ?>" alt="МИР" loading="lazy" decoding="async">
 			</div>
 			<div class="gl-trust-payments__logo">
-				<img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/visa.jpg'); ?>" alt="Visa">
+				<img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/visa.jpg'); ?>" alt="Visa" loading="lazy" decoding="async">
 			</div>
 			<div class="gl-trust-payments__logo">
-				<img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/mastercard.png'); ?>" alt="Mastercard">
+				<img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/mastercard.png'); ?>" alt="Mastercard" loading="lazy" decoding="async">
 			</div>
 			<div class="gl-trust-payments__logo">
-				<img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/sbp.png'); ?>" alt="СБП">
+				<img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/payments/sbp.png'); ?>" alt="СБП" loading="lazy" decoding="async">
 			</div>
 		</div>
 	</div>
@@ -918,7 +918,7 @@ $reviews_query = new WP_Query([
 							<div class="gl-review-card__footer">
 								<?php if ($photo_url) : ?>
 									<div class="gl-review-card__photo">
-										<img src="<?php echo esc_url($photo_url); ?>" alt="<?php echo esc_attr($review_name ?: 'Отзыв'); ?>">
+										<img src="<?php echo esc_url($photo_url); ?>" alt="<?php echo esc_attr($review_name ?: 'Отзыв'); ?>" loading="lazy" decoding="async">
 									</div>
 								<?php endif; ?>
 

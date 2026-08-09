@@ -13,6 +13,23 @@ require_once GELIKON_DIR . '/inc/customizer.php';
 require_once GELIKON_DIR . '/inc/template-tags.php';
 require_once GELIKON_DIR . '/inc/woocommerce.php';
 
+/**
+ * Загружает изображения только перед их появлением в области просмотра.
+ *
+ * Фильтры охватывают изображения вложений (в том числе карточки товаров и
+ * миниатюры записей) и изображения, добавленные через редактор контента.
+ */
+add_filter('wp_get_attachment_image_attributes', function ($attributes) {
+	$attributes['loading']  = 'lazy';
+	$attributes['decoding'] = 'async';
+
+	return $attributes;
+});
+
+add_filter('wp_img_tag_add_loading_attr', function () {
+	return 'lazy';
+});
+
 
 
 
@@ -2171,7 +2188,7 @@ add_action('woocommerce_review_after_comment_text', function ($comment) {
 		}
 
 		echo '<a href="' . esc_url($full) . '" class="gelikon-review-gallery__link">';
-		echo '<img src="' . esc_url($thumb) . '" alt="">';
+		echo '<img src="' . esc_url($thumb) . '" alt="" loading="lazy" decoding="async">';
 		echo '</a>';
 	}
 
@@ -2225,7 +2242,7 @@ add_action('manage_comments_custom_column', function ($column, $comment_ID) {
 		}
 
 		echo '<a href="' . esc_url($full ? $full : $thumb) . '" target="_blank" rel="noopener noreferrer">';
-		echo '<img src="' . esc_url($thumb) . '" alt="">';
+		echo '<img src="' . esc_url($thumb) . '" alt="" loading="lazy" decoding="async">';
 		echo '</a>';
 	}
 
@@ -2275,7 +2292,7 @@ function gelikon_render_review_images_metabox($comment) {
 		}
 
 		echo '<a href="' . esc_url($full ? $full : $thumb) . '" target="_blank" rel="noopener noreferrer">';
-		echo '<img src="' . esc_url($thumb) . '" alt="">';
+		echo '<img src="' . esc_url($thumb) . '" alt="" loading="lazy" decoding="async">';
 		echo '</a>';
 	}
 
@@ -4139,7 +4156,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				html += `
 					<a href="${item.url}" class="gl-product-search__item" data-search-item data-index="${index}">
 						<span class="gl-product-search__thumb">
-							<img src="${image}" alt="${title}">
+							<img src="${image}" alt="${title}" loading="lazy" decoding="async">
 						</span>
 						<span class="gl-product-search__content">
 							<span class="gl-product-search__title">${title}</span>
@@ -6154,7 +6171,7 @@ add_action('wp_footer', function () {
 							aria-label="Удалить товар"
 						>×</a>
 
-						${imgSrc ? `<img class="gl-full-mini-cart__image" src="${imgSrc}" alt="">` : `<div class="gl-full-mini-cart__image"></div>`}
+						${imgSrc ? `<img class="gl-full-mini-cart__image" src="${imgSrc}" alt="" loading="lazy" decoding="async">` : `<div class="gl-full-mini-cart__image"></div>`}
 
 						<div>
 							<a class="gl-full-mini-cart__name" href="${href}">${name}</a>
