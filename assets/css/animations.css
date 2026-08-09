@@ -1,5 +1,5 @@
 /**
- * Lightweight homepage reveal animations.
+ * Lightweight reveal animations for the homepage and information pages.
  * Elements remain visible until JavaScript confirms that animations are ready.
  */
 .gl-animations-ready .gl-reveal {
