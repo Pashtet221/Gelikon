@@ -12,6 +12,7 @@ require_once GELIKON_DIR . '/inc/enqueue.php';
 require_once GELIKON_DIR . '/inc/customizer.php';
 require_once GELIKON_DIR . '/inc/template-tags.php';
 require_once GELIKON_DIR . '/inc/woocommerce.php';
+require_once GELIKON_DIR . '/inc/order-statuses.php';
 
 /**
  * Загружает изображения только перед их появлением в области просмотра.
