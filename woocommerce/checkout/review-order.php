@@ -565,10 +565,6 @@ if (! function_exists('gelikon_checkout_shipping_block_html')) {
 	transform: translateY(-1px);
 }
 
-.gl-order-review-table .open-pvz-btn script {
-	display: none !important;
-}
-
 /* Скидки, сборы, налоги */
 .gl-order-review-table tfoot .fee th,
 .gl-order-review-table tfoot .fee td,
@@ -644,20 +640,6 @@ if (! function_exists('gelikon_checkout_shipping_block_html')) {
 	white-space: nowrap;
 }
 
-
-/* CDEK widget polish */
-.cdek-map .ymaps-2-1-79-copyrights-pane,
-.cdek-map [class*="copyright"],
-.cdek-map [class*="logo"] {
-	pointer-events: none;
-}
-
-.cdek-map [class*="geolocation"],
-.cdek-map [class*="location"],
-.cdek-map button[title*="местоп" i],
-.cdek-map button[aria-label*="местоп" i] {
-	margin-top: 42px !important;
-}
 
 /* Мобильная версия */
 @media (max-width: 480px) {
@@ -742,23 +724,6 @@ if (! function_exists('gelikon_checkout_shipping_block_html')) {
 
 <script>
 jQuery(function($) {
-	function glCloseCdekWidget() {
-		$('.cdek-modal, .cdek-widget-modal, .cdek-widget__popup, .cdek-popup, .modal-cdek, .cdekmap-modal, #cdek-map, #cdek-map-modal').each(function() {
-			const $modal = $(this);
-			$modal.find('.cdek-close, .cdek-modal__close, .cdek-widget__close, .close, [data-dismiss="modal"], [aria-label="Close"], [aria-label="Закрыть"]').first().trigger('click');
-			$modal.removeClass('show is-open active').hide();
-		});
-		$('body').removeClass('modal-open cdek-modal-open');
-	}
-
-	$(document).on('click', '.cdek-map [class*="choose"], .cdek-map [class*="select"], .cdek-map button, .cdek-map a', function() {
-		setTimeout(function() {
-			if ($('.cdek-office-info').text().trim().length) {
-				glCloseCdekWidget();
-			}
-		}, 500);
-	});
-
 	$(document.body).on('updated_checkout', function() {
 		$('.open-pvz-btn').attr('title', 'Выбрать пункт выдачи СДЭК');
 	});
