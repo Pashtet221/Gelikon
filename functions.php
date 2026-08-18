@@ -162,8 +162,18 @@ add_filter('woocommerce_registration_errors', function ($errors) {
  */
 add_filter('preprocess_comment', function ($commentdata) {
 	$post_id = isset($commentdata['comment_post_ID']) ? absint($commentdata['comment_post_ID']) : 0;
+	$is_product_question = isset($_POST['gelikon_submit_product_question'], $_POST['gelikon_question_nonce']) && // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['gelikon_question_nonce'])), 'gelikon_product_question'); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-	if ($post_id && 'product' === get_post_type($post_id) && empty($_POST['gelikon_submit_product_question']) && !gelikon_is_personal_data_consent_given()) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+	if ($post_id && 'product' === get_post_type($post_id) && !$is_product_question && !is_user_logged_in()) {
+		wp_die(
+			esc_html__('Оставлять отзывы о товарах могут только авторизованные пользователи.', 'gelikon'),
+			esc_html__('Необходима авторизация', 'gelikon'),
+			['response' => 403, 'back_link' => true]
+		);
+	}
+
+	if ($post_id && 'product' === get_post_type($post_id) && !$is_product_question && !gelikon_is_personal_data_consent_given()) {
 		wp_die(
 			esc_html__('Подтвердите согласие на обработку персональных данных.', 'gelikon'),
 			esc_html__('Необходимо согласие', 'gelikon'),
