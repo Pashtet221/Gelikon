@@ -58,7 +58,8 @@ while (have_posts()) :
 
 	$product_id = get_the_ID();
 
-	$subtitle = gelikon_product_get_field('product_subtitle', '', $product_id);
+	// The subtitle is optional: do not replace an empty ACF value with placeholder copy.
+	$subtitle = function_exists('get_field') ? trim((string) get_field('product_subtitle', $product_id)) : '';
 	$top_note = gelikon_product_get_field('product_top_note', 'Боль в суставах или спорте', $product_id);
 
 $global_benefits = function_exists('get_field') ? get_field('product_global_benefits', 'option') : [];
