@@ -3,6 +3,46 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+/**
+ * Product cards display prices in whole rubles without trailing kopecks.
+ *
+ * @return int
+ */
+function gelikon_product_card_price_decimals() {
+	return 0;
+}
+
+/**
+ * Return the standard WooCommerce price HTML formatted for a product card.
+ *
+ * The decimal override is kept local to this call so prices in orders and
+ * other accounting-related areas retain the store's configured precision.
+ *
+ * @param WC_Product $product Product shown in the card.
+ * @return string
+ */
+function gelikon_get_product_card_price_html($product) {
+	if (!$product instanceof WC_Product) {
+		return '';
+	}
+
+	add_filter('woocommerce_price_num_decimals', 'gelikon_product_card_price_decimals');
+	$price_html = $product->get_price_html();
+	remove_filter('woocommerce_price_num_decimals', 'gelikon_product_card_price_decimals');
+
+	return $price_html;
+}
+
+/**
+ * Format an individual price for a product card without decimal places.
+ *
+ * @param float|string $price Raw WooCommerce price.
+ * @return string
+ */
+function gelikon_wc_product_card_price($price) {
+	return wc_price($price, ['decimals' => 0]);
+}
+
 function gelikon_wc_wrapper_before() {
     echo '<main id="primary" class="site-main"><div class="gl-container gl-shop">';
 }

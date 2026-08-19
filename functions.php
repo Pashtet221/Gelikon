@@ -4037,7 +4037,7 @@ function gelikon_ajax_product_search() {
 				'id'    => $product_id,
 				'title' => get_the_title($product_id),
 				'url'   => get_permalink($product_id),
-				'price' => $product->get_price_html(),
+				'price' => gelikon_get_product_card_price_html($product),
 				'image' => $image,
 			];
 		}
