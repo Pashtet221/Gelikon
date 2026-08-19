@@ -26,9 +26,12 @@ function gelikon_get_product_price_html($product) {
 		return '';
 	}
 
-	add_filter('woocommerce_price_num_decimals', 'gelikon_product_price_decimals');
+	// wc_price() gets its default precision from wc_get_price_decimals().
+	// Use WooCommerce's current hook (rather than the similarly named legacy
+	// setting hook) and run last so another theme/plugin cannot restore kopecks.
+	add_filter('wc_get_price_decimals', 'gelikon_product_price_decimals', PHP_INT_MAX);
 	$price_html = $product->get_price_html();
-	remove_filter('woocommerce_price_num_decimals', 'gelikon_product_price_decimals');
+	remove_filter('wc_get_price_decimals', 'gelikon_product_price_decimals', PHP_INT_MAX);
 
 	return $price_html;
 }
