@@ -513,7 +513,7 @@ document.addEventListener('DOMContentLoaded', function () {
 										<span class="gl-product-buybox__price-label"><?php esc_html_e('Цена', 'gelikon'); ?></span>
 										<span class="gl-product-buybox__variable-price" aria-live="polite"></span>
 									<?php else : ?>
-										<?php woocommerce_template_single_price(); ?>
+										<?php echo wp_kses_post(gelikon_get_product_price_html($product)); ?>
 									<?php endif; ?>
 								</div>
 
@@ -740,7 +740,7 @@ if (!empty($products_to_show)) :
 	<div class="gl-product-mobile-bar">
 		<div class="gl-product-mobile-bar__inner">
 			<div class="gl-product-mobile-bar__price">
-				<?php echo wp_kses_post($product->get_price_html()); ?>
+				<?php echo wp_kses_post(gelikon_get_product_price_html($product)); ?>
 			</div>
 
 			<div class="gl-product-mobile-bar__button">
@@ -776,7 +776,7 @@ if (!empty($products_to_show)) :
 
 			<div class="gl-product-desktop-bar__right">
 				<div class="gl-product-desktop-bar__price">
-					<?php echo wp_kses_post($product->get_price_html()); ?>
+					<?php echo wp_kses_post(gelikon_get_product_price_html($product)); ?>
 				</div>
 				
 				<div class="gl-product-desktop-bar__action">

@@ -138,7 +138,7 @@ $account_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink(
                                             </span>
 
                                             <span class="gl-footer__product-footerline">
-                                                <?php $footer_product_price = gelikon_get_product_card_price_html($footer_product); ?>
+                                                <?php $footer_product_price = gelikon_get_product_price_html($footer_product); ?>
                                                 <?php if ($footer_product_price) : ?>
                                                     <span class="gl-footer__product-price">
                                                         <?php echo wp_kses_post($footer_product_price); ?>
