@@ -4,16 +4,16 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Product cards display prices in whole rubles without trailing kopecks.
+ * Product displays use whole rubles without trailing kopecks.
  *
  * @return int
  */
-function gelikon_product_card_price_decimals() {
+function gelikon_product_price_decimals() {
 	return 0;
 }
 
 /**
- * Return the standard WooCommerce price HTML formatted for a product card.
+ * Return standard WooCommerce product price HTML without decimal places.
  *
  * The decimal override is kept local to this call so prices in orders and
  * other accounting-related areas retain the store's configured precision.
@@ -21,17 +21,45 @@ function gelikon_product_card_price_decimals() {
  * @param WC_Product $product Product shown in the card.
  * @return string
  */
-function gelikon_get_product_card_price_html($product) {
+function gelikon_get_product_price_html($product) {
 	if (!$product instanceof WC_Product) {
 		return '';
 	}
 
-	add_filter('woocommerce_price_num_decimals', 'gelikon_product_card_price_decimals');
+	add_filter('woocommerce_price_num_decimals', 'gelikon_product_price_decimals');
 	$price_html = $product->get_price_html();
-	remove_filter('woocommerce_price_num_decimals', 'gelikon_product_card_price_decimals');
+	remove_filter('woocommerce_price_num_decimals', 'gelikon_product_price_decimals');
 
 	return $price_html;
 }
+
+/**
+ * Backward-compatible alias for code rendering catalog cards.
+ *
+ * @param WC_Product $product Product shown in the card.
+ * @return string
+ */
+function gelikon_get_product_card_price_html($product) {
+	return gelikon_get_product_price_html($product);
+}
+
+/**
+ * Keep the price selected for a variation consistent with the product page.
+ *
+ * WooCommerce sends this HTML to its variation script separately from the
+ * initial product markup, so it must be formatted explicitly as well.
+ *
+ * @param array                $data      Variation data sent to the browser.
+ * @param WC_Product_Variable $product   Parent product.
+ * @param WC_Product_Variation $variation Selected variation.
+ * @return array
+ */
+function gelikon_format_available_variation_price($data, $product, $variation) {
+	$data['price_html'] = gelikon_get_product_price_html($variation);
+
+	return $data;
+}
+add_filter('woocommerce_available_variation', 'gelikon_format_available_variation_price', 10, 3);
 
 /**
  * Format an individual price for a product card without decimal places.
