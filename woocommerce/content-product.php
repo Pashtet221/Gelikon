@@ -10,7 +10,7 @@ if (empty($product) || !$product instanceof WC_Product || !$product->is_visible(
 $product_id   = $product->get_id();
 $product_url  = get_permalink($product_id);
 $product_name = $product->get_name();
-$price_html   = $product->get_price_html();
+$price_html   = gelikon_get_product_card_price_html($product);
 $is_variable  = $product->is_type('variable');
 $has_compact_variable_price = false;
 
@@ -25,7 +25,7 @@ if ($is_variable) {
 		$price_html = sprintf(
 			'<span class="gl-product-card__price-prefix">%s</span><span class="gl-product-card__variable-price">%s</span>',
 			esc_html__('от', 'gelikon'),
-			wc_price($minimum_price)
+			gelikon_wc_product_card_price($minimum_price)
 		);
 	}
 }
