@@ -681,6 +681,9 @@ document.addEventListener('DOMContentLoaded', function () {
 global $product;
 
 $product_id = $product ? $product->get_id() : get_the_ID();
+$related_catalog_url = function_exists('gelikon_get_product_catalog_url')
+	? gelikon_get_product_catalog_url($product_id)
+	: wc_get_page_permalink('shop');
 
 $products_to_show = [];
 $section_title = __('Похожие товары', 'gelikon');
@@ -705,7 +708,7 @@ if (!empty($products_to_show)) :
 		<div class="gl-section-head gl-section-head--between">
 			<h2><?php echo esc_html($section_title); ?></h2>
 
-			<a class="gl-section-link" href="<?php echo esc_url(wc_get_page_permalink('shop')); ?>">
+			<a class="gl-section-link" href="<?php echo esc_url($related_catalog_url); ?>">
 				<?php esc_html_e('В каталог', 'gelikon'); ?>
 			</a>
 		</div>

@@ -117,6 +117,7 @@ add_filter('woocommerce_sale_flash', 'gelikon_sale_flash_text');
 function gelikon_catalog_sorting_options() {
 	return [
 		'menu_order'  => __('По умолчанию', 'gelikon'),
+		'popularity'  => __('По популярности', 'gelikon'),
 		'date_desc'   => __('Сначала новые', 'gelikon'),
 		'price_asc'  => __('Сначала дешевле', 'gelikon'),
 		'price_desc' => __('Сначала дороже', 'gelikon'),
@@ -223,6 +224,14 @@ function gelikon_get_catalog_orderby_args($orderby_selected) {
 	$orderby_selected = gelikon_sanitize_catalog_orderby($orderby_selected);
 
 	switch ($orderby_selected) {
+		case 'popularity':
+			return [
+				'gelikon_stock_last' => true,
+				'meta_key'           => 'total_sales',
+				'orderby'            => 'meta_value_num',
+				'order'              => 'DESC',
+			];
+
 		case 'date_desc':
 			return [
 				'gelikon_stock_last' => true,
@@ -268,6 +277,61 @@ function gelikon_get_catalog_orderby_args($orderby_selected) {
 
 			return $args;
 	}
+}
+
+/**
+ * Return the most relevant catalog category URL for a product.
+ *
+ * Yoast's primary product category is preferred when it is configured. Otherwise
+ * the deepest assigned category is used, so a product in "Catalog > Smart watches"
+ * links to "Smart watches" rather than the broad catalog page.
+ */
+function gelikon_get_product_catalog_url($product_id) {
+	$product_id = absint($product_id);
+	$shop_url   = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/shop/');
+
+	if (!$product_id) {
+		return $shop_url;
+	}
+
+	$primary_term_id = absint(get_post_meta($product_id, '_yoast_wpseo_primary_product_cat', true));
+
+	if ($primary_term_id) {
+		$primary_term = get_term($primary_term_id, 'product_cat');
+
+		if ($primary_term && !is_wp_error($primary_term)) {
+			$primary_url = get_term_link($primary_term);
+
+			if (!is_wp_error($primary_url)) {
+				return $primary_url;
+			}
+		}
+	}
+
+	$categories = wp_get_post_terms($product_id, 'product_cat');
+
+	if (is_wp_error($categories) || empty($categories)) {
+		return $shop_url;
+	}
+
+	$categories = array_values(array_filter($categories, static function ($category) {
+		return $category instanceof WP_Term && 'uncategorized' !== $category->slug;
+	}));
+
+	if (empty($categories)) {
+		return $shop_url;
+	}
+
+	usort($categories, static function ($first, $second) {
+		$first_depth  = count(get_ancestors($first->term_id, 'product_cat', 'taxonomy'));
+		$second_depth = count(get_ancestors($second->term_id, 'product_cat', 'taxonomy'));
+
+		return $second_depth <=> $first_depth;
+	});
+
+	$category_url = get_term_link($categories[0]);
+
+	return is_wp_error($category_url) ? $shop_url : $category_url;
 }
 
 /**

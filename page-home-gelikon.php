@@ -121,6 +121,11 @@ for ($i = 1; $i <= 4; $i++) {
 }
 
 $products_title = gelikon_home_get_field('home_products_title', 'Популярные товары', $page_id);
+$popular_products_url = add_query_arg(
+	'orderby',
+	'popularity',
+	function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/shop/')
+);
 $trust_title    = gelikon_home_get_field('home_trust_title', 'Почему выбирают Gelikon', $page_id);
 $blog_title     = gelikon_home_get_field('home_blog_title', 'Блог', $page_id);
 $blog_link_text = gelikon_home_get_field('home_blog_link_text', 'Смотреть все статьи', $page_id);
@@ -463,7 +468,7 @@ a.gl-card:hover .gl-home-banner__action{
 	<section class="gl-home-products gl-home-section">
 		<div class="gl-section-head gl-section-head--between">
 			<h2><?php echo esc_html($products_title); ?></h2>
-			<a class="gl-section-link" href="<?php echo esc_url(function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/shop/')); ?>">
+			<a class="gl-section-link" href="<?php echo esc_url($popular_products_url); ?>">
 				<?php esc_html_e('В каталог', 'gelikon'); ?>
 			</a>
 		</div>
