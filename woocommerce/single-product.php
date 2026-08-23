@@ -1775,6 +1775,14 @@ transition: transform .2s ease, filter .2s ease;
 		gap: 14px;
 	}
 
+	/* Keep the regular purchase controls full-width on phones. The sticky
+	 * purchase bars have their own selectors and intentionally stay unchanged. */
+	.gl-product-buybox__button-wrap,
+	.gl-product-buybox__button,
+	.gl-product-buybox form.cart {
+		width: 100%;
+	}
+
 	.gl-product-buybox--variable .gl-product-buybox__price {
 		flex-basis: auto;
 		width: 100%;
@@ -1789,6 +1797,10 @@ transition: transform .2s ease, filter .2s ease;
 		flex-direction: column;
 		align-items: stretch;
 		gap: 14px;
+	}
+
+	.gl-product-buybox--variable table.variations {
+		width: 100%;
 	}
 
 	.gl-product-buybox--variable .single_variation_wrap,
