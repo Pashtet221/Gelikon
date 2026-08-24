@@ -1270,14 +1270,28 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 
 .gl-product-summary__description {
+	width: 100%;
+	max-width: 100%;
+	padding-inline: 24px;
 	margin: 0 0 24px;
 	font-size: 16px;
 	line-height: 1.65;
 	color: var(--gl-color-text);
+	overflow-wrap: anywhere;
 }
 
 .gl-product-summary__description p {
 	margin: 0 0 12px;
+}
+
+.gl-product-summary__description ul,
+.gl-product-summary__description ol {
+	margin: 0 0 16px;
+	padding-inline-start: 24px;
+}
+
+.gl-product-summary__description > :last-child {
+	margin-bottom: 0;
 }
 
 .gl-product-buybox {
@@ -1763,6 +1777,7 @@ transition: transform .2s ease, filter .2s ease;
 	}
 
 	.gl-product-summary__description {
+		padding-inline: 16px;
 		font-size: 15px;
 		line-height: 1.6;
 		margin-bottom: 18px;
