@@ -1272,7 +1272,6 @@ document.addEventListener('DOMContentLoaded', function () {
 .gl-product-summary__description {
 	width: 100%;
 	max-width: 100%;
-	padding-inline: 24px;
 	margin: 0 0 24px;
 	font-size: 16px;
 	line-height: 1.65;
@@ -1777,7 +1776,6 @@ transition: transform .2s ease, filter .2s ease;
 	}
 
 	.gl-product-summary__description {
-		padding-inline: 16px;
 		font-size: 15px;
 		line-height: 1.6;
 		margin-bottom: 18px;
