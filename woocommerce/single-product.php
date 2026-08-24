@@ -1156,7 +1156,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	const desktopBar = document.getElementById('glProductDesktopBar');
 	const buyBox = document.querySelector('.gl-product-buybox');
 
-	if (!desktopBar || !buyBox) return;
+	if (!desktopBar) return;
 
 	function updateDesktopBar() {
 		if (window.innerWidth <= 767) {
@@ -1165,8 +1165,12 @@ document.addEventListener('DOMContentLoaded', function () {
 			return;
 		}
 
-		const rect = buyBox.getBoundingClientRect();
-		const buyBoxOutOfView = rect.bottom < 0 || rect.top < -120;
+		// Simple products intentionally have no inline buy box, so their sticky
+		// purchase bar should remain available on desktop at all times.
+		const buyBoxOutOfView = !buyBox || (() => {
+			const rect = buyBox.getBoundingClientRect();
+			return rect.bottom < 0 || rect.top < -120;
+		})();
 
 		if (buyBoxOutOfView) {
 			desktopBar.classList.add('is-visible');
