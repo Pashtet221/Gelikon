@@ -1767,7 +1767,7 @@ transition: transform .2s ease, filter .2s ease;
 		max-width: none;
 	}
 
-	.gl-product-buybox {
+	.gl-product-buybox--simple {
 		display: none;
 		width: 100%;
 		padding: 16px;
