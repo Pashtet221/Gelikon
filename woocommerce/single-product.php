@@ -438,6 +438,10 @@ if (!empty($highlights_raw) && is_array($highlights_raw)) {
 
 
 	@media (max-width: 767px) {
+		.gl-product-buybox--simple {
+			display: none;
+		}
+
 		.gl-product-summary__subtitle {
 			font-size: 16px;
 			margin-top: 10px;
@@ -501,9 +505,8 @@ document.addEventListener('DOMContentLoaded', function () {
 						
 						
 
-						<div class="gl-product-summary__cta-block">
-							<?php if ($product->is_type('variable')) : ?>
-								<div class="gl-card gl-product-buybox<?php echo $product->is_type('variable') ? ' gl-product-buybox--variable' : ''; ?>">
+							<div class="gl-product-summary__cta-block">
+								<div class="gl-card gl-product-buybox<?php echo $product->is_type('variable') ? ' gl-product-buybox--variable' : ' gl-product-buybox--simple'; ?>">
 							
 <!-- 							Статус наличия -->
 							<?php echo gelikon_get_stock_status_html(); ?>
@@ -531,7 +534,6 @@ document.addEventListener('DOMContentLoaded', function () {
 								</div>
 							</div>
 								</div>
-							<?php endif; ?>
 
 <div class="gl-product-benefits">
 	<?php foreach ($product_benefits as $benefit_item) :
@@ -1156,7 +1158,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	const desktopBar = document.getElementById('glProductDesktopBar');
 	const buyBox = document.querySelector('.gl-product-buybox');
 
-	if (!desktopBar) return;
+	if (!desktopBar || !buyBox) return;
 
 	function updateDesktopBar() {
 		if (window.innerWidth <= 767) {
@@ -1165,12 +1167,8 @@ document.addEventListener('DOMContentLoaded', function () {
 			return;
 		}
 
-		// Simple products intentionally have no inline buy box, so their sticky
-		// purchase bar should remain available on desktop at all times.
-		const buyBoxOutOfView = !buyBox || (() => {
-			const rect = buyBox.getBoundingClientRect();
-			return rect.bottom < 0 || rect.top < -120;
-		})();
+		const rect = buyBox.getBoundingClientRect();
+		const buyBoxOutOfView = rect.bottom < 0 || rect.top < -120;
 
 		if (buyBoxOutOfView) {
 			desktopBar.classList.add('is-visible');
@@ -1270,27 +1268,14 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 
 .gl-product-summary__description {
-	width: 100%;
-	max-width: 100%;
 	margin: 0 0 24px;
 	font-size: 16px;
 	line-height: 1.65;
 	color: var(--gl-color-text);
-	overflow-wrap: anywhere;
 }
 
 .gl-product-summary__description p {
 	margin: 0 0 12px;
-}
-
-.gl-product-summary__description ul,
-.gl-product-summary__description ol {
-	margin: 0 0 16px;
-	padding-inline-start: 24px;
-}
-
-.gl-product-summary__description > :last-child {
-	margin-bottom: 0;
 }
 
 .gl-product-buybox {
