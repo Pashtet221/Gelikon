@@ -501,6 +501,7 @@ document.addEventListener('DOMContentLoaded', function () {
 						
 						
 
+						<?php if ($product->is_type('variable')) : ?>
 							<div class="gl-product-summary__cta-block">
 								<div class="gl-card gl-product-buybox<?php echo $product->is_type('variable') ? ' gl-product-buybox--variable' : ''; ?>">
 							
@@ -529,7 +530,8 @@ document.addEventListener('DOMContentLoaded', function () {
 									<?php echo wp_kses_post($purchase_note_html); ?>
 								</div>
 							</div>
-								</div>
+							</div>
+						<?php endif; ?>
 
 <div class="gl-product-benefits">
 	<?php foreach ($product_benefits as $benefit_item) :
