@@ -70,7 +70,8 @@ foreach ($selected_filters as $taxonomy => $terms) {
 		'taxonomy' => $taxonomy,
 		'field'    => 'slug',
 		'terms'    => $terms,
-		'operator' => 'IN',
+		// Multiple values in one attribute narrow the result instead of expanding it.
+		'operator' => 'AND',
 	];
 }
 

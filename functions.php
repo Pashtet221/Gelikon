@@ -1300,7 +1300,8 @@ function gelikon_filter_products_ajax() {
 			'taxonomy' => $taxonomy,
 			'field'    => 'slug',
 			'terms'    => $clean_terms,
-			'operator' => 'IN',
+			// A product must contain every selected value of this attribute.
+			'operator' => 'AND',
 		];
 	}
 
