@@ -659,8 +659,6 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 </style>
 
-<?php echo do_shortcode('[gl_product_landing_builder]'); ?>
-
 <div id="gl-product-details" class="gl-product-summary__description">
 	<?php
 	global $post;
@@ -670,6 +668,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 	?>
 </div>
+
+<?php echo do_shortcode('[gl_product_landing_builder]'); ?>
 			
 			
 			
