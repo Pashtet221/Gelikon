@@ -7289,7 +7289,10 @@ add_filter('woocommerce_get_order_item_totals', function($total_rows, $order, $t
 		 */
 		if ($key === 'shipping') {
 			$total_rows[$key]['label'] = 'Доставка:';
-			$total_rows[$key]['value'] = 'Бесплатно';
+
+			if ($order instanceof WC_Order) {
+				$total_rows[$key]['value'] = gelikon_order_selected_shipping_method($order);
+			}
 		}
 
 		if (!empty($total_rows[$key]['value'])) {
@@ -8092,6 +8095,55 @@ function gelikon_checkout_shipping_method_label($label, $method) {
 	}
 
 	return $label;
+}
+
+/**
+ * Persist the shipping option explicitly submitted on checkout.
+ *
+ * Some shipping integrations recalculate and replace the order shipping line
+ * while the order is being created. Keeping the customer's submitted choice
+ * gives transactional emails a stable source of truth.
+ */
+add_action('woocommerce_checkout_create_order', 'gelikon_save_checkout_shipping_method', 20, 2);
+
+function gelikon_save_checkout_shipping_method($order, $data) {
+	if (! $order instanceof WC_Order) {
+		return;
+	}
+
+	if (empty($_POST['shipping_method']) || ! is_array($_POST['shipping_method'])) {
+		return;
+	}
+
+	$selected_ids = array_map('wc_clean', wp_unslash($_POST['shipping_method']));
+	$packages     = WC()->shipping()->get_packages();
+	$labels       = array();
+
+	foreach ($selected_ids as $package_index => $rate_id) {
+		if (isset($packages[$package_index]['rates'][$rate_id])) {
+			$labels[] = $packages[$package_index]['rates'][$rate_id]->get_label();
+		}
+	}
+
+	$labels = array_values(array_filter(array_map('wc_clean', $labels)));
+
+	if ($labels) {
+		$order->update_meta_data('_gelikon_checkout_shipping_method', implode(', ', $labels));
+	}
+}
+
+/**
+ * Return the method selected by the customer, falling back to the order line
+ * for orders created before the checkout selection started being persisted.
+ */
+function gelikon_order_selected_shipping_method($order) {
+	if (! $order instanceof WC_Order) {
+		return '';
+	}
+
+	$selected_method = $order->get_meta('_gelikon_checkout_shipping_method', true);
+
+	return $selected_method ? $selected_method : $order->get_shipping_to_display();
 }
 
 
