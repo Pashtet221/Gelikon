@@ -7291,7 +7291,7 @@ add_filter('woocommerce_get_order_item_totals', function($total_rows, $order, $t
 			$total_rows[$key]['label'] = 'Доставка:';
 
 			if ($order instanceof WC_Order) {
-				$total_rows[$key]['value'] = gelikon_order_selected_shipping_method($order);
+				$total_rows[$key]['value'] = gelikon_order_selected_shipping_details($order);
 			}
 		}
 
@@ -8144,6 +8144,39 @@ function gelikon_order_selected_shipping_method($order) {
 	$selected_method = $order->get_meta('_gelikon_checkout_shipping_method', true);
 
 	return $selected_method ? $selected_method : $order->get_shipping_to_display();
+}
+
+/**
+ * Return the selected delivery method together with details added to the
+ * shipping line by integrations (for example, the selected CDEK office).
+ *
+ * WooCommerce displays shipping-item metadata in the order admin screen, but
+ * the custom compact email table does not render shipping items. Build the
+ * same customer-safe summary explicitly so pickup-point data is not lost.
+ */
+function gelikon_order_selected_shipping_details($order) {
+	if (! $order instanceof WC_Order) {
+		return '';
+	}
+
+	$details = array(gelikon_order_selected_shipping_method($order));
+
+	foreach ($order->get_items('shipping') as $shipping_item) {
+		foreach ($shipping_item->get_formatted_meta_data() as $meta) {
+			$label = trim(wp_strip_all_tags($meta->display_key));
+			$value = trim(wp_strip_all_tags($meta->display_value));
+
+			if ('' === $value) {
+				continue;
+			}
+
+			$details[] = $label ? $label . ': ' . $value : $value;
+		}
+	}
+
+	$details = array_values(array_unique(array_filter(array_map('trim', $details))));
+
+	return implode('<br>', array_map('esc_html', $details));
 }
 
 
