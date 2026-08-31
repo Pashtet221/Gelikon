@@ -8316,3 +8316,50 @@ function gelikon_category_path($value) {
 
     return implode(' > ', $items);
 }
+
+/**
+ * Keep the visual editor focused on the typography used by the site.
+ *
+ * The labels intentionally describe the role of the text instead of exposing
+ * HTML heading levels to content managers.
+ */
+function gelikon_tinymce_settings($settings) {
+	$settings['block_formats'] = 'Заголовок=h2; Подзаголовок=h3; Основной текст=p';
+	$settings['menubar']       = false;
+	$settings['toolbar1']      = 'formatselect,bold,italic,underline';
+	$settings['toolbar2']      = '';
+	$settings['toolbar3']      = '';
+	$settings['toolbar4']      = '';
+
+	return $settings;
+}
+add_filter('tiny_mce_before_init', 'gelikon_tinymce_settings');
+
+/**
+ * Limit every TinyMCE toolbar, including ACF WYSIWYG fields, to the approved
+ * text formats and inline emphasis controls.
+ */
+function gelikon_tinymce_primary_buttons() {
+	return array('formatselect', 'bold', 'italic', 'underline');
+}
+add_filter('mce_buttons', 'gelikon_tinymce_primary_buttons');
+
+function gelikon_tinymce_remove_extra_buttons() {
+	return array();
+}
+add_filter('mce_buttons_2', 'gelikon_tinymce_remove_extra_buttons');
+add_filter('mce_buttons_3', 'gelikon_tinymce_remove_extra_buttons');
+add_filter('mce_buttons_4', 'gelikon_tinymce_remove_extra_buttons');
+
+/**
+ * ACF builds its WYSIWYG toolbar separately from the classic editor.
+ */
+function gelikon_acf_wysiwyg_toolbars($toolbars) {
+	$buttons = array('formatselect', 'bold', 'italic', 'underline');
+
+	$toolbars['Full']  = array($buttons);
+	$toolbars['Basic'] = array($buttons);
+
+	return $toolbars;
+}
+add_filter('acf/fields/wysiwyg/toolbars', 'gelikon_acf_wysiwyg_toolbars');
