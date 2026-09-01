@@ -9,6 +9,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
+$email                   = isset( $email ) ? $email : null;
 $blog_name               = get_bloginfo( 'name', 'display' );
 $header_image            = get_option( 'woocommerce_email_header_image' );
 $header_image            = apply_filters( 'woocommerce_email_header_image', $header_image, $email );
