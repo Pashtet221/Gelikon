@@ -47,6 +47,31 @@ add_action('woocommerce_created_customer', function ($customer_id, $new_customer
 }, 10, 3);
 
 /**
+ * Modern favicon fallback for browsers and installable devices.
+ *
+ * WordPress prints the administrator-selected Site Icon automatically. These
+ * links are only a theme fallback so projects without a configured Site Icon do
+ * not fall back to a generic square image.
+ */
+function gelikon_favicon_links() {
+	if (function_exists('has_site_icon') && has_site_icon()) {
+		return;
+	}
+
+	$favicon_url = get_theme_file_uri('assets/img/favicons/favicon.svg');
+	$manifest_url = get_theme_file_uri('site.webmanifest');
+	$pinned_tab_url = get_theme_file_uri('assets/img/favicons/safari-pinned-tab.svg');
+	?>
+	<link rel="icon" href="<?php echo esc_url($favicon_url); ?>" type="image/svg+xml">
+	<link rel="mask-icon" href="<?php echo esc_url($pinned_tab_url); ?>" color="#12D457">
+	<link rel="manifest" href="<?php echo esc_url($manifest_url); ?>">
+	<meta name="theme-color" content="#12D457">
+	<?php
+}
+add_action('wp_head', 'gelikon_favicon_links', 1);
+
+
+/**
  * Возвращает URL страницы политики конфиденциальности.
  */
 function gelikon_get_privacy_policy_url() {
@@ -6541,7 +6566,7 @@ add_filter('woocommerce_checkout_fields', function ($fields) {
 		$fields['billing']['billing_phone']['priority'] = 20;
 
 		$fields['billing']['billing_email']['label'] = 'Email';
-		$fields['billing']['billing_email']['placeholder'] = 'example@mail.ru';
+		$fields['billing']['billing_email']['placeholder'] = 'Ваш e-mail';
 		$fields['billing']['billing_email']['required'] = false;
 		$fields['billing']['billing_email']['priority'] = 30;
 	}
@@ -6601,7 +6626,7 @@ add_filter('woocommerce_checkout_fields', function ($fields) {
 		$fields['billing']['billing_phone']['priority'] = 20;
 
 		$fields['billing']['billing_email']['label'] = 'Email';
-		$fields['billing']['billing_email']['placeholder'] = 'example@mail.ru';
+		$fields['billing']['billing_email']['placeholder'] = 'Ваш e-mail';
 		$fields['billing']['billing_email']['required'] = false;
 		$fields['billing']['billing_email']['priority'] = 30;
 	}

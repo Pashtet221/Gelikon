@@ -177,8 +177,6 @@ $brand_text = gelikon_about_get_field('brand_text', 'В 2022 году был з�
 					?>
 						<div class="gl-about-logos__item"><img src="<?php echo esc_url($logo_url); ?>" alt="Логотип клиента" loading="lazy" decoding="async"></div>
 					<?php endforeach; ?>
-				<?php else : ?>
-					<div class="gl-about-logos__empty">Логотипы клиентов появятся здесь</div>
 				<?php endif; ?>
 			</div>
 		</section>
