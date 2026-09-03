@@ -381,3 +381,26 @@ function gelikon_enable_checkout_registration($value) {
     return $value;
 }
 add_filter('pre_option_woocommerce_enable_signup_and_login_from_checkout', 'gelikon_enable_checkout_registration');
+
+/**
+ * Hide WooCommerce's category display type setting.
+ *
+ * Product category archives use the theme's custom catalog template and always
+ * render products, so the native display type selector has no effect.
+ */
+function gelikon_hide_product_category_display_type_field() {
+	$screen = function_exists('get_current_screen') ? get_current_screen() : null;
+
+	if (!$screen || 'product_cat' !== $screen->taxonomy) {
+		return;
+	}
+	?>
+	<style id="gelikon-product-category-admin-css">
+		.term-display-type-wrap {
+			display: none;
+		}
+	</style>
+	<?php
+}
+add_action('admin_head-edit-tags.php', 'gelikon_hide_product_category_display_type_field');
+add_action('admin_head-term.php', 'gelikon_hide_product_category_display_type_field');
