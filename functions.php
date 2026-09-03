@@ -998,12 +998,14 @@ add_action('wp_head', function () {
 				border-radius: 18px;
 				box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
 				overflow: hidden;
+				max-height: var(--gl-catalog-mobile-height, calc(100dvh - 16px));
 			}
 
 			.gl-catalog-dropdown__grid {
 				position: relative;
 				display: block;
-				min-height: 360px;
+				height: var(--gl-catalog-mobile-height, min(520px, calc(100dvh - 16px)));
+				min-height: 0;
 				overflow: hidden;
 				background: #fff;
 			}
@@ -1031,6 +1033,16 @@ add_action('wp_head', function () {
 				z-index: 2;
 				padding: 18px;
 				transform: translateX(100%);
+			}
+
+			.gl-catalog-dropdown__sidebar,
+			.gl-catalog-dropdown__content {
+				height: 100%;
+				min-height: 0;
+				overflow-x: hidden;
+				overflow-y: auto;
+				overscroll-behavior-y: contain;
+				-webkit-overflow-scrolling: touch;
 			}
 
 			.gl-catalog-dropdown.is-mobile-submenu .gl-catalog-dropdown__sidebar {
@@ -1150,6 +1162,14 @@ add_action('wp_head', function () {
 			function openDropdown() {
 				window.clearTimeout(closeTimer);
 				panel.hidden = false;
+
+				if (isMobile()) {
+					const panelTop = panel.getBoundingClientRect().top;
+					const availableHeight = Math.max(160, window.innerHeight - panelTop - 12);
+
+					dropdown.style.setProperty('--gl-catalog-mobile-height', availableHeight + 'px');
+				}
+
 				void panel.offsetWidth;
 				dropdown.classList.add('is-open');
 				toggle.setAttribute('aria-expanded', 'true');
@@ -1233,6 +1253,10 @@ add_action('wp_head', function () {
 
 			window.addEventListener('resize', function () {
 				dropdown.classList.remove('is-mobile-submenu');
+
+				if (dropdown.classList.contains('is-open')) {
+					openDropdown();
+				}
 			});
 		});
 	});
