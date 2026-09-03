@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('GELIKON_VERSION', '1.0.4');
+define('GELIKON_VERSION', '1.0.3');
 define('GELIKON_DIR', get_template_directory());
 define('GELIKON_URI', get_template_directory_uri());
 
@@ -440,11 +440,7 @@ if (!function_exists('gelikon_get_catalog_menu_tree')) {
 }
 
 /**
- * Дерево категорий WooCommerce для каталога в шапке.
- *
- * menu_order — это порядок, который WooCommerce сохраняет при перетаскивании
- * строк на экране «Товары > Категории». Отдельный запрос для каждого
- * родителя позволяет независимо управлять категориями и их подкатегориями.
+ * Дерево категорий WooCommerce (fallback, если ручное меню каталога не назначено).
  */
 if (!function_exists('gelikon_get_product_cat_tree')) {
 	function gelikon_get_product_cat_tree() {
@@ -503,14 +499,13 @@ if (!function_exists('gelikon_get_product_cat_tree')) {
 }
 
 /**
- * Дерево каталога всегда строится из категорий WooCommerce.
- *
- * Не подменяем его меню из «Внешний вид > Меню»: иначе изменение
- * порядка перетаскиванием в разделе категорий не влияло бы на шапку.
+ * Дерево каталога: сначала ручное меню, затем автоматический fallback.
  */
 if (!function_exists('gelikon_get_catalog_dropdown_tree')) {
 	function gelikon_get_catalog_dropdown_tree() {
-		return gelikon_get_product_cat_tree();
+		$menu_tree = gelikon_get_catalog_menu_tree();
+
+		return !empty($menu_tree) ? $menu_tree : gelikon_get_product_cat_tree();
 	}
 }
 
