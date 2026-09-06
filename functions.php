@@ -963,6 +963,15 @@ add_action('wp_head', function () {
 		}
 
 		@media (max-width: 991px) {
+			.gl-catalog-dropdown.is-open::before {
+				content: "";
+				position: fixed;
+				inset: 0;
+				z-index: -1;
+				background: rgba(23, 29, 42, 0.18);
+				pointer-events: none;
+			}
+
 			.gl-catalog-dropdown__parent-arrow {
 		display: flex;
 		align-items: center;
@@ -996,7 +1005,7 @@ add_action('wp_head', function () {
 				width: min(420px, 92vw);
 				max-width: 92vw;
 				border-radius: 18px;
-				box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+				box-shadow: 0 20px 48px rgba(23, 29, 42, 0.24), 0 4px 14px rgba(23, 29, 42, 0.12);
 				overflow: hidden;
 				max-height: var(--gl-catalog-mobile-height, calc(100dvh - 16px));
 			}
@@ -1166,8 +1175,10 @@ add_action('wp_head', function () {
 				if (isMobile()) {
 					const panelTop = panel.getBoundingClientRect().top;
 					const availableHeight = Math.max(160, window.innerHeight - panelTop - 12);
+					const sidebar = dropdown.querySelector('.gl-catalog-dropdown__sidebar');
+					const contentHeight = sidebar ? sidebar.scrollHeight : availableHeight;
 
-					dropdown.style.setProperty('--gl-catalog-mobile-height', availableHeight + 'px');
+					dropdown.style.setProperty('--gl-catalog-mobile-height', Math.min(contentHeight, availableHeight) + 'px');
 				}
 
 				void panel.offsetWidth;
