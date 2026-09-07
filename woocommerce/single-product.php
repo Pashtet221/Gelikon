@@ -2016,7 +2016,7 @@ transition: transform .2s ease, filter .2s ease;
 					<?php else : ?>
 						<p>Оставлять отзывы о товарах могут только авторизованные пользователи.</p>
 						<p>
-							<a class="gl-product-form__submit" href="<?php echo esc_url(wp_login_url(get_permalink($product_id) . '#gelikon-product-popup')); ?>">
+							<a class="gl-product-form__submit" href="<?php echo esc_url(home_url('/my-account/')); ?>">
 								Войти, чтобы оставить отзыв
 							</a>
 						</p>
