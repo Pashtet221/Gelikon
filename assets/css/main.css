@@ -53,6 +53,61 @@ img { max-width: 100%; height: auto; display: block; }
   border-radius: var(--gl-radius);
   box-shadow: var(--gl-shadow);
 }
+
+/*
+ * Card lift
+ * Keep the interaction on precise pointing devices so a tapped card does not
+ * remain shifted on touch screens. The page-qualified selectors also avoid
+ * moving structural cards such as the catalog filter sidebar.
+ */
+@media (hover: hover) and (pointer: fine) {
+  :where(
+    .gl-homepage .gl-card,
+    .gl-page-single > .gl-card,
+    .gl-delivery-card,
+    .gl-catalog-page .gl-product-card__inner
+  ) {
+    transition-property: transform, box-shadow, border-color;
+    transition-duration: 260ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  .site-main.gl-homepage .gl-card:hover,
+  .site-main .gl-page-single > .gl-card:hover,
+  .site-main .gl-delivery-card:hover,
+  .site-main.gl-catalog-page .gl-product-card:hover .gl-product-card__inner {
+    transform: translate3d(0, -6px, 0);
+    border-color: rgba(18, 212, 87, 0.28);
+    box-shadow: 0 18px 42px rgba(22, 34, 51, 0.13);
+  }
+
+  .site-main.gl-homepage .gl-product-card:hover .gl-product-card__inner {
+    transform: translate3d(0, -6px, 0);
+    border-color: rgba(18, 212, 87, 0.28);
+    box-shadow: 0 18px 42px rgba(22, 34, 51, 0.13);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(
+    .gl-homepage .gl-card,
+    .gl-page-single > .gl-card,
+    .gl-delivery-card,
+    .gl-catalog-page .gl-product-card__inner
+  ) {
+    transition: none;
+    will-change: auto;
+  }
+
+  .site-main.gl-homepage .gl-card:hover,
+  .site-main .gl-page-single > .gl-card:hover,
+  .site-main .gl-delivery-card:hover,
+  .site-main.gl-homepage .gl-product-card:hover .gl-product-card__inner,
+  .site-main.gl-catalog-page .gl-product-card:hover .gl-product-card__inner {
+    transform: none;
+  }
+}
 .mobile,
 .gl-header__phones-mobile,
 .gl-header__address-mobile {
