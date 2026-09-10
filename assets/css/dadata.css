@@ -1,0 +1,46 @@
+.gl-checkout-compact #shipping_city_field,
+.gl-checkout-compact #shipping_address_1_field {
+	position: relative;
+}
+
+.gl-dadata-suggestions {
+	position: absolute;
+	z-index: 1001;
+	top: calc(100% - 9px);
+	left: 0;
+	right: 0;
+	max-height: 280px;
+	overflow-y: auto;
+	padding: 6px;
+	background: #fff;
+	border: 1px solid #cfd6dc;
+	border-radius: 12px;
+	box-shadow: 0 12px 30px rgba(24, 39, 75, .14);
+}
+
+.gl-dadata-suggestion {
+	display: block;
+	width: 100%;
+	padding: 10px 11px;
+	border: 0;
+	border-radius: 8px;
+	background: transparent;
+	color: #20242a;
+	font: inherit;
+	font-size: 14px;
+	line-height: 1.4;
+	text-align: left;
+	cursor: pointer;
+}
+
+.gl-dadata-suggestion:hover,
+.gl-dadata-suggestion.is-active {
+	background: #eef8f1;
+	color: #176431;
+}
+
+.gl-dadata-suggestions__message {
+	padding: 10px 11px;
+	color: #6b7480;
+	font-size: 14px;
+}
