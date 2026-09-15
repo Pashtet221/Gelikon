@@ -2949,6 +2949,40 @@ function gelikon_get_product_badge_color_class($color) {
 }
 
 /**
+ * Подготавливает динамически добавленное подполе повторителя к работе ACF.
+ *
+ * Поля, добавленные через acf/load_field, уже не проходят обычную подготовку
+ * подполей повторителя. Поэтому ACF ожидает служебное имя и настройки обёртки,
+ * которых нет в исходном массиве, и выводит PHP-предупреждения как в админке,
+ * так и при чтении значения поля на витрине.
+ */
+function gelikon_prepare_product_badge_sub_field($sub_field, $parent_key) {
+	$sub_field = array_merge([
+		'instructions'      => '',
+		'required'          => 0,
+		'conditional_logic' => 0,
+		'wrapper'           => [
+			'width' => '',
+			'class' => '',
+			'id'    => '',
+		],
+		'parent'            => $parent_key,
+	], $sub_field);
+
+	// Сохраняем явно переданное значение parent после объединения настроек.
+	$sub_field['parent'] = $parent_key;
+
+	if (function_exists('acf_get_valid_field')) {
+		$sub_field = acf_get_valid_field($sub_field);
+	}
+
+	// ACF создаёт _name при обычной загрузке подполя, но не после load_field.
+	$sub_field['_name'] = (string) ($sub_field['name'] ?? '');
+
+	return $sub_field;
+}
+
+/**
  * Добавляет к существующим настройкам ACF возможность задать произвольные
  * текст и цвет, не меняя уже сохранённые варианты.
  */
@@ -2976,7 +3010,7 @@ function gelikon_extend_product_badges_acf_field($field) {
 	unset($sub_field);
 
 	if ($label_key && !array_filter($field['sub_fields'], static fn($item) => ($item['name'] ?? '') === 'custom_text')) {
-		$field['sub_fields'][] = [
+		$field['sub_fields'][] = gelikon_prepare_product_badge_sub_field([
 			'key'               => 'field_gelikon_badge_custom_text',
 			'label'             => 'Свой текст плашки',
 			'name'              => 'custom_text',
@@ -2988,11 +3022,11 @@ function gelikon_extend_product_badges_acf_field($field) {
 				'operator' => '==',
 				'value'    => 'custom',
 			]]],
-		];
+		], (string) ($field['key'] ?? ''));
 	}
 
 	if ($color_key && !array_filter($field['sub_fields'], static fn($item) => ($item['name'] ?? '') === 'custom_color')) {
-		$field['sub_fields'][] = [
+		$field['sub_fields'][] = gelikon_prepare_product_badge_sub_field([
 			'key'               => 'field_gelikon_badge_custom_color',
 			'label'             => 'Свой цвет (RGB / HEX)',
 			'name'              => 'custom_color',
@@ -3005,7 +3039,7 @@ function gelikon_extend_product_badges_acf_field($field) {
 				'operator' => '==',
 				'value'    => 'custom',
 			]]],
-		];
+		], (string) ($field['key'] ?? ''));
 	}
 
 	return $field;
