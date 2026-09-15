@@ -2949,6 +2949,87 @@ function gelikon_get_product_badge_color_class($color) {
 }
 
 /**
+ * Добавляет к существующим настройкам ACF возможность задать произвольные
+ * текст и цвет, не меняя уже сохранённые варианты.
+ */
+function gelikon_extend_product_badges_acf_field($field) {
+	if (empty($field['sub_fields']) || !is_array($field['sub_fields'])) {
+		return $field;
+	}
+
+	$label_key = '';
+	$color_key = '';
+
+	foreach ($field['sub_fields'] as &$sub_field) {
+		if (($sub_field['name'] ?? '') === 'label' && ($sub_field['type'] ?? '') === 'select') {
+			$sub_field['choices'] = (array) ($sub_field['choices'] ?? []);
+			$sub_field['choices']['custom'] = 'Свой текст';
+			$label_key = (string) ($sub_field['key'] ?? '');
+		}
+
+		if (($sub_field['name'] ?? '') === 'color' && ($sub_field['type'] ?? '') === 'select') {
+			$sub_field['choices'] = (array) ($sub_field['choices'] ?? []);
+			$sub_field['choices']['custom'] = 'Свой цвет';
+			$color_key = (string) ($sub_field['key'] ?? '');
+		}
+	}
+	unset($sub_field);
+
+	if ($label_key && !array_filter($field['sub_fields'], static fn($item) => ($item['name'] ?? '') === 'custom_text')) {
+		$field['sub_fields'][] = [
+			'key'               => 'field_gelikon_badge_custom_text',
+			'label'             => 'Свой текст плашки',
+			'name'              => 'custom_text',
+			'type'              => 'text',
+			'required'          => 1,
+			'placeholder'       => 'Например: Подарок',
+			'conditional_logic' => [[[
+				'field'    => $label_key,
+				'operator' => '==',
+				'value'    => 'custom',
+			]]],
+		];
+	}
+
+	if ($color_key && !array_filter($field['sub_fields'], static fn($item) => ($item['name'] ?? '') === 'custom_color')) {
+		$field['sub_fields'][] = [
+			'key'               => 'field_gelikon_badge_custom_color',
+			'label'             => 'Свой цвет (RGB / HEX)',
+			'name'              => 'custom_color',
+			'type'              => 'color_picker',
+			'required'          => 1,
+			'default_value'     => '#39bf74',
+			'instructions'      => 'Выберите цвет или введите его HEX-значение.',
+			'conditional_logic' => [[[
+				'field'    => $color_key,
+				'operator' => '==',
+				'value'    => 'custom',
+			]]],
+		];
+	}
+
+	return $field;
+}
+add_filter('acf/load_field/name=product_badges', 'gelikon_extend_product_badges_acf_field');
+
+/**
+ * Выбирает читаемый цвет текста для произвольного фона бейджа.
+ */
+function gelikon_get_badge_contrast_color($hex_color) {
+	$hex = ltrim((string) $hex_color, '#');
+	if (strlen($hex) === 3) {
+		$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+	}
+
+	$red       = hexdec(substr($hex, 0, 2));
+	$green     = hexdec(substr($hex, 2, 2));
+	$blue      = hexdec(substr($hex, 4, 2));
+	$luminance = (($red * 299) + ($green * 587) + ($blue * 114)) / 1000;
+
+	return $luminance > 160 ? '#1f2937' : '#ffffff';
+}
+
+/**
  * Собираем плашки товара из ACF
  */
 function gelikon_get_product_badges($product_id) {
@@ -2973,13 +3054,24 @@ function gelikon_get_product_badges($product_id) {
 			continue;
 		}
 
-		$text = isset($label_map[$key]) ? $label_map[$key] : $key;
+		$text = $key === 'custom'
+			? sanitize_text_field((string) ($row['custom_text'] ?? ''))
+			: ($label_map[$key] ?? $key);
+
+		if ($text === '') {
+			continue;
+		}
+
+		$custom_color = $color === 'custom'
+			? sanitize_hex_color((string) ($row['custom_color'] ?? ''))
+			: '';
 
 		$badges[] = [
-			'key'   => $key,
-			'text'  => $text,
-			'color' => $color,
-			'class' => gelikon_get_product_badge_color_class($color),
+			'key'          => $key,
+			'text'         => $text,
+			'color'        => $color,
+			'class'        => $custom_color ? 'gl-badge--custom' : gelikon_get_product_badge_color_class($color),
+			'custom_color' => $custom_color,
 		];
 	}
 
@@ -3004,7 +3096,17 @@ function gelikon_render_product_badges($product_id, $context = 'card') {
 	?>
 	<div class="<?php echo esc_attr($context_class); ?>">
 		<?php foreach ($badges as $badge) : ?>
-			<span class="gl-product-badge <?php echo esc_attr($badge['class']); ?>">
+			<?php
+			$style = '';
+			if (!empty($badge['custom_color'])) {
+				$style = sprintf(
+					'background-color:%1$s;color:%2$s;border-color:%1$s;',
+					$badge['custom_color'],
+					gelikon_get_badge_contrast_color($badge['custom_color'])
+				);
+			}
+			?>
+			<span class="gl-product-badge <?php echo esc_attr($badge['class']); ?>"<?php echo $style ? ' style="' . esc_attr($style) . '"' : ''; ?>>
 				<?php echo esc_html($badge['text']); ?>
 			</span>
 		<?php endforeach; ?>
