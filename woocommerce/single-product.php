@@ -1975,10 +1975,20 @@ transition: transform .2s ease, filter .2s ease;
 				</div>
 
 				<div class="gl-product-popup__section">
-					<h4>Оставить отзыв</h4>
+					<button
+						type="button"
+						class="gl-product-popup__form-toggle"
+						aria-expanded="false"
+						aria-controls="gelikon-review-form"
+						data-gl-review-form-toggle
+					>
+						<span>Оставить отзыв</span>
+						<span class="gl-product-popup__form-toggle-icon" aria-hidden="true"></span>
+					</button>
 
-					<?php
-					comment_form([
+					<div id="gelikon-review-form" class="gl-product-popup__form-content" hidden>
+						<?php
+						comment_form([
 	'title_reply'          => '',
 	'title_reply_before'   => '',
 	'title_reply_after'    => '',
@@ -2014,8 +2024,9 @@ transition: transform .2s ease, filter .2s ease;
 			<label for="comment">Ваш отзыв</label>
 			<textarea id="comment" name="comment" cols="45" rows="6" required></textarea>
 		</p>',
-], $product_id);
-					?>
+						], $product_id);
+						?>
+					</div>
 				</div>
 			</div>
 
@@ -2095,6 +2106,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	const closeButtons = popup.querySelectorAll('[data-gl-popup-close]');
 	const tabs = popup.querySelectorAll('[data-gl-tab]');
 	const panels = popup.querySelectorAll('[data-gl-panel]');
+	const reviewFormToggle = popup.querySelector('[data-gl-review-form-toggle]');
+	const reviewForm = document.getElementById('gelikon-review-form');
 
 	function openPopup(tabName) {
 		popup.hidden = false;
@@ -2139,6 +2152,19 @@ document.addEventListener('DOMContentLoaded', function () {
 			switchTab(this.dataset.glTab);
 		});
 	});
+
+	if (reviewFormToggle && reviewForm) {
+		reviewFormToggle.addEventListener('click', function () {
+			const isOpen = this.getAttribute('aria-expanded') === 'true';
+			this.setAttribute('aria-expanded', String(!isOpen));
+			reviewForm.hidden = isOpen;
+
+			if (!isOpen) {
+				const firstField = reviewForm.querySelector('input:not([type="hidden"]), select, textarea');
+				if (firstField) firstField.focus({ preventScroll: true });
+			}
+		});
+	}
 
 	document.addEventListener('keydown', function (e) {
 		if (e.key === 'Escape' && !popup.hidden) {
@@ -2327,6 +2353,72 @@ document.addEventListener('DOMContentLoaded', function () {
 	margin: 0 0 20px;
 	font-size: 22px;
 	line-height: 1.25;
+}
+
+.gl-product-popup__form-toggle{
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	width: 100%;
+	min-height: 56px;
+	padding: 14px 20px;
+	border: 0;
+	border-radius: 14px;
+	background: var(--gl-color-buy-button, #18b75b);
+	color: #fff;
+	font: inherit;
+	font-size: 18px;
+	font-weight: 700;
+	text-align: left;
+	cursor: pointer;
+	transition: filter .2s ease, box-shadow .2s ease;
+}
+
+.gl-product-popup__form-toggle:hover{
+	filter: brightness(.95);
+}
+
+.gl-product-popup__form-toggle:focus-visible{
+	outline: 3px solid rgba(24, 183, 91, .25);
+	outline-offset: 3px;
+}
+
+.gl-product-popup__form-toggle-icon{
+	position: relative;
+	flex: 0 0 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.gl-product-popup__form-toggle-icon::before,
+.gl-product-popup__form-toggle-icon::after{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 16px;
+	height: 2px;
+	border-radius: 2px;
+	background: currentColor;
+	content: '';
+	transform: translate(-50%, -50%);
+	transition: transform .2s ease;
+}
+
+.gl-product-popup__form-toggle-icon::after{
+	transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.gl-product-popup__form-toggle[aria-expanded="true"] .gl-product-popup__form-toggle-icon::after{
+	transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.gl-product-popup__form-content{
+	margin-top: 20px;
+}
+
+.gl-product-popup__form-content[hidden]{
+	display: none;
 }
 
 .gl-product-popup .gl-product-form,
