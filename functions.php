@@ -166,14 +166,6 @@ add_filter('preprocess_comment', function ($commentdata) {
 	$is_product_question = isset($_POST['gelikon_submit_product_question'], $_POST['gelikon_question_nonce']) && // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['gelikon_question_nonce'])), 'gelikon_product_question'); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-	if ($post_id && 'product' === get_post_type($post_id) && !$is_product_question && !is_user_logged_in()) {
-		wp_die(
-			esc_html__('Оставлять отзывы о товарах могут только авторизованные пользователи.', 'gelikon'),
-			esc_html__('Необходима авторизация', 'gelikon'),
-			['response' => 403, 'back_link' => true]
-		);
-	}
-
 	if ($post_id && 'product' === get_post_type($post_id) && !$is_product_question && !gelikon_is_personal_data_consent_given()) {
 		wp_die(
 			esc_html__('Подтвердите согласие на обработку персональных данных.', 'gelikon'),
@@ -184,6 +176,25 @@ add_filter('preprocess_comment', function ($commentdata) {
 
 	return $commentdata;
 });
+
+/**
+ * После отправки отзыва возвращаем покупателя к открытому окну отзывов.
+ */
+add_filter('comment_post_redirect', function ($location, $comment) {
+	if (!$comment instanceof WP_Comment || 'product' !== get_post_type($comment->comment_post_ID)) {
+		return $location;
+	}
+
+	if ('question' === get_comment_meta($comment->comment_ID, 'ds_product_comment_type', true)) {
+		return $location;
+	}
+
+	$permalink = get_permalink($comment->comment_post_ID);
+
+	return $permalink
+		? add_query_arg('review_sent', '1', $permalink) . '#gelikon-product-popup'
+		: $location;
+}, 10, 2);
 
 
 add_action('wp_enqueue_scripts', 'gelikon_enqueue_manrope_font', 5);

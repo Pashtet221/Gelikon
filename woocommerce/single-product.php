@@ -1939,6 +1939,9 @@ transition: transform .2s ease, filter .2s ease;
 
 		<div class="gl-product-popup__body">
 			<div class="gl-product-popup__panel is-active" data-gl-panel="reviews">
+				<?php if (isset($_GET['review_sent'])) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+					<div class="gl-product-popup__notice" role="status">Спасибо! Ваш отзыв отправлен на модерацию.</div>
+				<?php endif; ?>
 				<div class="gl-product-popup__section">
 					<div class="gl-product-popup__section-top">
 						<strong>Рейтинг товара:</strong>
@@ -1962,6 +1965,7 @@ transition: transform .2s ease, filter .2s ease;
 									<div class="gl-product-comments__text">
 										<?php echo wp_kses_post(wpautop($comment->comment_content)); ?>
 									</div>
+									<?php do_action('woocommerce_review_after_comment_text', $comment); ?>
 								</li>
 							<?php endforeach; ?>
 						</ul>
@@ -1973,7 +1977,6 @@ transition: transform .2s ease, filter .2s ease;
 				<div class="gl-product-popup__section">
 					<h4>Оставить отзыв</h4>
 
-					<?php if (is_user_logged_in()) : ?>
 					<?php
 					comment_form([
 	'title_reply'          => '',
@@ -2013,18 +2016,13 @@ transition: transform .2s ease, filter .2s ease;
 		</p>',
 ], $product_id);
 					?>
-					<?php else : ?>
-						<p>Оставлять отзывы о товарах могут только авторизованные пользователи.</p>
-						<p>
-							<a class="gl-product-form__submit" href="<?php echo esc_url(home_url('/my-account/')); ?>">
-								Войти, чтобы оставить отзыв
-							</a>
-						</p>
-					<?php endif; ?>
 				</div>
 			</div>
 
 			<div class="gl-product-popup__panel" data-gl-panel="questions">
+				<?php if (isset($_GET['question_sent'])) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+					<div class="gl-product-popup__notice" role="status">Спасибо! Ваш вопрос отправлен на модерацию.</div>
+				<?php endif; ?>
 				<div class="gl-product-popup__section">
 					<?php if (!empty($questions)) : ?>
 						<ul class="gl-product-comments">
@@ -2051,15 +2049,19 @@ transition: transform .2s ease, filter .2s ease;
 					<h4>Задать вопрос</h4>
 
 					<form class="gl-product-form" method="post" action="">
-						<p class="gl-product-form__field">
-							<label for="gelikon_question_author">Имя</label>
-							<input type="text" id="gelikon_question_author" name="author" required>
-						</p>
+						<?php if (!is_user_logged_in()) : ?>
+							<div class="gl-product-form__row">
+								<p class="gl-product-form__field">
+									<label for="gelikon_question_author">Имя <span class="required">*</span></label>
+									<input type="text" id="gelikon_question_author" name="author" autocomplete="name" required>
+								</p>
 
-						<p class="gl-product-form__field">
-							<label for="gelikon_question_email">Email</label>
-							<input type="email" id="gelikon_question_email" name="email" required>
-						</p>
+								<p class="gl-product-form__field">
+									<label for="gelikon_question_email">Email <span class="required">*</span></label>
+									<input type="email" id="gelikon_question_email" name="email" autocomplete="email" required>
+								</p>
+							</div>
+						<?php endif; ?>
 
 						<p class="gl-product-form__field">
 							<label for="gelikon_question_comment">Ваш вопрос</label>
@@ -2145,7 +2147,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	});
 
 	if (window.location.hash === '#gelikon-product-popup') {
-		openPopup('questions');
+		const params = new URLSearchParams(window.location.search);
+		openPopup(params.has('question_sent') ? 'questions' : 'reviews');
 	}
 });
 </script>
@@ -2310,6 +2313,163 @@ document.addEventListener('DOMContentLoaded', function () {
 	font-weight: 700;
 }
 
+.gl-product-popup__notice{
+	margin: 0 0 20px;
+	padding: 14px 18px;
+	border: 1px solid rgba(24, 183, 91, .28);
+	border-radius: 14px;
+	background: rgba(24, 183, 91, .08);
+	color: #11743b;
+	font-weight: 600;
+}
+
+.gl-product-popup__section h4{
+	margin: 0 0 20px;
+	font-size: 22px;
+	line-height: 1.25;
+}
+
+.gl-product-popup .gl-product-form,
+.gl-product-popup .comment-form{
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 18px 20px;
+	margin: 0;
+}
+
+.gl-product-popup .gl-product-form__row{
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 20px;
+	grid-column: 1 / -1;
+}
+
+.gl-product-popup .gl-product-form__field,
+.gl-product-popup .comment-form > p,
+.gl-product-popup .form-submit{
+	margin: 0;
+}
+
+.gl-product-popup .gl-product-form > .gl-product-form__field,
+.gl-product-popup .comment-form-comment,
+.gl-product-popup .comment-form-rating,
+.gl-product-popup .comment-form-gelikon-consent,
+.gl-product-popup .logged-in-as,
+.gl-product-popup .gelikon-review-upload,
+.gl-product-popup .form-submit{
+	grid-column: 1 / -1;
+}
+
+.gl-product-popup .gl-product-form label,
+.gl-product-popup .comment-form label,
+.gl-product-popup .gelikon-review-upload__label{
+	display: block;
+	margin: 0 0 8px;
+	font-size: 14px;
+	line-height: 1.4;
+	font-weight: 700;
+	color: var(--gl-color-heading);
+}
+
+.gl-product-popup .required{
+	color: var(--gl-color-accent);
+}
+
+.gl-product-popup .gl-product-form input:not([type="checkbox"]),
+.gl-product-popup .gl-product-form textarea,
+.gl-product-popup .comment-form input:not([type="checkbox"]):not([type="file"]),
+.gl-product-popup .comment-form textarea,
+.gl-product-popup .comment-form select{
+	width: 100%;
+	min-height: 52px;
+	padding: 13px 16px;
+	border: 1px solid #dbe4ea;
+	border-radius: 14px;
+	outline: none;
+	background: #fff;
+	color: var(--gl-color-heading);
+	font: inherit;
+	box-sizing: border-box;
+	transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.gl-product-popup .gl-product-form textarea,
+.gl-product-popup .comment-form textarea{
+	min-height: 140px;
+	resize: vertical;
+}
+
+.gl-product-popup .gl-product-form input:focus,
+.gl-product-popup .gl-product-form textarea:focus,
+.gl-product-popup .comment-form input:focus,
+.gl-product-popup .comment-form textarea:focus,
+.gl-product-popup .comment-form select:focus{
+	border-color: var(--gl-color-accent);
+	box-shadow: 0 0 0 3px rgba(24, 183, 91, .12);
+}
+
+.gl-product-popup .gl-personal-data-consent{
+	grid-column: 1 / -1;
+	margin: 0;
+}
+
+.gl-product-popup .gl-personal-data-consent label{
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.5;
+	font-weight: 400;
+	color: var(--gl-color-helper);
+}
+
+.gl-product-popup .gl-personal-data-consent input[type="checkbox"]{
+	flex: 0 0 18px;
+	width: 18px;
+	height: 18px;
+	margin: 1px 0 0;
+	accent-color: var(--gl-color-accent);
+}
+
+.gl-product-popup .gl-personal-data-consent a{
+	color: var(--gl-color-accent-2);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.gl-product-popup .gl-product-form__submit,
+.gl-product-popup #review_form .submit{
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: auto;
+	min-height: 52px;
+	padding: 0 26px;
+	border: 0;
+	border-radius: 999px;
+	background: var(--gl-color-buy-button, #18b75b);
+	color: #fff;
+	font: inherit;
+	font-weight: 700;
+	cursor: pointer;
+	transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+
+.gl-product-popup .gl-product-form__submit:hover,
+.gl-product-popup #review_form .submit:hover{
+	transform: translateY(-1px);
+	box-shadow: 0 8px 20px rgba(24, 183, 91, .24);
+}
+
+.gl-product-popup .gl-product-form__submit:disabled,
+.gl-product-popup #review_form .submit:disabled{
+	cursor: not-allowed;
+	opacity: .55;
+	transform: none;
+	box-shadow: none;
+}
+
 /* Стили кастомизации форм в popup временно отключены.
 .gl-product-form__field,
 .comment-form-author,
@@ -2420,6 +2580,13 @@ body.gl-popup-open{
 
 	.gl-product-popup__title{
 		font-size: 24px;
+	}
+
+	.gl-product-popup .gl-product-form,
+	.gl-product-popup .comment-form,
+	.gl-product-popup .gl-product-form__row{
+		grid-template-columns: 1fr;
+		gap: 16px;
 	}
 }
 	
