@@ -159,6 +159,17 @@ add_filter('woocommerce_registration_errors', function ($errors) {
 }, 10);
 
 /**
+ * Форма отзыва должна быть доступна на страницах товаров.
+ */
+add_filter('comments_open', function ($open, $post_id) {
+	if ('product' === get_post_type($post_id)) {
+		return true;
+	}
+
+	return $open;
+}, 100, 2);
+
+/**
  * Валидация согласия для формы отзыва о товаре.
  */
 add_filter('preprocess_comment', function ($commentdata) {
