@@ -110,6 +110,9 @@ if (!empty($global_benefits) && is_array($global_benefits)) {
 	$is_purchase_available = function_exists('gelikon_product_can_be_purchased') ? gelikon_product_can_be_purchased($product) : $is_in_stock;
 	$purchase_note_html = function_exists('gelikon_render_product_purchase_note') ? gelikon_render_product_purchase_note($product_id) : '';
 	$mobile_button_text = $product && $product->is_type('simple') ? 'Купить' : 'В корзину';
+	$online_payment_price_html = function_exists('gelikon_get_online_payment_price_html')
+		? gelikon_get_online_payment_price_html($product)
+		: '';
 
 
     
@@ -519,6 +522,11 @@ document.addEventListener('DOMContentLoaded', function () {
 									<?php else : ?>
 										<?php echo wp_kses_post(gelikon_get_product_price_html($product)); ?>
 									<?php endif; ?>
+									<?php if ($online_payment_price_html) : ?>
+										<div class="gl-online-payment-price" aria-label="<?php esc_attr_e('Цена при оплате на сайте со скидкой 5%', 'gelikon'); ?>">
+											<?php echo wp_kses_post($online_payment_price_html); ?>
+										</div>
+									<?php endif; ?>
 								</div>
 
 								<div class="gl-product-buybox__button-wrap">
@@ -748,7 +756,10 @@ if (!empty($products_to_show)) :
 	<div class="gl-product-mobile-bar">
 		<div class="gl-product-mobile-bar__inner">
 			<div class="gl-product-mobile-bar__price">
-				<?php echo wp_kses_post(gelikon_get_product_price_html($product)); ?>
+				<div class="gl-product-mobile-bar__price-current"><?php echo wp_kses_post(gelikon_get_product_price_html($product)); ?></div>
+				<?php if ($online_payment_price_html) : ?>
+					<div class="gl-online-payment-price"><?php echo wp_kses_post($online_payment_price_html); ?></div>
+				<?php endif; ?>
 			</div>
 
 			<div class="gl-product-mobile-bar__button">
@@ -784,7 +795,10 @@ if (!empty($products_to_show)) :
 
 			<div class="gl-product-desktop-bar__right">
 				<div class="gl-product-desktop-bar__price">
-					<?php echo wp_kses_post(gelikon_get_product_price_html($product)); ?>
+					<div class="gl-product-desktop-bar__price-current"><?php echo wp_kses_post(gelikon_get_product_price_html($product)); ?></div>
+					<?php if ($online_payment_price_html) : ?>
+						<div class="gl-online-payment-price"><?php echo wp_kses_post($online_payment_price_html); ?></div>
+					<?php endif; ?>
 				</div>
 				
 				<div class="gl-product-desktop-bar__action">
@@ -838,7 +852,7 @@ if (!empty($products_to_show)) :
 .gl-product-mobile-bar__price {
 	flex: 1 1 auto;
 	min-width: 0;
-	text-align: end;
+	text-align: left;
 }
 
 .gl-product-mobile-bar__price .price {
@@ -959,6 +973,61 @@ if (!empty($products_to_show)) :
 	flex: 0 0 auto;
 }
 
+.gl-online-payment-price {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 5px 7px;
+	margin-top: 8px;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1.2;
+	color: #66706a;
+}
+
+.gl-online-payment-price__amount,
+.gl-online-payment-price__amount .amount,
+.gl-online-payment-price__amount bdi {
+	font-size: 22px !important;
+	font-weight: 800 !important;
+	line-height: 1 !important;
+	letter-spacing: -0.03em !important;
+	color: var(--gl-color-accent) !important;
+}
+
+.gl-online-payment-price__badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 22px;
+	padding: 3px 9px;
+	border-radius: 999px;
+	background: var(--gl-color-accent);
+	color: #fff;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 1;
+	white-space: nowrap;
+}
+
+.gl-product-mobile-bar__price .gl-online-payment-price {
+	gap: 3px 5px;
+	margin-top: 5px;
+	font-size: 11px;
+}
+
+.gl-product-mobile-bar__price .gl-online-payment-price__amount,
+.gl-product-mobile-bar__price .gl-online-payment-price__amount .amount,
+.gl-product-mobile-bar__price .gl-online-payment-price__amount bdi {
+	font-size: 17px !important;
+}
+
+.gl-product-mobile-bar__price .gl-online-payment-price__badge {
+	min-height: 19px;
+	padding: 2px 7px;
+	font-size: 10px;
+}
+
 .gl-product-desktop-bar__price .price {
 	margin: 0;
 	line-height: 1;
@@ -1062,8 +1131,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	const $variationForm = window.jQuery('.gl-product-buybox--variable form.variations_form').first();
 	const $stickyButtons = window.jQuery('.gl-variable-sticky-add-to-cart');
-	const $stickyPrices = window.jQuery('.gl-product-mobile-bar__price, .gl-product-desktop-bar__price');
+	const $stickyPrices = window.jQuery('.gl-product-mobile-bar__price-current, .gl-product-desktop-bar__price-current');
+	const $onlinePaymentPrices = window.jQuery('.gl-online-payment-price');
 	const defaultStickyPrice = $stickyPrices.first().html();
+	const defaultOnlinePaymentPrice = $onlinePaymentPrices.first().html();
 
 	if (!$variationForm.length) return;
 
@@ -1128,6 +1199,9 @@ document.addEventListener('DOMContentLoaded', function () {
 				$variablePriceBox.removeClass('is-awaiting-variation');
 			}
 			if (variation && variation.price_html) $stickyPrices.html(variation.price_html);
+			if (variation && variation.gelikon_online_payment_price_html) {
+				$onlinePaymentPrices.html(variation.gelikon_online_payment_price_html);
+			}
 
 			const canPurchase = variation && variation.is_purchasable && variation.is_in_stock;
 			$stickyButtons.attr('aria-disabled', canPurchase ? 'false' : 'true');
@@ -1138,6 +1212,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (price) price.textContent = '';
 			$variablePriceBox.addClass('is-awaiting-variation');
 			$stickyPrices.html(defaultStickyPrice);
+			$onlinePaymentPrices.html(defaultOnlinePaymentPrice);
 			$stickyButtons.attr('aria-disabled', 'false');
 		});
 

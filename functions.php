@@ -5453,6 +5453,47 @@ add_filter('woocommerce_product_single_add_to_cart_text', function($text) {
 	return 'Купить';
 });
 
+/**
+ * Return the displayed product price reduced by the online-payment discount.
+ *
+ * This is presentation-only: checkout totals are not changed here.
+ */
+function gelikon_get_online_payment_price($product) {
+	if (!$product instanceof WC_Product) {
+		return 0.0;
+	}
+
+	$price = $product->is_type('variable')
+		? (float) $product->get_variation_price('min', true)
+		: (float) wc_get_price_to_display($product);
+
+	return $price > 0 ? $price * 0.95 : 0.0;
+}
+
+/**
+ * Render the compact online-payment price shown on product purchase controls.
+ */
+function gelikon_get_online_payment_price_html($product) {
+	$discounted_price = gelikon_get_online_payment_price($product);
+
+	if ($discounted_price <= 0) {
+		return '';
+	}
+
+	return sprintf(
+		'<span class="gl-online-payment-price__amount">%1$s</span><span class="gl-online-payment-price__label">%2$s</span><span class="gl-online-payment-price__badge">%3$s</span>',
+		wc_price($discounted_price),
+		esc_html__('при оплате на сайте', 'gelikon'),
+		esc_html__('-5%', 'gelikon')
+	);
+}
+
+add_filter('woocommerce_available_variation', function ($data, $product, $variation) {
+	$data['gelikon_online_payment_price_html'] = gelikon_get_online_payment_price_html($variation);
+
+	return $data;
+}, 10, 3);
+
 
 
 
