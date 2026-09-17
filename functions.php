@@ -12,6 +12,7 @@ require_once GELIKON_DIR . '/inc/enqueue.php';
 require_once GELIKON_DIR . '/inc/customizer.php';
 require_once GELIKON_DIR . '/inc/template-tags.php';
 require_once GELIKON_DIR . '/inc/woocommerce.php';
+require_once GELIKON_DIR . '/inc/category-discounts.php';
 require_once GELIKON_DIR . '/inc/order-statuses.php';
 require_once GELIKON_DIR . '/inc/dadata.php';
 
@@ -3089,14 +3090,12 @@ function gelikon_get_badge_contrast_color($hex_color) {
  * Собираем плашки товара из ACF
  */
 function gelikon_get_product_badges($product_id) {
-	if (!$product_id || !function_exists('get_field')) {
+	if (!$product_id) {
 		return [];
 	}
 
-	$rows = get_field('product_badges', $product_id);
-	if (empty($rows) || !is_array($rows)) {
-		return [];
-	}
+	$rows = function_exists('get_field') ? get_field('product_badges', $product_id) : [];
+	$rows = is_array($rows) ? $rows : [];
 
 	$label_map = gelikon_get_product_badge_label_map();
 	$badges    = [];
@@ -3131,6 +3130,18 @@ function gelikon_get_product_badges($product_id) {
 		];
 	}
 
+	$product          = function_exists('wc_get_product') ? wc_get_product($product_id) : false;
+	$discount_percent = function_exists('gelikon_get_actual_discount_percent') ? gelikon_get_actual_discount_percent($product) : 0;
+	if ($discount_percent > 0) {
+		array_unshift($badges, [
+			'key'          => 'discount',
+			'text'         => sprintf('−%d%%', $discount_percent),
+			'color'        => 'red',
+			'class'        => 'gl-badge--red gl-product-discount-badge',
+			'custom_color' => '',
+		]);
+	}
+
 	return $badges;
 }
 
@@ -3162,7 +3173,7 @@ function gelikon_render_product_badges($product_id, $context = 'card') {
 				);
 			}
 			?>
-			<span class="gl-product-badge <?php echo esc_attr($badge['class']); ?>"<?php echo $style ? ' style="' . esc_attr($style) . '"' : ''; ?>>
+			<span class="gl-product-badge <?php echo esc_attr($badge['class']); ?>"<?php echo 'discount' === $badge['key'] ? ' data-default-text="' . esc_attr($badge['text']) . '"' : ''; ?><?php echo $style ? ' style="' . esc_attr($style) . '"' : ''; ?>>
 				<?php echo esc_html($badge['text']); ?>
 			</span>
 		<?php endforeach; ?>
