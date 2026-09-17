@@ -1317,6 +1317,64 @@ document.addEventListener('DOMContentLoaded', function () {
 	color: var(--gl-color-heading);
 }
 
+/* Keep the crossed-out regular price visually separate from the sale price.
+ * WooCommerce applies the amount typography to both values, so without these
+ * overrides two long prices run into each other in the buy box and sticky bars. */
+.gl-product-buybox__price del,
+.gl-product-buybox__variable-price del,
+.gl-product-mobile-bar__price del,
+.gl-product-desktop-bar__price del {
+	display: inline-flex;
+	align-items: baseline;
+	margin: 0 10px 0 0;
+	color: #7b817e;
+	font-size: 20px;
+	font-weight: 500;
+	line-height: 1;
+	white-space: nowrap;
+	text-decoration-thickness: 1px;
+	text-decoration-color: currentColor;
+	opacity: 1;
+}
+
+.gl-product-buybox__price ins,
+.gl-product-buybox__variable-price ins,
+.gl-product-mobile-bar__price ins,
+.gl-product-desktop-bar__price ins {
+	display: inline-flex;
+	align-items: baseline;
+	color: var(--gl-color-heading);
+	white-space: nowrap;
+	text-decoration: none;
+}
+
+.gl-product-buybox__price del .amount,
+.gl-product-buybox__price del bdi,
+.gl-product-buybox__price del .woocommerce-Price-currencySymbol,
+.gl-product-buybox__variable-price del .amount,
+.gl-product-buybox__variable-price del bdi,
+.gl-product-buybox__variable-price del .woocommerce-Price-currencySymbol,
+.gl-product-mobile-bar__price del .amount,
+.gl-product-mobile-bar__price del bdi,
+.gl-product-mobile-bar__price del .woocommerce-Price-currencySymbol,
+.gl-product-desktop-bar__price del .amount,
+.gl-product-desktop-bar__price del bdi,
+.gl-product-desktop-bar__price del .woocommerce-Price-currencySymbol {
+	color: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	letter-spacing: -0.02em;
+}
+
+.gl-product-mobile-bar__price del {
+	margin-right: 6px;
+	font-size: 14px;
+}
+
+.gl-product-desktop-bar__price del {
+	font-size: 18px;
+}
+
 .gl-product-buybox__button {
 	flex: 0 0 auto;
 }
