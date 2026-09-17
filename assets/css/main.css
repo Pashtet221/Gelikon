@@ -108,13 +108,13 @@ img { max-width: 100%; height: auto; display: block; }
     transform: none;
   }
 }
-.mobile,
+.gl-header__contact-trigger--mobile,
 .gl-header__phones-mobile,
 .gl-header__address-mobile {
   display: none !important;
 }
 
-.desktop {
+.gl-header__contact-trigger--desktop {
   display: inline-flex !important;
 }
 
@@ -348,8 +348,8 @@ a.gl-product-card__button--disabled {
 }
 
 @media (max-width: 1140px) {
-  .mobile { display: inline-flex !important; }
-  .desktop { display: none !important; }
+  .gl-header__contact-trigger--mobile { display: inline-flex !important; }
+  .gl-header__contact-trigger--desktop { display: none !important; }
   .gl-header__top { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 10px 0; }
   .gl-header__brand { gap: 10px; min-width: 0; }
   .gl-burger { display: inline-flex; }

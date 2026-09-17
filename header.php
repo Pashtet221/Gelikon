@@ -66,7 +66,7 @@ if (function_exists('get_field')) {
 				<div class="gl-header__actions">
 					
 					<button
-	class="gl-header__icon gl-mobile-contact-trigger desktop"
+	class="gl-header__icon gl-mobile-contact-trigger gl-header__contact-trigger--desktop"
 	type="button"
 	aria-label="<?php esc_attr_e('Контакты', 'gelikon'); ?>"
 	data-gl-open-contact-modal
@@ -95,7 +95,7 @@ if (function_exists('get_field')) {
 					</div>
 
 <button
-	class="gl-header__icon gl-mobile-contact-trigger mobile"
+	class="gl-header__icon gl-mobile-contact-trigger gl-header__contact-trigger--mobile"
 	type="button"
 	aria-label="<?php esc_attr_e('Контакты', 'gelikon'); ?>"
 	data-gl-open-mobile-contacts
@@ -346,7 +346,7 @@ if (function_exists('get_field')) {
 
 <style>	
 /* ===== MOBILE ===== */
-.mobile {
+.gl-header__contact-trigger--mobile {
 	display: none !important;
 }
 	
@@ -356,18 +356,18 @@ if (function_exists('get_field')) {
 }
 
 @media (max-width: 1140px) {
-	.mobile {
+	.gl-header__contact-trigger--mobile {
 		display: inline-flex !important;
 	}
 }
 
 /* ===== DESKTOP ===== */
-.desktop {
+.gl-header__contact-trigger--desktop {
 	display: inline-flex !important;
 }
 
 @media (max-width: 1140px) {
-	.desktop {
+	.gl-header__contact-trigger--desktop {
 		display: none !important;
 	}
 }
