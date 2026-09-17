@@ -1193,6 +1193,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	$variationForm
 		.on('found_variation', function (_event, variation) {
+			const discountBadge = document.querySelector('.gl-product-gallery .gl-product-discount-badge');
+			const discountPercent = variation ? Number(variation.gelikon_discount_percent || 0) : 0;
+			if (discountBadge) {
+				discountBadge.textContent = '−' + Math.round(discountPercent) + '%';
+				discountBadge.style.display = discountPercent > 0 ? '' : 'none';
+			}
 			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
 			if (price && variation && variation.price_html) {
 				price.innerHTML = variation.price_html;
@@ -1208,6 +1214,11 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (canPurchase) clearVariationError();
 		})
 		.on('reset_data hide_variation', function () {
+			const discountBadge = document.querySelector('.gl-product-gallery .gl-product-discount-badge');
+			if (discountBadge) {
+				discountBadge.textContent = discountBadge.dataset.defaultText || discountBadge.textContent;
+				discountBadge.style.display = '';
+			}
 			const price = this.closest('.gl-product-buybox').querySelector('.gl-product-buybox__variable-price');
 			if (price) price.textContent = '';
 			$variablePriceBox.addClass('is-awaiting-variation');
