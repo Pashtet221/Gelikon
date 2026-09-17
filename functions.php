@@ -1300,6 +1300,170 @@ add_action('wp_head', function () {
 }, 99);
 
 
+/**
+ * Keep the CDEK PVZ widget laid out after opening and reopening its modal.
+ *
+ * The delivery plugin keeps the map widget between modal openings.  Yandex
+ * Maps can therefore measure it while the modal is hidden and retain a zero
+ * (or stale) viewport.  Do not recreate the vendor widget or impose a modal
+ * size here: both approaches break the widget's own lifecycle.  Instead,
+ * observe the real CDEK map node, restore its available size and make its
+ * resize observer run once the modal is visible.
+ */
+add_action('wp_footer', function () {
+	if (! function_exists('is_checkout') || ! is_checkout() || is_order_received_page()) {
+		return;
+	}
+	?>
+	<style id="gelikon-cdek-pvz-map-fix">
+		/* The plugin may leave an inline width calculated while the dialog was hidden. */
+		.gl-cdek-pvz-map-active {
+			width: 100% !important;
+			max-width: 100% !important;
+		}
+
+		.gl-cdek-pvz-map-active [class*="ymaps-"][class*="-map"] {
+			max-width: 100% !important;
+		}
+	</style>
+	<script>
+	(function () {
+		'use strict';
+
+		var openSelector = '.open-pvz-btn';
+		var mapSelector = '[class*="ymaps-"][class*="-map"], iframe[src*="yandex" i], iframe[src*="cdek" i]';
+		var refreshTimers = [];
+		var observedMaps = new WeakSet();
+
+		function isVisible(element) {
+			if (!element || !element.isConnected) {
+				return false;
+			}
+
+			var node = element;
+			var hasViewport = false;
+
+			/* A broken map itself can be 0x0, so test its visible ancestors too. */
+			while (node && node !== document.documentElement) {
+				var style = window.getComputedStyle(node);
+				var rect = node.getBoundingClientRect();
+
+				if (style.display === 'none' || style.visibility === 'hidden') {
+					return false;
+				}
+
+				if (rect.width > 1 && rect.height > 1) {
+					hasViewport = true;
+				}
+
+				node = node.parentElement;
+			}
+
+			return hasViewport;
+		}
+
+		function getWidgetRoot(map) {
+			var node = map;
+			var best = map.parentElement || map;
+
+			/* Stop before the modal: only the widget should fill its available column. */
+			for (var depth = 0; node && node.parentElement && depth < 5; depth += 1) {
+				var parent = node.parentElement;
+				var style = window.getComputedStyle(parent);
+
+				if (style.position === 'fixed' || parent.getAttribute('role') === 'dialog' || parent.tagName === 'DIALOG') {
+					break;
+				}
+
+				best = parent;
+				node = parent;
+			}
+
+			return best;
+		}
+
+		function nudgeMapViewport(map) {
+			if (!isVisible(map)) {
+				return;
+			}
+
+			var root = getWidgetRoot(map);
+			root.classList.add('gl-cdek-pvz-map-active');
+
+			/*
+			 * A real one-pixel size change wakes both old Yandex Maps size monitors
+			 * and newer ResizeObserver-based widget releases.  Restoring the inline
+			 * value on the next frame leaves the vendor's responsive layout intact.
+			 */
+			var previousWidth = map.style.width;
+			map.style.width = 'calc(100% - 1px)';
+			map.getBoundingClientRect();
+
+			window.requestAnimationFrame(function () {
+				map.style.width = previousWidth || '100%';
+				window.dispatchEvent(new Event('resize'));
+			});
+		}
+
+		function refreshVisibleMaps() {
+			Array.prototype.forEach.call(document.querySelectorAll(mapSelector), function (map) {
+				if (!isVisible(map)) {
+					return;
+				}
+
+				nudgeMapViewport(map);
+
+				if (!observedMaps.has(map) && 'ResizeObserver' in window) {
+					observedMaps.add(map);
+					var lastWidth = map.getBoundingClientRect().width;
+					new ResizeObserver(function (entries) {
+						var width = entries[0].contentRect.width;
+						if (width > 1 && Math.abs(width - lastWidth) > 1) {
+							lastWidth = width;
+							window.dispatchEvent(new Event('resize'));
+						}
+					}).observe(map);
+				}
+			});
+		}
+
+		function scheduleRefresh() {
+			refreshTimers.forEach(window.clearTimeout);
+			refreshTimers = [0, 50, 150, 350, 700, 1200].map(function (delay) {
+				return window.setTimeout(refreshVisibleMaps, delay);
+			});
+		}
+
+		/* Delegation survives WooCommerce replacing the shipping methods by AJAX. */
+		document.addEventListener('click', function (event) {
+			if (event.target.closest(openSelector)) {
+				scheduleRefresh();
+			}
+		});
+
+		/* The widget is commonly appended asynchronously after the click. */
+		new MutationObserver(function (mutations) {
+			var hasAddedNodes = mutations.some(function (mutation) {
+				return mutation.addedNodes.length > 0;
+			});
+
+			if (hasAddedNodes && document.querySelector(mapSelector)) {
+				scheduleRefresh();
+			}
+		}).observe(document.body, {
+			childList: true,
+			subtree: true
+		});
+
+		if (window.jQuery) {
+			window.jQuery(document.body).on('updated_checkout.gelikonCdekMap', scheduleRefresh);
+		}
+	}());
+	</script>
+	<?php
+}, 100);
+
+
 
 
 
