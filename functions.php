@@ -7127,6 +7127,101 @@ add_action('wp_footer', function () {
 
 
 /**
+ * Keep the CDEK pickup-point map usable when it is opened more than once.
+ *
+ * Some versions of the CDEK checkout widget reuse a modal which was measured
+ * while hidden. On the next opening its dialog can consequently retain the
+ * width of the close button (roughly 40px), and the map never gets a usable
+ * viewport. Re-measure only CDEK/PVZ dialogs after every open and notify the
+ * embedded map about the restored viewport size.
+ */
+add_action('wp_footer', function () {
+	if (! function_exists('is_checkout') || ! is_checkout() || is_order_received_page()) {
+		return;
+	}
+	?>
+	<style id="gelikon-cdek-map-reopen-fix">
+		.gl-cdek-map-dialog-fix {
+			width: min(1100px, calc(100vw - 32px)) !important;
+			max-width: calc(100vw - 32px) !important;
+			min-width: min(720px, calc(100vw - 32px)) !important;
+			height: min(760px, calc(100vh - 32px)) !important;
+			max-height: calc(100vh - 32px) !important;
+		}
+
+		@media (max-width: 767px) {
+			.gl-cdek-map-dialog-fix {
+				width: calc(100vw - 16px) !important;
+				max-width: calc(100vw - 16px) !important;
+				min-width: 0 !important;
+				height: calc(100vh - 16px) !important;
+				max-height: calc(100vh - 16px) !important;
+			}
+		}
+	</style>
+	<script>
+	(function () {
+		'use strict';
+
+		var markerSelector = '[class*="cdek" i], [id*="cdek" i], [class*="pvz" i], [id*="pvz" i]';
+
+		function isVisible(element) {
+			var style = window.getComputedStyle(element);
+			return style.display !== 'none' && style.visibility !== 'hidden';
+		}
+
+		function findCollapsedCdekDialog() {
+			var markers = document.querySelectorAll(markerSelector);
+			var best = null;
+
+			Array.prototype.forEach.call(markers, function (marker) {
+				if (!isVisible(marker) || marker.closest('.gl-order-review-table')) {
+					return;
+				}
+
+				var node = marker;
+				for (var depth = 0; node && node !== document.body && depth < 7; depth += 1, node = node.parentElement) {
+					var style = window.getComputedStyle(node);
+					var rect = node.getBoundingClientRect();
+					var isLayer = style.position === 'fixed' || style.position === 'absolute' || parseInt(style.zIndex, 10) > 100;
+
+					if (isLayer && rect.height > 200 && rect.width > 0 && rect.width < 320) {
+						best = node;
+					}
+				}
+			});
+
+			return best;
+		}
+
+		function refreshCdekMap() {
+			var dialog = findCollapsedCdekDialog();
+
+			if (dialog) {
+				dialog.classList.add('gl-cdek-map-dialog-fix');
+				// Force layout before map libraries handle the resize notification.
+				dialog.getBoundingClientRect();
+			}
+
+			window.dispatchEvent(new Event('resize'));
+		}
+
+		document.addEventListener('click', function (event) {
+			if (!event.target.closest('.open-pvz-btn')) {
+				return;
+			}
+
+			[0, 50, 200, 500, 1000].forEach(function (delay) {
+				window.setTimeout(refreshCdekMap, delay);
+			});
+		});
+	}());
+	</script>
+	<?php
+}, 100);
+
+
+/**
  * Product descriptions: keep default WooCommerce editors in admin,
  * but strip imported editor junk before rendering on the frontend.
  */
