@@ -139,6 +139,27 @@ add_action('woocommerce_after_checkout_validation', function ($data, $errors) {
 }, 10, 2);
 
 /**
+ * Не выводит технические значения чекбоксов согласия в данных заказа.
+ *
+ * Согласия по-прежнему проверяются при оформлении заказа, но их служебные
+ * значения «1» не нужны менеджеру среди введённых покупателем данных.
+ */
+add_filter('woocommerce_order_get_formatted_meta_data', function ($formatted_meta) {
+	$hidden_consent_fields = [
+		'cr_customer_consent_field',
+		'gelikon_personal_data_consent',
+	];
+
+	foreach ($formatted_meta as $meta_id => $meta) {
+		if (isset($meta->key) && in_array($meta->key, $hidden_consent_fields, true)) {
+			unset($formatted_meta[$meta_id]);
+		}
+	}
+
+	return $formatted_meta;
+}, 10);
+
+/**
  * Вывод и валидация согласия в форме регистрации WooCommerce.
  */
 add_action('woocommerce_register_form', function () {
