@@ -908,7 +908,7 @@ if (!empty($products_to_show)) :
 	right: 0;
 	bottom: 0;
 	z-index: 998;
-	padding: 12px 0;
+	padding: 8px 0;
 	background: rgba(255, 255, 255, 0.92);
 	backdrop-filter: blur(12px);
 	-webkit-backdrop-filter: blur(12px);
@@ -1502,7 +1502,30 @@ transition: transform .2s ease, filter .2s ease;
 /* Variable product: one calm row instead of WooCommerce's price-range layout. */
 .gl-product-buybox--variable .gl-product-buybox__price {
 	flex: 0 0 185px;
-	margin-top: 20px;
+	margin-top: 14px;
+}
+
+/* Variable products contain an extra row of selectors, so use slightly tighter
+ * vertical rhythm here without changing the roomier simple-product card. */
+.gl-product-buybox--variable {
+	padding-top: 14px;
+	padding-bottom: 14px;
+}
+
+.gl-product-buybox--variable .gl-product-stock-status {
+	font-size: 14px;
+	line-height: 1;
+}
+
+.gl-product-buybox--variable .gl-online-payment-price {
+	gap: 3px 6px;
+	margin-top: 5px;
+	line-height: 1.1;
+}
+
+.gl-product-buybox--variable .gl-online-payment-price__badge {
+	min-height: 20px;
+	padding-block: 2px;
 }
 
 .gl-product-buybox--variable .gl-product-buybox__price.is-awaiting-variation {
@@ -1566,7 +1589,7 @@ transition: transform .2s ease, filter .2s ease;
 }
 
 .gl-product-buybox--variable table.variations th.label {
-	margin-bottom: 7px;
+	margin-bottom: 5px;
 	color: #7b817e;
 	font-size: 12px;
 	font-weight: 600;
@@ -1574,12 +1597,12 @@ transition: transform .2s ease, filter .2s ease;
 }
 
 .gl-product-buybox--variable table.variations tr + tr {
-	margin-top: 12px;
+	margin-top: 8px;
 }
 
 .gl-product-buybox--variable table.variations select {
 	width: 100%;
-	min-height: 48px;
+	min-height: 44px;
 	margin: 0;
 	padding: 0 42px 0 15px;
 	border: 1px solid #dfe3e0;
@@ -1628,7 +1651,7 @@ transition: transform .2s ease, filter .2s ease;
 
 .gl-product-buybox--variable .reset_variations {
 	display: inline-block;
-	margin-top: 6px;
+	margin-top: 4px;
 	color: #7b817e;
 	font-size: 12px;
 	line-height: 1;
