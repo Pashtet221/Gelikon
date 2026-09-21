@@ -242,10 +242,47 @@ function gelikon_enqueue_manrope_font() {
 
 
 
-add_filter('upload_mimes', function ($mimes) {
-	$mimes['mp4'] = 'video/mp4';
+/**
+ * Media formats used in posts and product galleries.
+ *
+ * Some hosting configurations expose only a reduced version of WordPress' MIME
+ * list. Keep the formats needed by the content team explicit so that a core or
+ * hosting update does not unexpectedly hide them from the media uploader.
+ */
+function gelikon_allowed_upload_mimes($mimes) {
+	$mimes['jpg|jpeg|jpe|jfif'] = 'image/jpeg';
+	$mimes['png']               = 'image/png';
+	$mimes['gif']               = 'image/gif';
+	$mimes['webp']              = 'image/webp';
+	$mimes['avif']              = 'image/avif';
+
+	$mimes['mp4|m4v'] = 'video/mp4';
+	$mimes['mov|qt']  = 'video/quicktime';
+	$mimes['webm']    = 'video/webm';
+	$mimes['ogv']     = 'video/ogg';
+	$mimes['avi']     = 'video/x-msvideo';
+	$mimes['wmv']     = 'video/x-ms-wmv';
+
+	$mimes['mp3']      = 'audio/mpeg';
+	$mimes['m4a']      = 'audio/mp4';
+	$mimes['ogg|oga']  = 'audio/ogg';
+	$mimes['wav']      = 'audio/wav';
+	$mimes['flac']     = 'audio/flac';
+
 	return $mimes;
-});
+}
+add_filter('upload_mimes', 'gelikon_allowed_upload_mimes');
+
+/**
+ * Raise the WordPress media limit to 20 MiB.
+ *
+ * The web server's upload_max_filesize and post_max_size values must be at
+ * least as large; WordPress cannot override server-level limits from a theme.
+ */
+function gelikon_media_upload_size_limit() {
+	return 20 * MB_IN_BYTES;
+}
+add_filter('upload_size_limit', 'gelikon_media_upload_size_limit');
 
 
 
@@ -1887,7 +1924,7 @@ function gelikon_review_images_field() {
 				</div>
 
 				<div class="gelikon-review-upload__button">Выбрать файлы</div>
-				<div class="gelikon-review-upload__note">До 5 фото · PNG, JPG, WEBP · до 5 МБ за файл</div>
+				<div class="gelikon-review-upload__note">До 5 фото · PNG, JPG, WEBP · до 20 МБ за файл</div>
 			</div>
 		</div>
 
@@ -2346,15 +2383,15 @@ add_action('wp_footer', function () {
 }, 99);
 
 /**
- * Ограничение размера файлов
+ * Keep the server-side upload validation in sync with the media library limit.
  */
 add_filter('wp_handle_upload_prefilter', function ($file) {
 	if (!is_array($file) || empty($file['name'])) {
 		return $file;
 	}
 
-	if (!empty($file['size']) && (int) $file['size'] > 5 * 1024 * 1024) {
-		$file['error'] = 'Каждое изображение должно быть не больше 5 МБ.';
+	if (!empty($file['size']) && (int) $file['size'] > gelikon_media_upload_size_limit()) {
+		$file['error'] = __('Размер файла не должен превышать 20 МБ.', 'gelikon');
 	}
 
 	return $file;
