@@ -2176,17 +2176,16 @@ transition: transform .2s ease, filter .2s ease;
 			</p>',
 	],
 	'comment_field' =>
-		'<p class="comment-form-rating">
-			<label for="rating">Оценка</label>
-			<select name="rating" id="rating" required>
-				<option value="">Выберите оценку</option>
-				<option value="5">5</option>
-				<option value="4">4</option>
-				<option value="3">3</option>
-				<option value="2">2</option>
-				<option value="1">1</option>
-			</select>
-		</p>
+		'<fieldset class="comment-form-rating">
+			<legend>Оценка</legend>
+			<div class="gl-product-rating-stars">
+				<input type="radio" name="rating" id="rating-5" value="5" required><label for="rating-5"><span class="screen-reader-text">5 из 5 звёзд</span></label>
+				<input type="radio" name="rating" id="rating-4" value="4"><label for="rating-4"><span class="screen-reader-text">4 из 5 звёзд</span></label>
+				<input type="radio" name="rating" id="rating-3" value="3"><label for="rating-3"><span class="screen-reader-text">3 из 5 звёзд</span></label>
+				<input type="radio" name="rating" id="rating-2" value="2"><label for="rating-2"><span class="screen-reader-text">2 из 5 звёзд</span></label>
+				<input type="radio" name="rating" id="rating-1" value="1"><label for="rating-1"><span class="screen-reader-text">1 из 5 звёзд</span></label>
+			</div>
+		</fieldset>
 		<p class="comment-form-comment">
 			<label for="comment">Ваш отзыв</label>
 			<textarea id="comment" name="comment" cols="45" rows="6" required></textarea>
@@ -2523,19 +2522,19 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 
 .gl-product-popup__form-toggle{
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 16px;
-	width: 100%;
-	min-height: 56px;
-	padding: 14px 20px;
+	width: auto;
+	min-height: 48px;
+	padding: 11px 18px;
 	border: 0;
 	border-radius: 14px;
 	background: var(--gl-color-buy-button, #18b75b);
 	color: #fff;
 	font: inherit;
-	font-size: 18px;
+	font-size: 16px;
 	font-weight: 700;
 	text-align: left;
 	cursor: pointer;
@@ -2617,6 +2616,69 @@ document.addEventListener('DOMContentLoaded', function () {
 .gl-product-popup .gelikon-review-upload,
 .gl-product-popup .form-submit{
 	grid-column: 1 / -1;
+}
+
+.gl-product-popup .comment-form-rating{
+	min-width: 0;
+	padding: 0;
+	border: 0;
+}
+
+.gl-product-popup .comment-form-rating legend{
+	margin: 0 0 8px;
+	font-size: 14px;
+	line-height: 1.4;
+	font-weight: 700;
+	color: var(--gl-color-heading);
+}
+
+.gl-product-rating-stars{
+	display: inline-flex;
+	flex-direction: row-reverse;
+	align-items: center;
+	gap: 4px;
+}
+
+.gl-product-rating-stars input{
+	position: absolute;
+	width: 1px !important;
+	height: 1px;
+	min-height: 0 !important;
+	margin: -1px;
+	padding: 0 !important;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.gl-product-rating-stars label{
+	margin: 0 !important;
+	color: #d7dde1 !important;
+	font-size: 34px !important;
+	line-height: 1;
+	cursor: pointer;
+	transition: color .15s ease, transform .15s ease;
+}
+
+.gl-product-rating-stars label::before{
+	content: '\2605';
+}
+
+.gl-product-rating-stars label:hover,
+.gl-product-rating-stars label:hover ~ label,
+.gl-product-rating-stars input:checked ~ label{
+	color: #f5b301 !important;
+}
+
+.gl-product-rating-stars label:hover{
+	transform: scale(1.08);
+}
+
+.gl-product-rating-stars input:focus-visible + label{
+	border-radius: 4px;
+	outline: 3px solid rgba(24, 183, 91, .28);
+	outline-offset: 2px;
 }
 
 .gl-product-popup .gl-product-form label,
