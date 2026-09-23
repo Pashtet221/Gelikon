@@ -517,7 +517,6 @@ document.addEventListener('DOMContentLoaded', function () {
 							<div class="gl-product-buybox__row">
 								<div class="gl-product-buybox__price<?php echo $product->is_type('variable') ? ' is-awaiting-variation' : ''; ?>">
 									<?php if ($product->is_type('variable')) : ?>
-										<span class="gl-product-buybox__price-label"><?php esc_html_e('Цена', 'gelikon'); ?></span>
 										<span class="gl-product-buybox__variable-price" aria-live="polite"></span>
 									<?php else : ?>
 										<?php echo wp_kses_post(gelikon_get_product_price_html($product)); ?>
@@ -1478,19 +1477,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
 .gl-product-buybox .single_add_to_cart_button,
 .gl-product-buybox button.single_add_to_cart_button.button.alt {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
 	min-width: 180px;
-min-height: 54px;
-padding: 12px 26px;
-border: 0;
-border-radius: 999px;
-background: var(--gl-color-buy-button) !important;
-border-color: var(--gl-color-buy-button) !important;
-color: #fff !important;
-font-size: 16px;
-font-weight: 700;
-line-height: 1;
-box-shadow: none;
-transition: transform .2s ease, filter .2s ease;
+	height: 54px;
+	min-height: 54px;
+	padding: 0 26px;
+	border: 0;
+	border-radius: 999px;
+	background: var(--gl-color-buy-button) !important;
+	border-color: var(--gl-color-buy-button) !important;
+	color: #fff !important;
+	font-size: 16px;
+	font-weight: 700;
+	line-height: 1;
+	box-shadow: none;
+	transition: transform .2s ease, filter .2s ease;
 }
 
 .gl-product-buybox .single_add_to_cart_button:hover,
@@ -1502,7 +1506,7 @@ transition: transform .2s ease, filter .2s ease;
 /* Variable product: one calm row instead of WooCommerce's price-range layout. */
 .gl-product-buybox--variable .gl-product-buybox__price {
 	flex: 0 0 185px;
-	margin-top: 14px;
+	margin: 0;
 }
 
 /* Variable products contain an extra row of selectors, so use slightly tighter
@@ -1533,18 +1537,7 @@ transition: transform .2s ease, filter .2s ease;
 }
 
 .gl-product-buybox--variable .gl-product-buybox__row {
-	align-items: flex-start;
-}
-
-.gl-product-buybox__price-label {
-	display: block;
-	margin-bottom: 7px;
-	color: #7b817e;
-	font-size: 12px;
-	font-weight: 600;
-	line-height: 1;
-	letter-spacing: .04em;
-	text-transform: uppercase;
+	align-items: flex-end;
 }
 
 .gl-product-buybox__variable-price {
@@ -1961,10 +1954,6 @@ transition: transform .2s ease, filter .2s ease;
 	.gl-product-buybox--variable .gl-product-buybox__price {
 		flex-basis: auto;
 		width: 100%;
-	}
-
-	.gl-product-buybox--variable .gl-product-buybox__price-label {
-		display: none;
 	}
 
 	.gl-product-buybox--variable form.variations_form.cart {
