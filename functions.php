@@ -7806,6 +7806,60 @@ add_filter('woocommerce_email_order_items_table', 'gelikon_clean_includes_tax_te
  */
 add_filter('woocommerce_settings_api_form_fields_tbank', 'gelikon_add_tbank_discount_setting');
 
+/**
+ * Keep malformed T-Bank settings from leaking arrays into WordPress escaping
+ * functions and into the payment request.
+ *
+ * A gateway setting is stored as a scalar value by WooCommerce. After some
+ * plugin updates (or an incorrectly submitted settings form), however, one of
+ * those values can be saved as a one-element array. The T-Bank gateway later
+ * passes it to wp_kses_post()/sanitize_text_field(), which produces the two
+ * "Array to string conversion" warnings seen on the order-pay page and may
+ * make the Init request invalid. Normalise only values that should be scalar;
+ * structured settings remain untouched.
+ */
+add_filter('option_woocommerce_tbank_settings', 'gelikon_normalize_tbank_settings');
+
+function gelikon_normalize_tbank_settings($settings) {
+	if (!is_array($settings)) {
+		return $settings;
+	}
+
+	$scalar_settings = array(
+		'enabled',
+		'title',
+		'description',
+		'terminal_key',
+		'terminalKey',
+		'password',
+		'secret_key',
+		'secretKey',
+		'taxation',
+		'payment_mode',
+		'paymentMode',
+		'payment_object',
+		'paymentObject',
+		'gelikon_discount_percent',
+	);
+
+	foreach ($scalar_settings as $key) {
+		if (!isset($settings[$key]) || !is_array($settings[$key])) {
+			continue;
+		}
+
+		$values = array_values(array_filter(
+			array_map(static function($value) {
+				return is_scalar($value) ? trim((string) $value) : '';
+			}, $settings[$key]),
+			'strlen'
+		));
+
+		$settings[$key] = $values ? reset($values) : '';
+	}
+
+	return $settings;
+}
+
 function gelikon_add_tbank_discount_setting($fields) {
 
 	$fields['gelikon_discount_percent'] = array(
@@ -7911,6 +7965,36 @@ function gelikon_set_default_checkout_payment_method() {
 	if (empty($chosen_gateway) || strpos($chosen_gateway, 'split') !== false || strpos($chosen_gateway, 'yandex') !== false) {
 		WC()->session->set('chosen_payment_method', $default_gateway);
 	}
+}
+
+/**
+ * Do not offer payment again when an asynchronous T-Bank callback has already
+ * marked the order as paid. This also prevents a stale gateway error notice
+ * from being shown after the customer returns from the bank.
+ */
+add_action('template_redirect', 'gelikon_redirect_paid_order_pay_page', 30);
+
+function gelikon_redirect_paid_order_pay_page() {
+	if (!function_exists('is_checkout_pay_page') || !is_checkout_pay_page() || !function_exists('wc_get_order')) {
+		return;
+	}
+
+	$order_id = absint(get_query_var('order-pay'));
+	$order    = $order_id ? wc_get_order($order_id) : false;
+
+	if (!$order instanceof WC_Order || !$order->is_paid()) {
+		return;
+	}
+
+	$key = isset($_GET['key']) ? wc_clean(wp_unslash($_GET['key'])) : '';
+
+	if (!$key || !hash_equals($order->get_order_key(), $key)) {
+		return;
+	}
+
+	wc_clear_notices();
+	wp_safe_redirect($order->get_checkout_order_received_url());
+	exit;
 }
 
 
