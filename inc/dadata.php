@@ -81,6 +81,17 @@ function gelikon_dadata_ajax_suggest() {
 		wp_send_json_error(['message' => __('Некорректный запрос подсказок.', 'gelikon')], 400);
 	}
 
+	/*
+	 * This endpoint is an optional checkout enhancement. Some plugins start a
+	 * native PHP session during WordPress bootstrap; keeping that session locked
+	 * while waiting for DaData serializes the visitor's concurrent wc-ajax
+	 * checkout request behind this one. Release that lock before doing any
+	 * network I/O so address suggestions can never hold up order creation.
+	 */
+	if (function_exists('session_status') && PHP_SESSION_ACTIVE === session_status()) {
+		session_write_close();
+	}
+
 	$body = [
 		'query' => 'address' === $mode && $city ? $city . ', ' . $query : $query,
 		'count' => 7,
@@ -94,22 +105,57 @@ function gelikon_dadata_ajax_suggest() {
 		$body['to_bound']   = ['value' => 'house'];
 	}
 
-	$response = wp_remote_post('https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address', [
-		'timeout' => 8,
-		'headers' => [
-			'Authorization' => 'Token ' . $token,
-			'Content-Type'  => 'application/json',
-			'Accept'        => 'application/json',
-		],
-		'body' => wp_json_encode($body),
-	]);
+	$cache_key = 'gelikon_dadata_' . md5($mode . '|' . $city . '|' . $query);
+	$cached    = get_transient($cache_key);
 
-	if (is_wp_error($response) || 200 !== wp_remote_retrieve_response_code($response)) {
-		wp_send_json_error(['message' => __('Сервис подсказок временно недоступен.', 'gelikon')], 502);
+	if (is_array($cached)) {
+		wp_send_json_success(['suggestions' => $cached]);
+	}
+
+	/* Avoid repeatedly occupying PHP workers while DaData is known to be down. */
+	if (get_transient('gelikon_dadata_unavailable')) {
+		wp_send_json_success(['suggestions' => []]);
+	}
+
+	$started = microtime(true);
+
+	try {
+		$response = wp_remote_post('https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address', [
+			'timeout'             => 2,
+			'redirection'         => 0,
+			'limit_response_size' => 256 * 1024,
+			'headers'             => [
+				'Authorization' => 'Token ' . $token,
+				'Content-Type'  => 'application/json',
+				'Accept'        => 'application/json',
+			],
+			'body' => wp_json_encode($body),
+		]);
+	} catch (Throwable $error) {
+		$response = new WP_Error('request_exception');
+	}
+
+	$status   = wp_remote_retrieve_response_code($response);
+	$duration = (int) round((microtime(true) - $started) * 1000);
+
+	if (is_wp_error($response) || 200 !== $status) {
+		set_transient('gelikon_dadata_unavailable', 1, MINUTE_IN_SECONDS);
+		gelikon_dadata_log_failure(
+			is_wp_error($response) ? $response->get_error_code() : 'http_' . $status,
+			$duration,
+			$mode
+		);
+		wp_send_json_success(['suggestions' => []]);
 	}
 
 	$payload = json_decode(wp_remote_retrieve_body($response), true);
 	$items   = [];
+
+	if (!is_array($payload) || !isset($payload['suggestions']) || !is_array($payload['suggestions'])) {
+		set_transient('gelikon_dadata_unavailable', 1, MINUTE_IN_SECONDS);
+		gelikon_dadata_log_failure('invalid_response', $duration, $mode);
+		wp_send_json_success(['suggestions' => []]);
+	}
 
 	foreach ((array) ($payload['suggestions'] ?? []) as $suggestion) {
 		$data = (array) ($suggestion['data'] ?? []);
@@ -137,7 +183,24 @@ function gelikon_dadata_ajax_suggest() {
 		];
 	}
 
+	set_transient($cache_key, $items, 5 * MINUTE_IN_SECONDS);
 	wp_send_json_success(['suggestions' => $items]);
+}
+
+/**
+ * Log only operational DaData data: never the token, query, or customer address.
+ */
+function gelikon_dadata_log_failure($reason, $duration, $mode) {
+	if (!function_exists('wc_get_logger')) {
+		return;
+	}
+
+	wc_get_logger()->warning('DaData suggestions unavailable', [
+		'source'      => 'gelikon-dadata',
+		'reason'      => sanitize_key((string) $reason),
+		'duration_ms' => absint($duration),
+		'mode'        => sanitize_key((string) $mode),
+	]);
 }
 add_action('wp_ajax_gelikon_dadata_suggest', 'gelikon_dadata_ajax_suggest');
 add_action('wp_ajax_nopriv_gelikon_dadata_suggest', 'gelikon_dadata_ajax_suggest');
