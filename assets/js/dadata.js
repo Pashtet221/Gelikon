@@ -2,6 +2,8 @@
 	'use strict';
 
 	var config = window.gelikonDadata || {};
+	var instances = [];
+	var checkoutSubmitting = false;
 
 	function Autocomplete(input, mode) {
 		this.$input = $(input);
@@ -33,7 +35,7 @@
 		var self = this;
 		var query = $.trim(this.$input.val());
 
-		if (query.length < (config.minChars || 2)) {
+		if (checkoutSubmitting || query.length < (config.minChars || 2)) {
 			this.close();
 			return;
 		}
@@ -44,19 +46,35 @@
 
 		var sequence = ++this.sequence;
 		this.message(config.messages.loading);
-		this.request = $.post(config.ajaxUrl, {
-			action: 'gelikon_dadata_suggest',
-			nonce: config.nonce,
-			mode: this.mode,
-			query: query,
-			city: this.mode === 'address' ? $('[name="shipping_city"]').val() : ''
+		this.request = $.ajax({
+			url: config.ajaxUrl,
+			method: 'POST',
+			timeout: 3000,
+			data: {
+				action: 'gelikon_dadata_suggest',
+				nonce: config.nonce,
+				mode: this.mode,
+				query: query,
+				city: this.mode === 'address' ? $('[name="shipping_city"]').val() : ''
+			}
 		}).done(function (response) {
 			if (sequence !== self.sequence) return;
 			var items = response && response.success ? response.data.suggestions : [];
 			self.render(items);
-		}).fail(function (xhr, status) {
-			if (status !== 'abort') self.message(config.messages.error);
+		}).fail(function () {
+			// Suggestions are optional; leave manual input usable without an error state.
+			self.close();
+		}).always(function () {
+			if (sequence === self.sequence) self.request = null;
 		});
+	};
+
+	Autocomplete.prototype.cancel = function () {
+		clearTimeout(this.timer);
+		this.sequence++;
+		if (this.request) this.request.abort();
+		this.request = null;
+		this.close();
 	};
 
 	Autocomplete.prototype.render = function (items) {
@@ -124,7 +142,20 @@
 	};
 
 	$(function () {
-		$('[name="shipping_city"]').each(function () { new Autocomplete(this, 'city'); });
-		$('[name="shipping_address_1"]').each(function () { new Autocomplete(this, 'address'); });
+		$('[name="shipping_city"]').each(function () { instances.push(new Autocomplete(this, 'city')); });
+		$('[name="shipping_address_1"]').each(function () { instances.push(new Autocomplete(this, 'address')); });
+
+		/* Never let a suggestion request participate in the critical checkout path. */
+		$(document.body).on('checkout_place_order', function () {
+			checkoutSubmitting = true;
+			$.each(instances, function (_, instance) { instance.cancel(); });
+		});
+		$('form.checkout').on('submit', function () {
+			checkoutSubmitting = true;
+			$.each(instances, function (_, instance) { instance.cancel(); });
+		});
+		$(document.body).on('checkout_error', function () {
+			checkoutSubmitting = false;
+		});
 	});
 }(jQuery));
