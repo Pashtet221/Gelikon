@@ -15,6 +15,7 @@ require_once GELIKON_DIR . '/inc/woocommerce.php';
 require_once GELIKON_DIR . '/inc/category-discounts.php';
 require_once GELIKON_DIR . '/inc/order-statuses.php';
 require_once GELIKON_DIR . '/inc/dadata.php';
+require_once GELIKON_DIR . '/inc/tbank-order-adapter.php';
 
 /**
  * Загружает изображения только перед их появлением в области просмотра.
