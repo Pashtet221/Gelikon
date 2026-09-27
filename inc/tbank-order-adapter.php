@@ -85,6 +85,12 @@ function gelikon_tbank_get_gateway() {
 	return isset($gateways['tbank']) ? $gateways['tbank'] : false;
 }
 
+/** Read a gateway option while retaining compatibility with its legacy key spelling. */
+function gelikon_tbank_get_option($gateway, $key, $legacy_key = '') {
+	$value = $gateway->get_option($key);
+	return ($value === '' && $legacy_key !== '') ? $gateway->get_option($legacy_key) : $value;
+}
+
 /**
  * Replace the callback registered by WC_TBank after gateways are instantiated.
  */
@@ -117,13 +123,24 @@ add_action('woocommerce_init', 'gelikon_tbank_replace_receipt_handler', 100);
  * @param string       $key      Response field.
  * @return mixed|null
  */
-function gelikon_tbank_response_value($response, $key) {
-	if (is_array($response) && array_key_exists($key, $response)) {
-		return $response[$key];
+function gelikon_tbank_normalize_response($response) {
+	if (is_string($response)) {
+		$decoded = json_decode($response, true);
+		return is_array($decoded) ? $decoded : false;
 	}
 
-	if (is_object($response) && isset($response->{$key})) {
-		return $response->{$key};
+	if (is_object($response)) {
+		return get_object_vars($response);
+	}
+
+	return is_array($response) ? $response : false;
+}
+
+function gelikon_tbank_response_value($response, $key) {
+	$response = gelikon_tbank_normalize_response($response);
+
+	if (is_array($response) && array_key_exists($key, $response)) {
+		return $response[$key];
 	}
 
 	return null;
@@ -186,11 +203,38 @@ function gelikon_tbank_receipt_page($order_id) {
 		'notification_endpoint'  => 'tbank_gl_callback',
 	));
 
+	// WC_TBank 3.0.7 calls the API with these two actual option names.
 	$api = new TBankMerchantAPI(
-		$gateway->get_option('merchant_id'),
-		$gateway->get_option('secret_key')
+		gelikon_tbank_get_option($gateway, 'terminalKey', 'terminal_key'),
+		$gateway->get_option('password')
 	);
-	$response = $api->buildQuery('Init', $fields);
+
+	try {
+		$response = $api->buildQuery('Init', $fields);
+		$parsed   = gelikon_tbank_normalize_response($response);
+		gelikon_tbank_log('debug', 'T-Bank Init response received.', array(
+			'wc_order_id'       => $order_id,
+			'external_order_id' => $external_order_id,
+			'response_type'     => gettype($response),
+			'response_length'   => is_string($response) ? strlen($response) : null,
+			'response_fields'   => is_array($parsed) ? array_keys($parsed) : array(),
+			'has_success'       => is_array($parsed) && array_key_exists('Success', $parsed),
+			'has_payment_url'   => is_array($parsed) && array_key_exists('PaymentURL', $parsed),
+			'has_payment_id'    => is_array($parsed) && array_key_exists('PaymentId', $parsed),
+			'has_error_code'    => is_array($parsed) && array_key_exists('ErrorCode', $parsed),
+			'has_message'       => is_array($parsed) && array_key_exists('Message', $parsed),
+			'has_details'       => is_array($parsed) && array_key_exists('Details', $parsed),
+		));
+	} catch (Throwable $exception) {
+		gelikon_tbank_log('error', 'T-Bank Init raised an exception.', array(
+			'wc_order_id'       => $order_id,
+			'external_order_id' => $external_order_id,
+			'exception_class'   => get_class($exception),
+			'exception_message' => $exception->getMessage(),
+		));
+		wc_add_notice(__('Т-Банк не смог создать платёж. Попробуйте ещё раз или выберите другой способ оплаты.', 'gelikon'), 'error');
+		return;
+	}
 	$success  = gelikon_tbank_response_value($response, 'Success');
 	$url      = gelikon_tbank_response_value($response, 'PaymentURL');
 	$payment_id = gelikon_tbank_response_value($response, 'PaymentId');
@@ -201,6 +245,8 @@ function gelikon_tbank_receipt_page($order_id) {
 			$order->update_meta_data('_tbank_payment_id', sanitize_text_field((string) $payment_id));
 		}
 		$order->save();
+		setcookie('paymentId', (string) $payment_id, 0, '/');
+		setcookie('returnUrl', $gateway->get_return_url($order), 0, '/');
 
 		if ('yes' === $gateway->get_option('reduce_stock_levels')) {
 			wc_reduce_stock_levels($order_id);
@@ -211,7 +257,7 @@ function gelikon_tbank_receipt_page($order_id) {
 			'external_order_id' => $external_order_id,
 			'payment_id'        => is_scalar($payment_id) ? (string) $payment_id : '',
 		));
-		wp_redirect(esc_url_raw($url)); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- bank URL is returned by the configured gateway API.
+		wp_redirect($url); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- matches WC_TBank 3.0.7 and redirects to its API response.
 		exit;
 	}
 
@@ -240,6 +286,49 @@ function gelikon_tbank_calculate_notification_token($request, $secret) {
 	ksort($request);
 
 	return hash('sha256', implode('', array_map('strval', array_values($request))));
+}
+
+/** Check a notification amount using the same integer minor units as T-Bank. */
+function gelikon_tbank_notification_amount_matches($order_total, $amount) {
+	if (filter_var($amount, FILTER_VALIDATE_INT) === false) {
+		return false;
+	}
+
+	return (int) round((float) $order_total * 100) === (int) $amount;
+}
+
+/** Apply a verified T-Bank status. Kept separate so the idempotency is testable. */
+function gelikon_tbank_apply_status($order, $status, $payment_id) {
+	if ($order->has_status(array('processing', 'completed'))) {
+		return;
+	}
+
+	switch ($status) {
+		case 'AUTHORIZED':
+			if (!$order->has_status('on-hold')) {
+				$order->update_status('on-hold', __('Платёж авторизован Т-Банком.', 'gelikon'));
+			}
+			break;
+		case 'CONFIRMED':
+			$order->payment_complete($payment_id ?: '');
+			break;
+		case 'REJECTED':
+			if (!$order->has_status('failed')) {
+				$order->update_status('failed', __('Платёж отклонён Т-Банком.', 'gelikon'));
+			}
+			break;
+		case 'CANCELED':
+		case 'REVERSED':
+			if (!$order->has_status('cancelled')) {
+				$order->update_status('cancelled', __('Платёж отменён Т-Банком.', 'gelikon'));
+			}
+			break;
+		case 'REFUNDED':
+			if (!$order->has_status('refunded')) {
+				$order->update_status('refunded', __('Платёж возвращён Т-Банком.', 'gelikon'));
+			}
+			break;
+	}
 }
 
 /**
@@ -283,7 +372,7 @@ function gelikon_tbank_callback() {
 	));
 
 	$provided_token = isset($request['Token']) && is_string($request['Token']) ? strtolower($request['Token']) : '';
-	$expected_token = gelikon_tbank_calculate_notification_token($request, $gateway->get_option('secret_key'));
+	$expected_token = gelikon_tbank_calculate_notification_token($request, $gateway->get_option('password'));
 
 	if (strlen($provided_token) !== 64 || !hash_equals($expected_token, $provided_token)) {
 		gelikon_tbank_log('warning', 'T-Bank callback Token validation failed.', array('external_order_id' => $external_order_id));
@@ -305,6 +394,12 @@ function gelikon_tbank_callback() {
 		gelikon_tbank_callback_response(404, 'ERROR');
 	}
 
+	$stored_payment_id = (string) $order->get_meta('_tbank_payment_id', true);
+	if ($stored_payment_id !== '' && ($payment_id === '' || !hash_equals($stored_payment_id, $payment_id))) {
+		gelikon_tbank_log('warning', 'T-Bank callback PaymentId did not match the initialized payment.', array('wc_order_id' => $order_id));
+		gelikon_tbank_callback_response(400, 'ERROR');
+	}
+
 	if (!isset($request['Amount']) || filter_var($request['Amount'], FILTER_VALIDATE_INT) === false) {
 		gelikon_tbank_log('warning', 'T-Bank callback omitted a valid integer Amount.', array('wc_order_id' => $order_id));
 		gelikon_tbank_callback_response(400, 'ERROR');
@@ -312,7 +407,7 @@ function gelikon_tbank_callback() {
 
 	$expected_amount = (int) round((float) $order->get_total() * 100);
 	$received_amount = (int) $request['Amount'];
-	if ($expected_amount !== $received_amount) {
+	if (!gelikon_tbank_notification_amount_matches($order->get_total(), $request['Amount'])) {
 		gelikon_tbank_log('warning', 'T-Bank callback Amount did not match the order.', array(
 			'wc_order_id'     => $order_id,
 			'expected_amount' => $expected_amount,
@@ -328,45 +423,7 @@ function gelikon_tbank_callback() {
 		'payment_id'        => $payment_id,
 	));
 
-	// Paid orders are terminal for this adapter; repeated/late callbacks are acknowledgements only.
-	if ($order->has_status(array('processing', 'completed'))) {
-		gelikon_tbank_callback_response(200, 'OK');
-	}
-
-	switch ($status) {
-		case 'AUTHORIZED':
-			if (!$order->has_status('on-hold')) {
-				$order->update_status('on-hold', __('Платёж авторизован Т-Банком.', 'gelikon'));
-			}
-			break;
-
-		case 'CONFIRMED':
-			$order->payment_complete($payment_id ?: '');
-			break;
-
-		case 'REJECTED':
-			if (!$order->has_status('failed')) {
-				$order->update_status('failed', __('Платёж отклонён Т-Банком.', 'gelikon'));
-			}
-			break;
-
-		case 'CANCELED':
-		case 'REVERSED':
-			if (!$order->has_status('cancelled')) {
-				$order->update_status('cancelled', __('Платёж отменён Т-Банком.', 'gelikon'));
-			}
-			break;
-
-		case 'REFUNDED':
-			if (!$order->has_status('refunded')) {
-				$order->update_status('refunded', __('Платёж возвращён Т-Банком.', 'gelikon'));
-			}
-			break;
-
-		default:
-			// A valid notification with a non-terminal status requires no order mutation.
-			break;
-	}
+	gelikon_tbank_apply_status($order, $status, $payment_id);
 
 	gelikon_tbank_callback_response(200, 'OK');
 }
