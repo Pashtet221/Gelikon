@@ -1466,7 +1466,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 .gl-product-buybox form.cart {
 	display: flex;
-	align-items: center;
+	align-items: end;
 	gap: 12px;
 	margin: 0;
 }
