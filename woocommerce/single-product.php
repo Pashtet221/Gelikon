@@ -1044,7 +1044,7 @@ if (!empty($products_to_show)) :
 .gl-product-desktop-bar__right {
 	flex: 0 0 auto;
 	display: flex;
-    align-items: center;
+	align-items: end;
     gap: 25px;
 }
 
@@ -1375,7 +1375,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 .gl-product-buybox__row {
 	display: flex;
-	align-items: center;
+	align-items: end;
 	gap: 18px;
 	justify-content: space-between;
 }
@@ -1537,7 +1537,7 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 
 .gl-product-buybox--variable .gl-product-buybox__row {
-	align-items: flex-end;
+	align-items: end;
 }
 
 .gl-product-buybox__variable-price {
