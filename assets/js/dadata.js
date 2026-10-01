@@ -35,7 +35,7 @@
 		var self = this;
 		var query = $.trim(this.$input.val());
 
-		if (checkoutSubmitting || query.length < (config.minChars || 2)) {
+		if (checkoutSubmitting || query.length < (config.minChars || 1)) {
 			this.close();
 			return;
 		}
