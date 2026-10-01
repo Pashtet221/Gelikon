@@ -3374,6 +3374,14 @@ function gelikon_get_product_badges($product_id) {
 function gelikon_render_product_badges($product_id, $context = 'card') {
 	$badges = gelikon_get_product_badges($product_id);
 
+	// В карточках оставляем только заданные вручную плашки. Процент скидки
+	// по категории уже отражён в цене и не должен дублироваться бейджем.
+	if ('card' === $context) {
+		$badges = array_values(array_filter($badges, static function ($badge) {
+			return 'discount' !== ($badge['key'] ?? '');
+		}));
+	}
+
 	if (empty($badges)) {
 		return '';
 	}
