@@ -84,11 +84,7 @@ $account_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink(
             </div>
 
             <div class="gl-footer__col gl-footer__col--products">
-                <h3>
-    <a href="<?php echo esc_url(get_permalink(wc_get_page_id('shop'))); ?>">
-        <?php esc_html_e('Популярные модели', 'gelikon'); ?>
-    </a>
-</h3>
+                <h3><?php esc_html_e('Популярные модели', 'gelikon'); ?></h3>
 
                 <?php if (!empty($footer_products)) : ?>
                     <ul class="gl-footer__menu gl-footer__products">

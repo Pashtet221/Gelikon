@@ -2811,11 +2811,6 @@ function gelikon_get_breadcrumb_items() {
 	}
 
 	if (function_exists('is_product_category') && is_product_category()) {
-		$items[] = [
-			'title' => $shop_page_title ?: 'Каталог',
-			'url'   => $shop_page_url,
-		];
-
 		$term = get_queried_object();
 
 		if ($term instanceof WP_Term) {
@@ -2842,11 +2837,6 @@ function gelikon_get_breadcrumb_items() {
 	}
 
 	if (function_exists('is_product') && is_product()) {
-		$items[] = [
-			'title' => $shop_page_title ?: 'Каталог',
-			'url'   => $shop_page_url,
-		];
-
 		$product_id = get_the_ID();
 		$terms      = get_the_terms($product_id, 'product_cat');
 
@@ -2961,13 +2951,6 @@ function gelikon_get_breadcrumb_items() {
 
 	if (is_search()) {
 		$search_query = get_search_query();
-
-		if (isset($_GET['post_type']) && $_GET['post_type'] === 'product') {
-			$items[] = [
-				'title' => $shop_page_title ?: 'Каталог',
-				'url'   => $shop_page_url,
-			];
-		}
 
 		$items[] = [
 			'title' => $search_query

@@ -87,6 +87,19 @@ add_action('woocommerce_after_main_content', 'gelikon_wc_wrapper_after', 50);
 remove_action('woocommerce_before_main_content', 'woocommerce_output_content_wrapper', 10);
 remove_action('woocommerce_after_main_content', 'woocommerce_output_content_wrapper_end', 10);
 
+/**
+ * The store has no catch-all catalog page: visitors choose a category or a
+ * subcategory from the catalog menu instead. Product searches still use the
+ * WooCommerce archive template and must not be redirected.
+ */
+function gelikon_redirect_shop_archive() {
+	if (function_exists('is_shop') && is_shop() && !is_search()) {
+		wp_safe_redirect(home_url('/'), 301);
+		exit;
+	}
+}
+add_action('template_redirect', 'gelikon_redirect_shop_archive', 1);
+
 function gelikon_woocommerce_enqueue_fragments() {
 	// Do not force WooCommerce cart fragments on every page. The theme refreshes
 	// the mini cart on demand, and the native fragments script can add an extra
