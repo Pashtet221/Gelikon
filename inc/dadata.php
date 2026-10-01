@@ -56,7 +56,7 @@ function gelikon_dadata_enqueue_checkout_assets() {
 	wp_localize_script('gelikon-dadata', 'gelikonDadata', [
 		'ajaxUrl'  => admin_url('admin-ajax.php'),
 		'nonce'    => wp_create_nonce('gelikon_dadata_suggest'),
-		'minChars' => 2,
+		'minChars' => 1,
 		'messages' => [
 			'loading' => __('Ищем варианты…', 'gelikon'),
 			'empty'   => __('Ничего не найдено', 'gelikon'),
@@ -77,7 +77,7 @@ function gelikon_dadata_ajax_suggest() {
 	$query = isset($_POST['query']) ? sanitize_text_field(wp_unslash($_POST['query'])) : '';
 	$city  = isset($_POST['city']) ? sanitize_text_field(wp_unslash($_POST['city'])) : '';
 
-	if (!$token || !in_array($mode, ['city', 'address'], true) || mb_strlen($query) < 2) {
+	if (!$token || !in_array($mode, ['city', 'address'], true) || mb_strlen($query) < 1) {
 		wp_send_json_error(['message' => __('Некорректный запрос подсказок.', 'gelikon')], 400);
 	}
 
