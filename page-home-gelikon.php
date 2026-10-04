@@ -168,46 +168,9 @@ if (empty($review_items) || !is_array($review_items)) {
     ];
 }
 
-$selected_products = gelikon_home_get_field('home_popular_products', [], $page_id);
-$products = [];
-
-if (function_exists('wc_get_products')) {
-    if (!empty($selected_products) && is_array($selected_products)) {
-        $product_ids = [];
-
-        foreach ($selected_products as $selected_product) {
-            if (is_object($selected_product) && isset($selected_product->ID)) {
-                $product_ids[] = (int) $selected_product->ID;
-            } elseif (is_numeric($selected_product)) {
-                $product_ids[] = (int) $selected_product;
-            }
-        }
-
-        if (!empty($product_ids)) {
-            $products = wc_get_products([
-                'status'  => 'publish',
-                'limit'   => count($product_ids),
-                'include' => $product_ids,
-                'orderby' => 'post__in',
-            ]);
-        }
-    }
-
-    if (empty($products)) {
-        $products = wc_get_products([
-            'status'   => 'publish',
-            'limit'    => 4,
-            'featured' => true,
-        ]);
-    }
-
-    if (empty($products)) {
-        $products = wc_get_products([
-            'status' => 'publish',
-            'limit'  => 4,
-        ]);
-    }
-}
+$products = function_exists('gelikon_get_home_popular_products')
+    ? gelikon_get_home_popular_products($page_id)
+    : [];
 
 $blog_query = new WP_Query([
     'post_type'           => 'post',
@@ -461,8 +424,11 @@ a.gl-card:hover .gl-home-banner__action{
 <!-- 		Слайдер товаров -->
 <?php if (!empty($products)) : ?>
 	<section class="gl-home-products gl-home-section">
-		<div class="gl-section-head">
+		<div class="gl-section-head gl-section-head--between">
 			<h2><?php echo esc_html($products_title); ?></h2>
+			<a class="gl-btn gl-btn--ghost gl-popular-products-link" href="<?php echo esc_url(gelikon_get_popular_products_page_url()); ?>">
+				<?php esc_html_e('Все популярные товары', 'gelikon'); ?>
+			</a>
 		</div>
 
 		<div class="gl-home-products-slider swiper">

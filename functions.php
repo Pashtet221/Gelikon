@@ -12,6 +12,7 @@ require_once GELIKON_DIR . '/inc/enqueue.php';
 require_once GELIKON_DIR . '/inc/customizer.php';
 require_once GELIKON_DIR . '/inc/template-tags.php';
 require_once GELIKON_DIR . '/inc/woocommerce.php';
+require_once GELIKON_DIR . '/inc/popular-products.php';
 require_once GELIKON_DIR . '/inc/category-discounts.php';
 require_once GELIKON_DIR . '/inc/order-statuses.php';
 require_once GELIKON_DIR . '/inc/dadata.php';
