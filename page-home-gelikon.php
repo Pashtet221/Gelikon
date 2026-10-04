@@ -426,7 +426,7 @@ a.gl-card:hover .gl-home-banner__action{
 	<section class="gl-home-products gl-home-section">
 		<div class="gl-section-head gl-section-head--between">
 			<h2><?php echo esc_html($products_title); ?></h2>
-			<a class="gl-btn gl-btn--ghost gl-popular-products-link" href="<?php echo esc_url(gelikon_get_popular_products_page_url()); ?>">
+			<a class="gl-section-link gl-popular-products-link" href="<?php echo esc_url(gelikon_get_popular_products_page_url()); ?>">
 				<?php esc_html_e('Все популярные товары', 'gelikon'); ?>
 			</a>
 		</div>
