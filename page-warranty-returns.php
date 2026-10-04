@@ -87,8 +87,8 @@ $defect_text = gelikon_warranty_get_field('warranty_defect_text', "Если об
 
 $return_address = gelikon_warranty_get_field('warranty_return_address', "ООО «Геликон Лайн»\n127254, Москва, ул. Складочная, д. 1, стр. 18, офис 205", $page_id);
 $return_schedule = gelikon_warranty_get_field('warranty_return_schedule', 'Пн–Пт, 9:00–17:00', $page_id);
-$return_phones = gelikon_warranty_get_field('warranty_phones', '<a href="tel:88004446867">8-800-444-68-67</a><br><a href="tel:+74956044843">+7 (495) 604-48-43</a>', $page_id);
-$return_email = gelikon_warranty_get_field('warranty_email', '<a href="mailto:info@gelikon-line.ru">info@gelikon-line.ru</a>', $page_id);
+$return_phones = gelikon_warranty_get_field('warranty_phones', "8-800-444-68-67\n+7 (495) 604-48-43", $page_id);
+$return_email = gelikon_warranty_get_field('warranty_email', 'info@gelikon-line.ru', $page_id);
 ?>
 
 <main id="primary" class="site-main gl-about-page gl-warranty-page">
