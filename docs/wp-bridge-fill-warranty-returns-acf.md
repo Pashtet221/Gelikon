@@ -56,8 +56,8 @@ $fields = [
     "field_warranty_defect_text" => "Если обнаружен производственный дефект:\nтовар принимается на экспертизу\nсрок экспертизы — до 20 рабочих дней (обычно 1–3 дня)\nпри подтверждении брака возвращается полная стоимость товара и доставки",
     "field_warranty_return_address" => "ООО «Геликон Лайн»\n127254, Москва, ул. Складочная, д. 1, стр. 18, офис 205",
     "field_warranty_return_schedule" => "Пн–Пт, 9:00–17:00",
-    "field_warranty_phones" => "8-800-444-68-67\n+7 (495) 604-48-43",
-    "field_warranty_email" => "info@gelikon-line.ru",
+    "field_warranty_phones" => '<a href="tel:88004446867">8-800-444-68-67</a><br><a href="tel:+74956044843">+7 (495) 604-48-43</a>',
+    "field_warranty_email" => '<a href="mailto:info@gelikon-line.ru">info@gelikon-line.ru</a>',
 ];
 
 foreach ($fields as $field_key => $value) {

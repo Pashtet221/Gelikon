@@ -21,6 +21,42 @@ if (!function_exists('gelikon_warranty_get_field')) {
 	}
 }
 
+if (!function_exists('gelikon_warranty_contact_html')) {
+	/**
+	 * Render rich contact content while keeping legacy plain-text values clickable.
+	 *
+	 * The fields used to be a textarea and an email input, so existing pages can
+	 * still contain one phone per line or Markdown-style email links.
+	 */
+	function gelikon_warranty_contact_html($value, $type) {
+		$value = trim((string) $value);
+
+		if ('phones' === $type && $value === wp_strip_all_tags($value)) {
+			$links = [];
+			foreach (preg_split('/\R/', $value) as $phone) {
+				$phone = trim($phone);
+				if ('' === $phone) {
+					continue;
+				}
+
+				$href    = preg_replace('/[^\d+]/', '', $phone);
+				$links[] = '<a href="tel:' . esc_attr($href) . '">' . esc_html($phone) . '</a>';
+			}
+			$value = implode('<br>', $links);
+		}
+
+		if ('email' === $type && $value === wp_strip_all_tags($value)) {
+			if (preg_match('/^\[([^\]]+)\]\(mailto:([^\)]+)\)$/i', $value, $matches)) {
+				$value = '<a href="mailto:' . esc_attr($matches[2]) . '">' . esc_html($matches[1]) . '</a>';
+			} elseif (is_email($value)) {
+				$value = '<a href="mailto:' . esc_attr($value) . '">' . esc_html($value) . '</a>';
+			}
+		}
+
+		return wp_kses_post(wpautop($value));
+	}
+}
+
 $page_id = (int) get_queried_object_id();
 
 $hero_title = gelikon_warranty_get_field('warranty_hero_title', 'Гарантия и возврат', $page_id);
@@ -51,8 +87,8 @@ $defect_text = gelikon_warranty_get_field('warranty_defect_text', "Если об
 
 $return_address = gelikon_warranty_get_field('warranty_return_address', "ООО «Геликон Лайн»\n127254, Москва, ул. Складочная, д. 1, стр. 18, офис 205", $page_id);
 $return_schedule = gelikon_warranty_get_field('warranty_return_schedule', 'Пн–Пт, 9:00–17:00', $page_id);
-$return_phones = gelikon_warranty_get_field('warranty_phones', "8-800-444-68-67\n+7 (495) 604-48-43", $page_id);
-$return_email = gelikon_warranty_get_field('warranty_email', 'info@gelikon-line.ru', $page_id);
+$return_phones = gelikon_warranty_get_field('warranty_phones', '<a href="tel:88004446867">8-800-444-68-67</a><br><a href="tel:+74956044843">+7 (495) 604-48-43</a>', $page_id);
+$return_email = gelikon_warranty_get_field('warranty_email', '<a href="mailto:info@gelikon-line.ru">info@gelikon-line.ru</a>', $page_id);
 ?>
 
 <main id="primary" class="site-main gl-about-page gl-warranty-page">
@@ -99,7 +135,7 @@ $return_email = gelikon_warranty_get_field('warranty_email', 'info@gelikon-line.
 		<section class="gl-card"><h2>Возврат денежных средств</h2><div class="gl-about-text"><?php echo wp_kses_post(wpautop($refund_text)); ?></div></section>
 		<section class="gl-card"><h2>Товары ненадлежащего качества</h2><div class="gl-warranty-list"><?php echo wp_kses_post(wpautop($defect_text)); ?></div></section>
 		<section class="gl-card"><h2>Адрес для возврата</h2><div class="gl-about-text"><?php echo wp_kses_post(wpautop($return_address)); ?></div><p><strong>График работы:</strong> <?php echo esc_html($return_schedule); ?></p></section>
-		<section class="gl-card"><h2>Контакты</h2><p><strong>Телефон:</strong><br><?php echo nl2br(esc_html($return_phones)); ?></p><p><strong>Email:</strong> <a href="mailto:<?php echo esc_attr($return_email); ?>"><?php echo esc_html($return_email); ?></a></p></section>
+		<section class="gl-card"><h2>Контакты</h2><div><strong>Телефон:</strong><?php echo gelikon_warranty_contact_html($return_phones, 'phones'); ?></div><div><strong>Email:</strong><?php echo gelikon_warranty_contact_html($return_email, 'email'); ?></div></section>
 	</div>
 </main>
 

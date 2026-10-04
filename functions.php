@@ -5943,14 +5943,19 @@ add_action('acf/init', function () {
 				'key' => 'field_warranty_phones',
 				'label' => 'Телефоны',
 				'name' => 'warranty_phones',
-				'type' => 'textarea',
-				'rows' => 2,
+				'type' => 'wysiwyg',
+				'tabs' => 'visual',
+				'toolbar' => 'Gelikon Contacts',
+				'media_upload' => 0,
 			],
 			[
 				'key' => 'field_warranty_email',
 				'label' => 'Email',
 				'name' => 'warranty_email',
-				'type' => 'email',
+				'type' => 'wysiwyg',
+				'tabs' => 'visual',
+				'toolbar' => 'Gelikon Contacts',
+				'media_upload' => 0,
 			],
 		],
 		'location' => [
@@ -8900,9 +8905,11 @@ add_filter('mce_buttons_4', 'gelikon_tinymce_remove_extra_buttons');
  */
 function gelikon_acf_wysiwyg_toolbars($toolbars) {
 	$buttons = array('formatselect', 'bold', 'italic', 'underline');
+	$contact_buttons = array('bold', 'italic', 'link', 'unlink');
 
 	$toolbars['Full']  = array($buttons);
 	$toolbars['Basic'] = array($buttons);
+	$toolbars['Gelikon Contacts'] = array($contact_buttons);
 
 	return $toolbars;
 }
