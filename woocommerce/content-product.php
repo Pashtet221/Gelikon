@@ -151,6 +151,7 @@ $variable_cta_text = __('Выбрать', 'gelikon');
 	float: none !important;
 	list-style: none !important;
 	height: 100%;
+	overflow: visible;
 }
 
 .gl-product-card__inner {
