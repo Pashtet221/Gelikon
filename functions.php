@@ -3493,6 +3493,21 @@ add_action('wp_head', function () {
 			position: relative;
 		}
 
+		@media (min-width: 768px){
+			.gl-product-badges--card{
+				left: 12px;
+				top: 12px;
+				gap: 4px;
+				max-width: calc(100% - 24px);
+			}
+
+			.gl-product-badges--card .gl-product-badge{
+				min-height: 24px;
+				padding: 0 9px;
+				font-size: 11px;
+			}
+		}
+
 		@media (max-width: 767px){
 			.gl-product-badges{
 				left: 12px;
