@@ -5756,6 +5756,7 @@ add_action('acf/init', function () {
 			['key' => 'field_company_phones','label' => 'Телефон','name' => 'company_phones','type' => 'wysiwyg','tabs' => 'all','toolbar' => 'contacts','media_upload' => 0],
 			['key' => 'field_company_email','label' => 'Email','name' => 'company_email','type' => 'wysiwyg','tabs' => 'all','toolbar' => 'contacts','media_upload' => 0],
 			['key' => 'field_company_work_hours','label' => 'График работы','name' => 'company_work_hours','type' => 'wysiwyg','tabs' => 'all','toolbar' => 'contacts','media_upload' => 0],
+			['key' => 'field_company_social_links','label' => 'Социальные сети — Основные контакты','name' => 'company_social_links_ui','type' => 'message','message' => '', 'instructions' => 'Для каждой соцсети выберите иконку и укажите ссылку. Строки можно добавлять, удалять и менять местами.'],
 			['key' => 'field_company_parking_note','label' => 'Дополнительно (парковка)','name' => 'company_parking_note','type' => 'wysiwyg','tabs' => 'all','toolbar' => 'contacts','media_upload' => 0],
 			[
 				'key' => 'field_company_location_group',
