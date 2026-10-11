@@ -38,8 +38,26 @@
         if (!id || id !== field.get('id') || starting.has(id)) {
             return;
         }
+        let editor = window.tinymce.get(id);
+        if (editor && !editor.initialized) {
+            return;
+        }
+        // Moving a Gutenberg metabox reloads its iframe, but TinyMCE retains the
+        // previous document. Its toolbar survives while the new body is read-only.
+        const frame = field.$el.find('iframe')[0];
+        const body = editor && editor.getBody();
+        if (editor && (!frame || !body || body.ownerDocument !== frame.contentDocument || !body.isContentEditable)) {
+            let value = input.val();
+            if (field.$el.find('.acf-editor-wrap').hasClass('tmce-active') && body && body.isContentEditable) {
+                value = editor.getContent();
+            }
+            editor.remove();
+            // remove() can save the stale iframe. Restore the authoritative value.
+            input.val(value);
+            editor = null;
+        }
         // ACF may initially register only Quicktags when the saved preference is Text.
-        if (!window.tinymce.get(id)) {
+        if (!editor) {
             starting.add(id);
             acf.tinymce.initialize(id, {
                 tinymce: true,
@@ -82,6 +100,34 @@
     acf.addAction('load_field/type=wysiwyg', initialize);
     acf.addAction('append_field/type=wysiwyg', initialize);
     acf.addAction('show_field/type=wysiwyg', initialize);
+
+    let repairTimer;
+    function scheduleRepair() {
+        window.clearTimeout(repairTimer);
+        repairTimer = window.setTimeout(function () {
+            acf.getFields({ type: 'wysiwyg' }).forEach(function (field) {
+                if (isContactEditor(field) && field.$el.is(':visible') && field.$el.find('.acf-editor-wrap').hasClass('tmce-active')) {
+                    openVisualEditor(field);
+                }
+            });
+        }, 50);
+    }
+
+    // Gutenberg and plugins may move the metabox again after the initial load.
+    new MutationObserver(function (records) {
+        if (records.some(function (record) {
+            return Array.from(record.addedNodes).some(function (node) {
+                return node.nodeType === 1 && (node.matches('.postbox, .acf-field-wysiwyg, iframe') || node.querySelector('.acf-field-wysiwyg, iframe'));
+            });
+        })) {
+            scheduleRepair();
+        }
+    }).observe(document.body, { childList: true, subtree: true });
+    document.addEventListener('load', function (event) {
+        if (event.target.tagName === 'IFRAME' && event.target.closest('.acf-field-wysiwyg')) {
+            scheduleRepair();
+        }
+    }, true);
 
     // Restore missing settings before WordPress handles the Visual tab click.
     document.addEventListener('click', function (event) {
