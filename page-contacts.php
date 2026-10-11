@@ -49,6 +49,7 @@ $address = gelikon_contacts_get_field('company_address', "Москва, ул. С
 $phones = gelikon_contacts_get_field('company_phones', "8-800-444-68-67\n+7 (495) 604-48-43", $page_id);
 $email = gelikon_contacts_get_field('company_email', 'info@gelikon-line.ru', $page_id);
 $work_hours = gelikon_contacts_get_field('company_work_hours', 'Пн–Пт, 9:00–17:00', $page_id);
+$social_links = gelikon_contacts_social_links($page_id);
 
 $location_group = gelikon_contacts_get_field('company_location', [], $page_id);
 $latitude = !empty($location_group['latitude']) ? $location_group['latitude'] : '55.801435';
@@ -106,6 +107,20 @@ $details_pdf = gelikon_contacts_file_url(gelikon_contacts_get_field('company_det
 					<div class="gl-contacts-value"><?php echo gelikon_contacts_rich_text($work_hours); ?></div>
 				</div>
 			</div>
+			<?php if ($social_links) : ?>
+				<div class="gl-contacts-socials" aria-label="Социальные сети">
+					<?php foreach ($social_links as $social) :
+						$icon_id = absint($social['icon_id'] ?? 0);
+						$url = esc_url($social['url'] ?? '', array('http', 'https'));
+						if (!$url || !$icon_id || !wp_attachment_is_image($icon_id)) continue;
+						$label = !empty($social['label']) ? $social['label'] : wp_parse_url($url, PHP_URL_HOST);
+						?>
+						<a class="gl-contacts-socials__link" href="<?php echo $url; ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr($label); ?>">
+							<?php echo wp_get_attachment_image($icon_id, 'thumbnail', false, array('alt' => '', 'loading' => 'lazy', 'decoding' => 'async')); ?>
+						</a>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
 		</section>
 
 		<section class="gl-card gl-contacts-block">
@@ -180,6 +195,11 @@ $details_pdf = gelikon_contacts_file_url(gelikon_contacts_get_field('company_det
   font-weight: 700;
   margin-bottom: 8px;
 }
+.gl-contacts-socials { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+.gl-contacts-socials__link { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 8px; }
+.gl-contacts-socials__link img { display: block; width: 36px; height: 36px; object-fit: contain; }
+.gl-contacts-socials__link:hover { background: #f3f6f4; }
+.gl-contacts-socials__link:focus-visible { outline: 2px solid var(--gl-color-accent); outline-offset: 3px; }
 .gl-contacts-value,
 .gl-contacts-note {
   color: var(--gl-color-muted);
