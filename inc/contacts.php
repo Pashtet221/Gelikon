@@ -48,3 +48,17 @@ add_filter('acf/fields/wysiwyg/toolbars', function ($toolbars) {
 	$toolbars['Contacts'] = array(1 => array('formatselect', 'bold', 'italic', 'underline', 'bullist', 'numlist', 'link', 'unlink', 'undo', 'redo'));
 	return $toolbars;
 }, 20);
+
+/** Load the native editor before Gutenberg/ACF renders the contacts metabox. */
+add_action('admin_enqueue_scripts', function ($hook) {
+	if (!in_array($hook, array('post.php', 'post-new.php'), true) || !function_exists('acf')) {
+		return;
+	}
+	$post_id = isset($_GET['post']) ? absint($_GET['post']) : 0;
+	if (!$post_id || get_page_template_slug($post_id) !== 'page-contacts.php') {
+		return;
+	}
+	wp_enqueue_editor();
+	$script = '/assets/js/contacts-editor.js';
+	wp_enqueue_script('gelikon-contacts-editor', GELIKON_URI . $script, array('acf-input', 'editor', 'quicktags'), (string) filemtime(GELIKON_DIR . $script), true);
+});
