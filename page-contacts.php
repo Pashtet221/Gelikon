@@ -67,11 +67,7 @@ $parking = gelikon_contacts_get_field('company_parking_note', 'Бесплатн�
 $company_name = gelikon_contacts_get_field('company_name', 'ООО «Геликон Лайн»', $page_id);
 $inn = gelikon_contacts_get_field('company_inn', '7714198800', $page_id);
 $ogrn = gelikon_contacts_get_field('company_ogrn', '1027700364702', $page_id);
-$kpp = gelikon_contacts_get_field('company_kpp', '771401001', $page_id);
-$legal_address = gelikon_contacts_get_field('company_legal_address', 'Москва, ул. Складочная, д. 1, стр. 18', $page_id);
-$actual_address = gelikon_contacts_get_field('company_actual_address', 'Москва, ул. Складочная, д. 1, стр. 18, офис 205', $page_id);
-$bank_details = gelikon_contacts_get_field('company_bank_details', 'ПАО Сбербанк, р/с 40702810900000000000, БИК 044525225', $page_id);
-$director = gelikon_contacts_get_field('company_director', 'Генеральный директор — Иванов Иван Иванович', $page_id);
+$details_content = gelikon_contacts_details_content($page_id);
 $details_pdf = gelikon_contacts_file_url(gelikon_contacts_get_field('company_details_pdf', '', $page_id));
 ?>
 
@@ -89,19 +85,25 @@ $details_pdf = gelikon_contacts_file_url(gelikon_contacts_get_field('company_det
 			<div class="gl-contacts-grid">
 				<div>
 					<div class="gl-contacts-label">Адрес</div>
-					<div class="gl-contacts-value"><?php echo nl2br(esc_html($address)); ?></div>
+					<div class="gl-contacts-value"><?php echo gelikon_contacts_rich_text($address); ?></div>
 				</div>
 				<div>
 					<div class="gl-contacts-label">Телефон</div>
-					<div class="gl-contacts-value"><?php echo nl2br(esc_html($phones)); ?></div>
+					<div class="gl-contacts-value"><?php echo gelikon_contacts_rich_text($phones); ?></div>
 				</div>
 				<div>
 					<div class="gl-contacts-label">Email</div>
-					<div class="gl-contacts-value"><a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a></div>
+					<div class="gl-contacts-value"><?php
+						$email_text = trim(wp_strip_all_tags($email));
+						if (is_email($email_text) && stripos($email, '<a') === false) {
+							$email = str_replace($email_text, '<a href="' . esc_url('mailto:' . $email_text) . '">' . esc_html($email_text) . '</a>', $email);
+						}
+						echo gelikon_contacts_rich_text($email);
+					?></div>
 				</div>
 				<div>
 					<div class="gl-contacts-label">График работы</div>
-					<div class="gl-contacts-value"><?php echo esc_html($work_hours); ?></div>
+					<div class="gl-contacts-value"><?php echo gelikon_contacts_rich_text($work_hours); ?></div>
 				</div>
 			</div>
 		</section>
@@ -112,7 +114,7 @@ $details_pdf = gelikon_contacts_file_url(gelikon_contacts_get_field('company_det
 				<div>
 					<div class="gl-contacts-label">Координаты</div>
 					<div class="gl-contacts-value"><?php echo esc_html($latitude . ', ' . $longitude); ?></div>
-					<div class="gl-contacts-note"><?php echo esc_html($parking); ?></div>
+					<div class="gl-contacts-note"><?php echo gelikon_contacts_rich_text($parking); ?></div>
 					<a class="gl-btn gl-btn--ghost" href="<?php echo esc_url($yandex_link); ?>" target="_blank" rel="noopener">Открыть в Яндекс.Картах →</a>
 				</div>
 				<div class="gl-contacts-map-card">
@@ -128,19 +130,17 @@ $details_pdf = gelikon_contacts_file_url(gelikon_contacts_get_field('company_det
 		<section class="gl-card gl-contacts-block gl-company-details" data-details>
 			<h2>Реквизиты компании</h2>
 			<div class="gl-contacts-value">
-				<strong><?php echo esc_html($company_name); ?></strong><br>
-				ИНН <?php echo esc_html($inn); ?><br>
-				ОГРН <?php echo esc_html($ogrn); ?>
+				<div class="gl-company-details__name"><?php echo gelikon_contacts_rich_text($company_name); ?></div>
+				<div class="gl-company-details__summary-row"><span>ИНН</span><div><?php echo gelikon_contacts_rich_text($inn); ?></div></div>
+				<div class="gl-company-details__summary-row"><span>ОГРН</span><div><?php echo gelikon_contacts_rich_text($ogrn); ?></div></div>
 			</div>
-			<div class="gl-company-details__more" hidden>
-				<p><strong>КПП:</strong> <?php echo esc_html($kpp); ?></p>
-				<p><strong>Юридический адрес:</strong> <?php echo esc_html($legal_address); ?></p>
-				<p><strong>Фактический адрес:</strong> <?php echo esc_html($actual_address); ?></p>
-				<p><strong>Банковские реквизиты:</strong> <?php echo esc_html($bank_details); ?></p>
-				<p><strong>Генеральный директор:</strong> <?php echo esc_html($director); ?></p>
-			</div>
+			<?php if ($details_content !== '') : ?>
+				<div class="gl-company-details__more" hidden><?php echo $details_content; ?></div>
+			<?php endif; ?>
 			<div class="gl-company-details__actions">
-				<button type="button" class="gl-btn gl-btn--ghost" data-details-toggle>Показать полностью</button>
+				<?php if ($details_content !== '') : ?>
+					<button type="button" class="gl-btn gl-btn--ghost" data-details-toggle>Показать полностью</button>
+				<?php endif; ?>
 				<?php if (!empty($details_pdf)) : ?>
 					<a class="gl-btn gl-btn--primary" href="<?php echo esc_url($details_pdf); ?>" target="_blank" rel="noopener">Скачать реквизиты PDF</a>
 				<?php endif; ?>
@@ -205,6 +205,21 @@ $details_pdf = gelikon_contacts_file_url(gelikon_contacts_get_field('company_det
   display: grid;
   place-items: center;
   color: var(--gl-color-muted);
+}
+.gl-contacts-value p,
+.gl-contacts-note p {
+  margin: 0 0 8px;
+}
+.gl-contacts-value p:last-child,
+.gl-contacts-note p:last-child {
+  margin-bottom: 0;
+}
+.gl-company-details__name {
+  font-weight: 700;
+}
+.gl-company-details__summary-row {
+  display: flex;
+  gap: 4px;
 }
 .gl-company-details__actions {
   margin-top: 18px;
