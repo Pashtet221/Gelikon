@@ -8915,8 +8915,8 @@ add_filter('mce_buttons_4', 'gelikon_tinymce_remove_extra_buttons');
 function gelikon_acf_wysiwyg_toolbars($toolbars) {
 	$buttons = array('formatselect', 'bold', 'italic', 'underline');
 
-	$toolbars['Full']  = array($buttons);
-	$toolbars['Basic'] = array($buttons);
+	$toolbars['Full']  = array(1 => $buttons);
+	$toolbars['Basic'] = array(1 => $buttons);
 
 	return $toolbars;
 }
