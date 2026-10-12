@@ -4,6 +4,11 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
+/** Temporary rollback: new orders use native IDs unless explicitly re-enabled. */
+function gelikon_sequential_orders_enabled() {
+	return (bool) apply_filters('gelikon_sequential_orders_enabled', defined('GELIKON_SEQUENTIAL_ORDERS_ENABLED') && GELIKON_SEQUENTIAL_ORDERS_ENABLED);
+}
+
 function gelikon_order_numbers_table() {
 	global $wpdb;
 	return $wpdb->prefix . 'gelikon_order_numbers';
@@ -11,6 +16,7 @@ function gelikon_order_numbers_table() {
 
 /** Establish the cutover once, without renumbering any existing order or draft. */
 function gelikon_install_order_numbers() {
+	if (!gelikon_sequential_orders_enabled()) return;
 	global $wpdb;
 	if (get_option('gelikon_order_numbers_schema') === '2') {
 		return;
@@ -60,6 +66,7 @@ function gelikon_get_sequential_order_number($order_id) {
 }
 
 function gelikon_order_requires_sequence($order_id) {
+	if (!gelikon_sequential_orders_enabled()) return false;
 	global $wpdb;
 	$cutover = $wpdb->get_var('SELECT legacy_max_id FROM ' . gelikon_order_numbers_table() . ' WHERE order_id = 0');
 	return $cutover !== null && (int) $order_id > (int) $cutover;
@@ -67,6 +74,7 @@ function gelikon_order_requires_sequence($order_id) {
 
 /** One transaction locks the counter, rechecks the mapping, then commits both. */
 function gelikon_assign_order_number($order_id, $order = null) {
+	if (!gelikon_sequential_orders_enabled()) return;
 	global $wpdb;
 	$order = $order instanceof WC_Order ? $order : wc_get_order($order_id);
 	if (!$order || $order->get_type() !== 'shop_order' || $order->has_status(array('auto-draft', 'draft', 'checkout-draft'))) {
