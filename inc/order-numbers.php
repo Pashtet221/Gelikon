@@ -4,9 +4,9 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-/** Temporary rollback: new orders use native IDs unless explicitly re-enabled. */
+/** Sequential numbering is enabled again, with a new one-time cutover at 20000. */
 function gelikon_sequential_orders_enabled() {
-	return (bool) apply_filters('gelikon_sequential_orders_enabled', defined('GELIKON_SEQUENTIAL_ORDERS_ENABLED') && GELIKON_SEQUENTIAL_ORDERS_ENABLED);
+	return (bool) apply_filters('gelikon_sequential_orders_enabled', !defined('GELIKON_SEQUENTIAL_ORDERS_ENABLED') || GELIKON_SEQUENTIAL_ORDERS_ENABLED);
 }
 
 function gelikon_order_numbers_table() {
@@ -18,7 +18,7 @@ function gelikon_order_numbers_table() {
 function gelikon_install_order_numbers() {
 	if (!gelikon_sequential_orders_enabled()) return;
 	global $wpdb;
-	if (get_option('gelikon_order_numbers_schema') === '2') {
+	if (get_option('gelikon_order_numbers_schema') === '3') {
 		return;
 	}
 	$table = gelikon_order_numbers_table();
@@ -26,8 +26,9 @@ function gelikon_install_order_numbers() {
 	dbDelta("CREATE TABLE $table (
 		order_id bigint(20) unsigned NOT NULL,
 		order_number bigint(20) unsigned NOT NULL,
-		next_number bigint(20) unsigned NOT NULL DEFAULT 10000,
+		next_number bigint(20) unsigned NOT NULL DEFAULT 20000,
 		legacy_max_id bigint(20) unsigned NOT NULL DEFAULT 0,
+		numbering_version int(10) unsigned NOT NULL DEFAULT 0,
 		PRIMARY KEY  (order_id),
 		UNIQUE KEY order_number (order_number)
 	) ENGINE=InnoDB " . $wpdb->get_charset_collate() . ';');
@@ -40,11 +41,27 @@ function gelikon_install_order_numbers() {
 	if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($hpos))) === $hpos) {
 		$cutover = max($cutover, (int) $wpdb->get_var("SELECT MAX(id) FROM $hpos"));
 	}
-	// A concurrent initializer must never overwrite the first cutoff/counter.
-	if ($wpdb->query($wpdb->prepare("INSERT IGNORE INTO $table (order_id, order_number, legacy_max_id) VALUES (0, 0, %d)", $cutover)) === false) {
-		throw new RuntimeException('Could not initialize Gelikon order numbers.');
+	// The migration marker lives in this same transaction, so two updaters cannot
+	// reset the counter or move the boundary after orders start using the new range.
+	if ($wpdb->query('START TRANSACTION') === false) throw new RuntimeException('Could not start order numbering migration.');
+	try {
+		if ($wpdb->query($wpdb->prepare("INSERT IGNORE INTO $table (order_id, order_number, next_number, legacy_max_id) VALUES (0, 0, 20000, %d)", $cutover)) === false) {
+			throw new RuntimeException('Could not initialize Gelikon order numbers.');
+		}
+		$counter = $wpdb->get_row("SELECT next_number, numbering_version FROM $table WHERE order_id = 0 FOR UPDATE");
+		if (!$counter) throw new RuntimeException('Order numbering counter is unavailable.');
+		if ((int)$counter->numbering_version < 3) {
+			$max_number = (int) $wpdb->get_var("SELECT MAX(order_number) FROM $table");
+			if ($wpdb->query($wpdb->prepare("UPDATE $table SET next_number = GREATEST(next_number, 20000, %d), legacy_max_id = GREATEST(legacy_max_id, %d), numbering_version = 3 WHERE order_id = 0", $max_number + 1, $cutover)) !== 1) {
+				throw new RuntimeException('Could not migrate order numbering to 20000.');
+			}
+		}
+		if ($wpdb->query('COMMIT') === false) throw new RuntimeException('Could not commit order numbering migration.');
+	} catch (Throwable $error) {
+		$wpdb->query('ROLLBACK');
+		throw $error;
 	}
-	update_option('gelikon_order_numbers_schema', '2', false);
+	update_option('gelikon_order_numbers_schema', '3', false);
 }
 add_action('init', 'gelikon_install_order_numbers', 5);
 
@@ -55,7 +72,7 @@ function gelikon_get_sequential_order_number($order_id) {
 	if (isset($numbers[$key])) {
 		return $numbers[$key];
 	}
-	if (get_option('gelikon_order_numbers_schema') !== '2' || !$order_id) {
+	if (!in_array(get_option('gelikon_order_numbers_schema'), array('2', '3'), true) || !$order_id) {
 		return '';
 	}
 	$number = (string) $wpdb->get_var($wpdb->prepare('SELECT order_number FROM ' . gelikon_order_numbers_table() . ' WHERE order_id = %d', $order_id));

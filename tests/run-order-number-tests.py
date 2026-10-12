@@ -18,6 +18,7 @@ for mode in ['cpt','hpos']:
   run('option','update','woocommerce_custom_orders_table_data_sync_enabled','no')
   run('option','update','woocommerce_custom_orders_table_enabled','yes')
  run('eval', "WC_Install::create_pages(); $order = wc_create_order(); $order->set_payment_method('tbank'); $order->save(); update_option('gelikon_test_legacy_order', $order->get_id()); $draft = new WC_Order(); $draft->set_status('checkout-draft'); $draft->save(); update_option('gelikon_test_legacy_draft', $draft->get_id());")
+ run('eval-file','/var/www/html/wp-content/themes/gelikon/tests/order-number-migration-fixture.php')
  run('theme','activate','gelikon')
  print(mode,run('eval-file','/var/www/html/wp-content/themes/gelikon/tests/order-numbers-integration.php'))
  # Concurrent processes all contend for the same counter row.
@@ -25,12 +26,12 @@ for mode in ['cpt','hpos']:
  with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
   results=list(pool.map(lambda _:run('eval',code),range(16)))
  numbers=[int(s.split('RESULT:')[1].strip()) for s in results]
- assert sorted(numbers)==list(range(10004,10020)),numbers
+ assert sorted(numbers)==list(range(20004,20020)),numbers
  # Concurrent retry of the same order must not consume further numbers.
  code="gelikon_assign_order_number((int)get_option('gelikon_test_parallel_order')); echo 'RESULT:' . gelikon_get_sequential_order_number((int)get_option('gelikon_test_parallel_order'));"
  with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
   results=list(pool.map(lambda _:run('eval',code),range(16)))
- assert all(s.split('RESULT:')[1].strip()=='10002' for s in results),results
- assert 'RESULT:10020' in run('eval',"echo 'RESULT:' . wc_create_order()->get_order_number();")
+ assert all(s.split('RESULT:')[1].strip()=='20002' for s in results),results
+ assert 'RESULT:20020' in run('eval',"echo 'RESULT:' . wc_create_order()->get_order_number();")
  print(mode+': PASS 16 parallel creations and 16 parallel retries, no duplicates or gaps')
  print('PREFIX:'+prefix)
