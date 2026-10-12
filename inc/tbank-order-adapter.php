@@ -83,6 +83,20 @@ function gelikon_tbank_token($fields, $secret) {
 }
 
 /** Use WordPress HTTP with TLS verification; the bundled client disables it. */
+class Gelikon_TBank_Request_Exception extends RuntimeException {
+	public $diagnostics;
+
+	public function __construct($message, $diagnostics) {
+		parent::__construct($message);
+		$this->diagnostics = $diagnostics;
+	}
+}
+
+function gelikon_tbank_diagnostic_text($text, $terminal, $secret, $token) {
+	$text = str_replace(array($terminal, $secret, htmlspecialchars_decode($secret, ENT_QUOTES), $token), '[redacted]', (string) $text);
+	return wp_html_excerpt(sanitize_text_field($text), 1000, '');
+}
+
 function gelikon_tbank_request($method, $fields, $gateway) {
 	$terminal = (string) $gateway->get_option('merchant_id');
 	$secret = (string) $gateway->get_option('secret_key');
@@ -91,6 +105,13 @@ function gelikon_tbank_request($method, $fields, $gateway) {
 	}
 	$fields['TerminalKey'] = $terminal;
 	$fields['Token'] = gelikon_tbank_token($fields, $secret);
+	$diagnostics = array(
+		'method' => $method,
+		'bank_order_id' => isset($fields['OrderId']) ? (string) $fields['OrderId'] : '',
+		'site_host' => wp_parse_url(home_url(), PHP_URL_HOST),
+		// Compare sites without revealing the actual terminal credentials.
+		'terminal_fingerprint' => substr(hash('sha256', $terminal), 0, 12),
+	);
 	$response = wp_remote_post('https://securepay.tinkoff.ru/v2/' . $method, array(
 		'headers' => array('Content-Type' => 'application/json'),
 		'body' => wp_json_encode($fields),
@@ -99,11 +120,20 @@ function gelikon_tbank_request($method, $fields, $gateway) {
 		'redirection' => 0,
 	));
 	if (is_wp_error($response)) {
-		throw new RuntimeException('T-Bank connection failed.');
+		$diagnostics['transport_error_code'] = $response->get_error_code();
+		$diagnostics['transport_error_message'] = gelikon_tbank_diagnostic_text($response->get_error_message(), $terminal, $secret, $fields['Token']);
+		throw new Gelikon_TBank_Request_Exception('T-Bank connection failed.', $diagnostics);
 	}
 	$data = json_decode(wp_remote_retrieve_body($response), true);
 	if (wp_remote_retrieve_response_code($response) !== 200 || !is_array($data) || ($data['Success'] ?? false) !== true) {
-		throw new RuntimeException('T-Bank did not accept the payment request.');
+		$diagnostics['http_status'] = wp_remote_retrieve_response_code($response);
+		$diagnostics['invalid_json'] = !is_array($data);
+		foreach (array('ErrorCode', 'Message', 'Details') as $name) {
+			if (isset($data[$name]) && is_scalar($data[$name])) {
+				$diagnostics['bank_' . $name] = gelikon_tbank_diagnostic_text($data[$name], $terminal, $secret, $fields['Token']);
+			}
+		}
+		throw new Gelikon_TBank_Request_Exception('T-Bank did not accept the payment request.', $diagnostics);
 	}
 	return $data;
 }
@@ -137,7 +167,11 @@ function gelikon_tbank_init_payment($order, $gateway) {
 }
 
 function gelikon_tbank_payment_error($order, $error) {
-	wc_get_logger()->error($error->getMessage(), array('source' => 'gelikon-tbank', 'order_id' => $order ? $order->get_id() : 0));
+	$context = array('source' => 'gelikon-tbank', 'order_id' => $order ? $order->get_id() : 0);
+	if ($error instanceof Gelikon_TBank_Request_Exception) {
+		$context = array_merge($context, $error->diagnostics);
+	}
+	wc_get_logger()->error($error->getMessage(), $context);
 	wc_add_notice(__('Не удалось создать платёж Т-Банка. Попробуйте ещё раз или выберите другой способ оплаты.', 'gelikon'), 'error');
 }
 
