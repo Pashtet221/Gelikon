@@ -154,4 +154,29 @@ $draft_id = $draft->get_id();
 $draft->delete(true);
 gelikon_test_assert((string)$wpdb->get_var($wpdb->prepare("SELECT order_number FROM $table WHERE order_id = %d", $draft_id)) === '10003', 'deleted order number remains reserved');
 update_option('gelikon_test_parallel_order', $third->get_id(), false);
-echo "PASS: 10000/10001; unchanged legacy IDs/numbers; admin, email, account, thank-you; signed HTTP Init bodies; valid/tampered/duplicate callbacks; transaction rollback; drafts.\n";
+$pause = function () { return false; };
+add_filter('gelikon_sequential_orders_enabled', $pause);
+$native = gelikon_test_order();
+gelikon_test_assert(gelikon_get_sequential_order_number($native->get_id()) === '', 'rollback does not assign new sequential numbers');
+gelikon_test_assert($native->get_order_number() === 'GL-' . $native->get_id(), 'rollback restores legacy display for new orders');
+gelikon_test_assert((int)$wpdb->get_var("SELECT next_number FROM $table WHERE order_id = 0") === 10004, 'rollback leaves counter intact');
+gelikon_test_assert(!gelikon_tbank_requires_adapter($native), 'new order routes to native gateway');
+gelikon_test_assert(!gelikon_tbank_requires_adapter($third), 'mapped order without a bank payment routes to native gateway');
+gelikon_test_assert($third->get_order_number() === '10002', 'existing assigned number preserved');
+$native_fields = SupportPaymentTBank::send_data($native, $native->get_id());
+gelikon_test_assert($native_fields['OrderId'] === (string)$native->get_id(), 'native bank OrderId uses internal ID');
+$native_gateway = new class extends WC_TBank {
+	public $receipts = array();
+	public function __construct() { $this->id = 'tbank'; }
+	public function receipt_page($id) { $this->receipts[] = $id; }
+};
+$saved_gateways = WC()->payment_gateways()->payment_gateways;
+WC()->payment_gateways()->payment_gateways = array($native_gateway);
+do_action('woocommerce_receipt_tbank', $native->get_id());
+do_action('woocommerce_receipt_tbank', $third->get_id());
+WC()->payment_gateways()->payment_gateways = $saved_gateways;
+gelikon_test_assert($native_gateway->receipts === array($native->get_id(), $third->get_id()), 'real receipt hook delegates native payments during rollback');
+gelikon_test_assert(gelikon_tbank_requires_adapter($first), 'already initialized sequential payment retains its adapter');
+gelikon_test_assert(gelikon_tbank_process_notification($request, $gateway) === true, 'existing sequential callback still works during rollback');
+remove_filter('gelikon_sequential_orders_enabled', $pause);
+echo "PASS: 10000/10001; unchanged legacy IDs/numbers; admin, email, account, thank-you; signed HTTP Init bodies; valid/tampered/duplicate callbacks; transaction rollback; drafts; paused numbering/native payment dispatch and preserved callbacks.\n";

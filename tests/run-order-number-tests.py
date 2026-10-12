@@ -5,7 +5,7 @@ parser.add_argument('--compose',default='/workspace/.gelikon-env/compose.yaml')
 compose=['docker','compose','-f',parser.parse_args().compose]
 for mode in ['cpt','hpos']:
  prefix='gelikon_test_'+mode[0]+uuid.uuid4().hex[:5]+'_'
- base=compose+['exec','-T','-e','WORDPRESS_TABLE_PREFIX='+prefix,'-e','WP_ENVIRONMENT_TYPE=local','wordpress','php','/opt/wp-cli.phar','--allow-root']
+ base=compose+['exec','-T','-e','WORDPRESS_TABLE_PREFIX='+prefix,'-e','WP_ENVIRONMENT_TYPE=local','-e','WORDPRESS_CONFIG_EXTRA=define("GELIKON_SEQUENTIAL_ORDERS_ENABLED", true);','wordpress','php','/opt/wp-cli.phar','--allow-root']
  def run(*args):
   r=subprocess.run(base+list(args),text=True,capture_output=True)
   if r.returncode:

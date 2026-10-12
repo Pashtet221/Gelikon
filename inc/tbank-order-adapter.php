@@ -141,13 +141,23 @@ function gelikon_tbank_payment_error($order, $error) {
 	wc_add_notice(__('Не удалось создать платёж Т-Банка. Попробуйте ещё раз или выберите другой способ оплаты.', 'gelikon'), 'error');
 }
 
+function gelikon_tbank_requires_adapter($order) {
+	if (gelikon_sequential_orders_enabled()) {
+		return gelikon_get_sequential_order_number($order->get_id()) !== '' || gelikon_order_requires_sequence($order->get_id());
+	}
+	// Preserve callbacks/payment identity for bank payments created before rollback.
+	if (gelikon_get_sequential_order_number($order->get_id()) === '') return false;
+	$order->read_meta_data(true);
+	return !empty($order->get_meta('_gelikon_tbank_payment_ids'));
+}
+
 function gelikon_tbank_receipt_page($order_id) {
 	$order = wc_get_order($order_id);
 	$gateway = gelikon_tbank_gateway();
 	if (!$order || !$gateway) {
 		return;
 	}
-	if (gelikon_get_sequential_order_number($order_id) === '' && !gelikon_order_requires_sequence($order_id)) {
+	if (!gelikon_tbank_requires_adapter($order)) {
 		// Preserve the native payment and callback flow for pre-cutover orders.
 		$gateway->receipt_page($order_id);
 		return;
@@ -175,7 +185,7 @@ function gelikon_tbank_receipt_page($order_id) {
 
 function gelikon_tbank_subscription_payment($amount, $order) {
 	$gateway = gelikon_tbank_gateway();
-	if (gelikon_get_sequential_order_number($order->get_id()) === '' && !gelikon_order_requires_sequence($order->get_id())) {
+	if (!gelikon_tbank_requires_adapter($order)) {
 		$gateway->scheduled_subscription_payment($amount, $order);
 		return;
 	}
