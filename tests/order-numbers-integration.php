@@ -170,7 +170,7 @@ $pause = function () { return false; };
 add_filter('gelikon_sequential_orders_enabled', $pause);
 $native = gelikon_test_order();
 gelikon_test_assert(gelikon_get_sequential_order_number($native->get_id()) === '', 'rollback does not assign new sequential numbers');
-gelikon_test_assert($native->get_order_number() === 'GL-' . $native->get_id(), 'rollback restores legacy display for new orders');
+gelikon_test_assert($native->get_order_number() === (string)$native->get_id(), 'rollback restores native display without prefix for new orders');
 gelikon_test_assert((int)$wpdb->get_var("SELECT next_number FROM $table WHERE order_id = 0") === 20004, 'rollback leaves counter intact');
 gelikon_test_assert(!gelikon_tbank_requires_adapter($native), 'new order routes to native gateway');
 gelikon_test_assert(!gelikon_tbank_requires_adapter($third), 'mapped order without a bank payment routes to native gateway');

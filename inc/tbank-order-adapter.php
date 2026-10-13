@@ -23,7 +23,7 @@ function gelikon_prefix_woocommerce_order_number($order_number, $order = null) {
 			throw new RuntimeException('New order number could not be reserved.');
 		}
 	}
-	return $number !== '' ? $number : gelikon_format_order_number($order_number);
+	return $number !== '' ? $number : (gelikon_sequential_orders_enabled() ? gelikon_format_order_number($order_number) : $order_number);
 }
 add_filter('woocommerce_order_number', 'gelikon_prefix_woocommerce_order_number', 10, 2);
 

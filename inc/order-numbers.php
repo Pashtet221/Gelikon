@@ -4,9 +4,9 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-/** Sequential numbering is enabled again, with a new one-time cutover at 20000. */
+/** Custom numbering stays off while troubleshooting the native payment flow. */
 function gelikon_sequential_orders_enabled() {
-	return (bool) apply_filters('gelikon_sequential_orders_enabled', !defined('GELIKON_SEQUENTIAL_ORDERS_ENABLED') || GELIKON_SEQUENTIAL_ORDERS_ENABLED);
+	return (bool) apply_filters('gelikon_sequential_orders_enabled', defined('GELIKON_SEQUENTIAL_ORDERS_ENABLED') && GELIKON_SEQUENTIAL_ORDERS_ENABLED);
 }
 
 function gelikon_order_numbers_table() {
