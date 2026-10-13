@@ -18,6 +18,7 @@ require_once GELIKON_DIR . '/inc/order-statuses.php';
 require_once GELIKON_DIR . '/inc/dadata.php';
 require_once GELIKON_DIR . '/inc/contacts.php';
 require_once GELIKON_DIR . '/inc/tbank-order-adapter.php';
+require_once GELIKON_DIR . '/inc/order-payment-flow.php';
 
 /**
  * Загружает изображения только перед их появлением в области просмотра.
