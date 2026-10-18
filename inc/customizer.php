@@ -112,6 +112,7 @@ function gelikon_customize_register($wp_customize) {
     $branding_fields = [
         'gelikon_header_phone'           => ['Телефон в шапке', '+7 (800) 444-68-67'],
         'gelikon_header_phone_secondary' => ['Доп. телефон в шапке', '+7 (495) 604-48-43'],
+        'gelikon_footer_phone'           => ['Телефон в подвале', '8 (800) 444-68-67'],
         'gelikon_promo_badge'            => ['Текст бейджа товара', 'Хит'],
     ];
 

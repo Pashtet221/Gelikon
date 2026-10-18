@@ -48,6 +48,8 @@ $privacy_url = gelikon_get_page_url_by_path('privacy-policy');
 $terms_url   = gelikon_get_page_url_by_path('user-agreement');
 $cookies_url = gelikon_get_page_url_by_path('cookies');
 $account_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('myaccount') : home_url('/my-account/');
+$footer_phone = trim((string) get_theme_mod('gelikon_footer_phone', '8 (800) 444-68-67'));
+$footer_phone_href = preg_replace('/[^\d\+]/', '', $footer_phone);
 ?>
 
 <footer class="gl-footer">
@@ -63,10 +65,12 @@ $account_url = function_exists('wc_get_page_permalink') ? wc_get_page_permalink(
                         <div class="gl-footer__brand-slogan"><?php echo esc_html(get_bloginfo('description')); ?></div>
                     <?php endif; ?>
 
+                    <?php if ($footer_phone !== '' && $footer_phone_href !== '') : ?>
                     <div class="gl-footer__phones">
-                        <a class="gl-footer__phone-main" href="tel:88004446867">8 (800) 444-68-67</a>
+                        <a class="gl-footer__phone-main" href="tel:<?php echo esc_attr($footer_phone_href); ?>"><?php echo esc_html($footer_phone); ?></a>
                         <p class="gl-footer__phone-note"><?php esc_html_e('Звонок бесплатный', 'gelikon'); ?></p>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
 
