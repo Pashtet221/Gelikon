@@ -1,0 +1,15 @@
+{
+  "name": "Gelikon",
+  "short_name": "Gelikon",
+  "icons": [
+    {
+      "src": "assets/img/favicons/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#12D457",
+  "background_color": "#f6f7f5",
+  "display": "standalone"
+}
